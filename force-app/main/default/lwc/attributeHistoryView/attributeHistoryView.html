@@ -1,0 +1,247 @@
+<template>
+    <div class="svmx-attribute-history_modal">
+        <c-modal-dialog title={templateItem.attributeName} class="svmx-attribute-history-listview-modal"
+            size="SMALL" is-open={historyViewModalOpen} modal-content-id="historyModalContent"
+            show-footer={isFromMobile}
+            modal-header-id="historyModalHeader" onmodalclosed={handleHistoryCancel} >
+            <div slot="header">
+                <lightning-layout horizontal-align="center">
+                    <lightning-layout-item size="11">
+                        <h2 id=historyModalHeader class="slds-modal__title slds-hyphenate">
+                            {templateItem.attributeName}
+                        </h2>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="1">
+                        <lightning-button-icon
+                            icon-name="utility:close"
+                            alternative-text={i18n.cancel}
+                            onclick={handleHistoryCancel}
+                            class="slds-modal__close slds-button_icon-inverse"
+                            icon-class="slds-button_icon-inverse"
+                        ></lightning-button-icon>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </div>
+            <div slot="body">
+                <div class="svmx-history-view">
+                    <template if:true={error}>
+                        <c-alert variant="error">{error}</c-alert>
+                    </template>
+                    <lightning-layout multiple-rows="true">
+                        <lightning-layout-item size="4" class="slds-p-top_medium">
+                            <h3 class="slds-truncate slds-text-title_bold" title={i18n.historicalValues}>{i18n.historicalValues}</h3>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="4">
+                            <lightning-combobox 
+                                data-field="showEntry"
+                                variant="label-hidden"
+                                class="svmx-ta-history-showentries"
+                                value={selectedEntry}
+                                options={entryOptions}
+                                onchange={handleChangeEntryOption}>
+                            </lightning-combobox>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="4" class="slds-text-align_right slds-p-right_large slds-p-top_small">
+                            <template if:true={isNumberType}>                                
+                                <template if:true={isTableView}>
+                                    <lightning-formatted-text class="svmx-table-text" value="Table"></lightning-formatted-text>
+                                    <a onclick={viewChartMode} data-value="Chart View"
+                                    class="svmx-attributes_chart_history slds-p-left_small">Chart</a>
+                                </template>
+                                <template if:false={isTableView}>
+                                    <a onclick={viewTableMode} data-value="Table View"
+                                        class="svmx-attributes_table_history">Table</a>
+                                    <lightning-formatted-text class="svmx-chart-text slds-p-left_small" value="Chart"></lightning-formatted-text>                                    
+                                </template>
+                            </template>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                    <div class="svmx-ta-history-table slds-p-top_xx-small slds-p-bottom_large">
+                        <div if:true={apiInProgress} class="slds-is-relative svmx-ta-spinner">
+                            <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium" style="padding-top:40%">
+                            </lightning-spinner>
+                        </div>
+                        <template if:true={isTableView}>
+                            <c-x-datatable
+                                class="svmx-ta-history-list-view_table"
+                                key-field="id"
+                                data={listViewRecords}
+                                columns={columns}
+                                hide-checkbox-column
+                                default-sort-direction={sortDirection}
+                                sorted-direction={sortDirection}
+                                sorted-by={sortBy}
+                                onsort={handleColumnSort}>
+                            </c-x-datatable>
+                        </template>
+                        <template if:false={noRecordsFound}>
+                            <template if:false={isTableView}>
+                                <template if:true={isNumberType}>
+                                    <div class="slds-p-top_large slds-grid slds-wrap slds-grid--pull-padded">
+                                        <div class="slds-col--padded slds-size--1-of-1">
+                                            <canvas class="linechart" lwc:dom="manual"></canvas>
+                                        </div>
+                                    </div>
+                                </template>
+                            </template>
+                        </template>
+                        
+                        <div if:true={noRecordsFound} class="slds-p-top_xx-large slds-align_absolute-center no-data">
+                            {i18n.noResults}
+                        </div>
+                    </div>
+                    <template if:false={templateItem.isReadOnly}>
+                        <div class="slds-p-top_medium slds-p-bottom_small">
+                            <div class="slds-grid slds-wrap  svmx-ta-attribute-value">
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <template if:true={isDateType}>
+                                            <lightning-input                            
+                                                class="svmx-ta-history_view-value svmx-ta_input-field"
+                                                label={i18n.newValue}
+                                                type="date"
+                                                data-field="value"
+                                                variant="label-stacked"
+                                                value={newValue}
+                                                read-only={templateItem.isReadOnly}
+                                                disabled={templateItem.isReadOnly}
+                                                message-when-bad-input={badInputMessage}
+                                                date-style="short"
+                                                autocomplete="false"
+                                                onchange={handleChange}                                
+                                            ></lightning-input>
+                                        </template>
+                                        <template if:true={isDateTimeType}>
+                                            <lightning-input
+                                                class="svmx-ta-history_view-value svmx-ta_input-field"
+                                                label={i18n.newValue}
+                                                type="datetime"
+                                                data-field="value"
+                                                variant="label-stacked"
+                                                value={newValue}
+                                                read-only={templateItem.isReadOnly}
+                                                disabled={templateItem.isReadOnly}
+                                                message-when-bad-input={badInputMessage}
+                                                date-style="short"
+                                                autocomplete="false"
+                                                onchange={handleChange}
+                                                timezone={i18n.timezone}
+                                            ></lightning-input>
+                                        </template>
+                                        <template if:true={isBooleanType}>
+                                            <span class="slds-form-element__label">
+                                                {i18n.newValue}
+                                            </span>
+                                            <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                                <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                    <div class="slds-form-element__static">
+                                                        <lightning-input
+                                                            type="checkbox"
+                                                            class="svmx-ta-history_view-value svmx-ta_input-field"
+                                                            data-field="value"
+                                                            checked={newValue}
+                                                            name="newValue"
+                                                            variant="label-hidden"
+                                                            read-only={templateItem.isReadOnly}
+                                                            disabled={templateItem.isReadOnly}
+                                                            onchange={handleChange}>
+                                                        </lightning-input>
+                                                    </div>
+                                                </span>
+                                            </div>
+                                        </template>
+                                        <template if:true={isTextType}>
+                                            <lightning-input
+                                                class="svmx-ta-history_view-value svmx-ta_input-field"
+                                                label={i18n.newValue}
+                                                type="text" 
+                                                variant="label-stacked"
+                                                value={newValue}
+                                                read-only={templateItem.isReadOnly}                              
+                                                data-field="value"
+                                                message-when-too-long={tooLongMessage}
+                                                onchange={handleChange}
+                                                max-length='255'>
+                                            </lightning-input>
+                                        </template>
+                                        <template if:true={isNumberType}>
+                                            <lightning-input
+                                                class="svmx-ta-history_view-value svmx-ta_input-field"
+                                                label={i18n.newValue}
+                                                type="number"
+                                                formatter="decimal"
+                                                step="0.0001"
+                                                message-when-step-mismatch={stepMismatchMessage}
+                                                autocomplete="off"
+                                                variant="label-stacked"
+                                                value={newValue}      
+                                                read-only={templateItem.isReadOnly}                        
+                                                data-field="value"
+                                                onchange={handleChange}>
+                                            </lightning-input>
+                                        </template>
+                                        <template if:true={isPicklistType}>
+                                            <template if:true={isFromMobile}>
+                                                <lightning-combobox
+                                                    read-only={templateItem.isReadOnly}
+                                                    required={templateItem.isRequired}
+                                                    variant="label-stacked"
+                                                    label={i18n.newValue}
+                                                    data-field="value"
+                                                    value={newValue}
+                                                    options={picklistOptions}
+                                                    onchange={handleChange}
+                                                    class="svmx-ta-history_view-value svmx-ta_input-field">
+                                                </lightning-combobox>
+                                            </template>
+                                            <template if:false={isFromMobile}>
+                                                <c-combobox
+                                                    read-only={templateItem.isReadOnly}
+                                                    required={templateItem.isRequired}
+                                                    variant="label-stacked"
+                                                    label={i18n.newValue}
+                                                    data-field="value"
+                                                    value={newValue}
+                                                    items={picklistOptions}
+                                                    onchange={handleChange}
+                                                    class="svmx-ta-history_view-value svmx-ta_input-field"
+                                                    filterable
+                                                ></c-combobox>
+                                            </template>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div class="slds-col slds-size_6-of-12 slds-p-top_small slds-p-horizontal--medium slds-m-bottom_medium"> 
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <span class="slds-form-element__label slds-p-top_small">
+                                            {templateItem.unit}
+                                        </span>
+                                        <template if:true={isNumberType}>
+                                            <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                                <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                    <div class="slds-form-element__static">
+                                                        {i18n.minimum}: {templateItem.minimumValue} / {i18n.maximum}: {templateItem.maximumValue}
+                                                    </div>
+                                                </span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                    onclick={handleHistoryCancel}
+                    class="slds-p-right_x-small svmx-ta-history_cancel-btn">
+                </lightning-button>
+                <lightning-button class="svmx-ta-history_save-btn" label="Update"
+                    title="Update" variant="brand" onclick={handleUpdate} disabled={disableUpdateBtn}>
+                </lightning-button>
+            </div>
+        </c-modal-dialog>
+    </div>
+</template>

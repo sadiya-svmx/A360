@@ -1,0 +1,22 @@
+.svmx-debug-console_container > h3:first-child {
+    border-top: 1px solid #dddbda;
+    border-left: 1px solid #dddbda;
+    border-right: 1px solid #dddbda;
+    border-top-left-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
+    background: var(--lwc-colorBackground,rgb(243, 242, 242));
+    font-weight: 700;
+}
+
+.svmx-debug-console_container > .svmx-box_override {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.svmx-debug-console_content-container > h3 {
+    background: var(--lwc-colorBackground,rgb(243, 242, 242));
+}
+
+.svmx-field_label {
+	color: #706E6B;
+}

@@ -1,0 +1,12 @@
+.svmx-ah-treetable .slds-table th:focus,
+.svmx-ah-treetable .slds-table th.slds-has-focus,
+.svmx-ah-treetable .slds-table [role=gridcell]:focus,
+.svmx-ah-treetable .slds-table [role=gridcell].slds-has-focus  {
+	box-shadow: none;
+}
+.svmx-ah-treetable .slds-table tr:focus,
+.svmx-ah-treetable .slds-table tr.slds-has-focus,
+.svmx-ah-treetable .slds-table [role=gridcell]:focus,
+.svmx-ah-treetable .slds-table [role=gridcell].slds-has-focus {
+	box-shadow: none;
+}

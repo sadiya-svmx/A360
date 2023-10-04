@@ -1,0 +1,40 @@
+<template>
+    <div class="container">
+        <template if:false={hideLabel}>
+        <div class="slds-p-bottom_xx-small"><strong>{label}</strong></div>
+        </template>
+        <lightning-input
+            type="search"
+            autocomplete="off"
+            placeholder={i18n.searchPlaceholder}
+            variant="label-hidden"
+            class="slds-size_small search-input"
+            onchange={handleSearchKeyChange}
+        ></lightning-input>
+        <lightning-dual-listbox
+            label={i18n.listBoxLabel}
+            source-label={i18n.sourceLabel}
+            selected-label={i18n.selectedLabel}
+            onchange={handleChange}
+            options={availableProfileOptions}
+            show-activity-indicator={showLoadingIndicator}
+            value={value}
+            variant="label-hidden"
+            disable-reordering
+        >
+        </lightning-dual-listbox>
+        <template if:true={hasPreviouslyAssignedProfiles}>
+            <h4>{i18n.assignedToAnotherConfiguration}</h4>
+        </template>
+        <template if:true={error}>
+            <div
+                id="help-text"
+                data-help-text
+                class="slds-form-element__help"
+                aria-live="assertive"
+            >
+                {error}
+            </div>
+        </template>
+    </div>
+</template>

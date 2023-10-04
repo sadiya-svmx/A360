@@ -1,0 +1,27 @@
+<template>
+    <template if:true={isOpen}>
+        <section
+            role="dialog"
+            tabindex="-1"
+            aria-labelledby={modalHeaderId}
+            aria-modal="true"
+            aria-describedby={modalContentId}
+            class={modalStyle}
+        >
+            <div class={computedClassForRelativeRendering}>
+                <header class={modalHeaderStyle}>
+                    <slot name="header"></slot>
+                </header>
+                <div class={modalSectionStyle} id={modalContentId}>
+                    <slot name="body"></slot>
+                </div>
+                <template if:true={showFooter} >
+                    <footer class="slds-modal__footer">
+                        <slot name="footer"></slot>
+                    </footer>
+                </template>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

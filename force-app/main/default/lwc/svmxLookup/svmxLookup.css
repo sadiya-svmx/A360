@@ -1,0 +1,37 @@
+.svmx-lookup_selection {
+    width: 100%;
+}
+
+.svmx-lookup_selection .slds-pill,
+.svmx-lookup_selection .slds-pill__label {
+    width: 100%;
+}
+
+.svmx-lookup_selection_disabled,
+.svmx-lookup_selection_disabled .slds-pill {
+    background-color: var(--lwc-colorBackgroundInputDisabled, rgb(236, 235, 234));
+}
+
+.svmx-lookup_help-icon {
+    /* Reason for negative margin-top - Bydefault, 0.25rem top padding gets added to the help icon due to which icon is not aligned with the text.*/
+    margin-top: -4px;
+    margin-left: 2px;
+    position: absolute;
+}
+
+.svmx-lookup_popover {
+    display: flex;
+    flex-direction: row;
+}
+
+.svmx-dropdown {
+    position: fixed;
+    inset: 0px auto auto 0px;
+    transform: translate(var(--svmx-dropdown-transformLeft, 0px),var(--svmx-dropdown-transformTop, 0px));
+    width: 100%;
+}
+
+.svmx-button_multiadd-item {
+    margin-bottom: 5px;
+    margin-left: 5px;
+}

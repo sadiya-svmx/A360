@@ -1,0 +1,6 @@
+.svmx-contract-price-line-item-plans-list-view_text-search .slds-input {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

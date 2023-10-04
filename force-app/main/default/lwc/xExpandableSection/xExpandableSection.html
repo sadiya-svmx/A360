@@ -1,0 +1,30 @@
+<template>
+    <div class={sectionClasses}>
+        <template if:false={disableExpandable}>
+            <h3 class="slds-section__title" style={headerStyleOverride}>
+                <button aria-controls="expando-unique-id" aria-expanded={isExpanded}
+                    class={computeHeaderSectionClass} onclick={handleExpand}>
+                    <template if:false={isEmptyContent}>
+                        <lightning-icon
+                            class="slds-section__title-action-icon slds-button__icon slds-button__icon_left svmx-expandable-section_icon"
+                            icon-name="utility:switch" size="xx-small"></lightning-icon>
+                    </template>
+                    <template if:true={title}>
+                        <template if:true={showExpandedSectionPopover}>
+                            <span class="slds-truncate showpopover" title={title} onmouseover={showSectionPopover} onmouseout={hideSectionPopover} data-sectionid={sectionId}>{title}</span>
+                        </template>
+                        <template if:false={showExpandedSectionPopover}>
+                            <span class="slds-truncate" title={title}>{title}</span>
+                        </template>
+                    </template>
+                    <slot name="header"></slot>
+                </button>
+            </h3>
+        </template>
+        <template if:false={isEmptyContent}>
+            <div aria-hidden={isCollapsed} class={computeSectionClassName} id="expando-unique-id">
+                <slot></slot>
+            </div>
+        </template>
+    </div>
+</template>

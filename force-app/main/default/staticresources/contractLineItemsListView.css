@@ -1,0 +1,75 @@
+.svmx-contract-line-item-list-view_text-search .slds-input {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.svmx-input-warning .slds-input {
+    background-color: var(--lwc-colorBackgroundInput,rgb(255, 255, 255));
+    border-color: var(--lwc-colorBorderWarning,rgb(255, 183, 93));
+    box-shadow: var(--lwc-colorBorderWarning,rgb(255, 183, 93)) 0 0 0 var(--lwc-borderWidthThin,1px) inset;
+    background-clip: padding-box;
+}
+
+.svmx-attribute-input .slds-form-element__help {
+    margin-left: auto !important;
+}
+.svmx-attribute-field .slds-form-element__label {
+    max-width: calc(50% - var(--lwc-squareIconUtilityMedium,1.25rem));
+    flex-basis: calc(50% - var(--lwc-squareIconUtilityMedium,1.25rem));
+}
+.svmx-attribute-field .slds-form-element__control {
+    padding-left: 50%;
+    clear: none;
+}
+
+.svmx-attribute-field .slds-form-element_horizontal .slds-input-has-icon_left-right .slds-input__icon_left {
+    left: calc(0% + var(--lwc-spacingSmall,0.75rem));
+}
+
+.svmx-template-section .slds-section {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.svmx-checkbox-attribute abbr {
+    display: none !important;
+}
+
+.svmx-historyDatatable .slds-table .slds-th__action .slds-truncate {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: unset;
+    white-space: pre-line;
+}
+
+.svmx-historyDatatable .slds-table .slds-th__action  {
+    height: 35px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-weight: normal;
+}
+
+.svmx-historyDatatable .slds-button{
+    color: black;
+}
+
+.svmx-historyDatatable .slds-button:active{
+    border: none;
+}
+
+.svmx-historyDatatable-outOfBoundValue {
+    color:#e06000;
+}
+
+.svmx-historyDatatable-inBoundValue {
+    color: black;
+}
+
+.svmx-attributehistory-helptext .slds-form-element__icon{
+    padding-top: unset !important;
+}
+
+
+
+

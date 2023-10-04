@@ -1,0 +1,139 @@
+<template>
+    <div class={dockedFormFooterClassList}>
+
+        <template if:true={showMarkAsComplete}>
+            <section class="slds-is-relative slds-grid" style="margin-top: 5px;">
+                <lightning-input
+                    name="mark"
+                    label={i18n.markAsComplete}
+                    type="checkbox" 
+                    checked={getMarkAsComplete}
+                    onchange={handleStepCompleteChange} 
+                ></lightning-input>
+                <button 
+                    class="slds-button slds-button_icon slds-cell-edit__button" 
+                    tabindex="-1" 
+                    title="info"
+                    onmouseover={handleMouseOver} 
+                    onmouseout={handleMouseOut}>
+                    <svg class="slds-button__icon slds-button__icon_hint slds-button__icon_edit" aria-hidden="true">
+                        <use xlink:href="/_slds//icons/utility-sprite/svg/symbols.svg#info"></use>
+                    </svg>
+                    <span class="slds-assistive-text">"edit"</span>
+                </button>
+                <template if:true={_showToolTip}>
+                    <div class="svmx-expression_tooltip 
+                        slds-popover 
+                        slds-popover_tooltip
+                        slds-nubbin_bottom-left" role="tooltip">
+                        <div class="slds-popover__body slds-p-vertical_xx-small">
+                            {i18n.tooltip}
+                        </div>
+                    </div>
+                </template>
+            </section>
+        </template>
+
+        <!-- Error Display Icon -->
+        <template if:true={hasError}>
+            <lightning-button-icon
+                icon-name="utility:error"
+                alternative-text={errorAriaHelp}
+                title={errorAriaHelp}
+                class="svmx-form-footer_error-icon slds-button_icon-error slds-m-left_xx-small slds-m-right_xx-small"
+                icon-class="slds-button__icon_large slds-text-color_destructive"
+                onclick={handleErrorIconClick}
+                variant="bare"
+            ></lightning-button-icon>
+        </template>
+
+        <!-- Custom Footer Buttons Slot -->
+        <slot onslotchange={handleSlotChange}></slot>
+
+        <!-- Default Content - Shown if slot is unused -->
+        <template if:false={_hasSlot}>
+            <!-- Standard Confirm/Cancel Style Footer -->
+            <lightning-button
+                variant="neutral"
+                label={cancelLabel}
+                title={cancelAriaHelp}
+                onclick={handleCancel}
+                class="svmx-form-footer_cancel-button slds-m-left_xx-small slds-m-right_xx-small"
+            ></lightning-button>
+
+            <template if:false={isConfirmHidden}>
+                <lightning-button
+                    variant="brand"
+                    label={confirmLabel}
+                    title={confirmAriaHelp}
+                    onclick={handleConfirm}
+                    disabled={isConfirmDisabled}
+                    class="svmx-form-footer_confirm-button slds-m-left_xx-small slds-m-right_xx-small"
+                ></lightning-button>
+            </template>
+        </template>
+
+        <!-- Error Popover -->
+        <!-- TODO: A360ENG-24 - Strip this out into a re-usable component with
+            configurable anchor-point -->
+        <template if:true={_showErrorPopover}>
+            <section
+                aria-describedby={ariaErrorPopoverBodyId}
+                aria-labelledby={ariaErrorPopoverHeadingId}
+                class={popoverClassList}
+                role="dialog"
+                style="
+                    position: absolute;
+                    bottom: 4em;
+                    margin-left: 9em;
+                "
+            >
+                <lightning-button-icon
+                    class="svmx-form-footer_error-popover-close slds-float_right slds-popover__close"
+                    icon-class="slds-icon-text-light"
+                    icon-name="utility:close"
+                    aria-controls="modal"
+                    size="medium"
+                    variant="bare"
+                    onclick={handleErrorPopoverHide}
+                ></lightning-button-icon>
+                <header class="slds-popover__header">
+                    <div
+                        class="slds-media slds-media_center slds-has-flexi-truncate"
+                    >
+                        <div class="slds-media__figure">
+                            <lightning-icon
+                                icon-name="utility:error"
+                                size="small"
+                                variant="bare"
+                                alternative-text={errorAriaHelp}
+                            ></lightning-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <h2
+                                class="slds-truncate slds-text-heading_medium"
+                                id={ariaErrorPopoverHeadingId}
+                                title={errorHeader}
+                            >
+                                {errorHeader}
+                            </h2>
+                        </div>
+                    </div>
+                </header>
+                <div
+                    class="svmx-form-footer_error-popover-body slds-popover__body"
+                    id={ariaErrorPopoverBodyId}
+                >
+                    <template
+                        for:each={errors}
+                        for:item="error"
+                    >
+                        <p key={error.id}>
+                            {error.message}
+                        </p>
+                    </template>
+                </div>
+            </section>
+        </template>
+    </div>
+</template>

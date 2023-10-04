@@ -1,0 +1,12 @@
+<aura:component implements="lightning:isUrlAddressable">
+    <lightning:unsavedChanges
+        aura:id="unsaved"
+        onsave="{!c.handleSave}"
+        ondiscard="{!c.handleDiscard}"
+    />
+    <c:wizardAdminDetail
+        aura:id="wizardDetail"
+        onwizarddatachanged="{!c.handleDataChange}"
+        onwizarddatasaved="{!c.handleDataSave}"
+    />
+</aura:component>

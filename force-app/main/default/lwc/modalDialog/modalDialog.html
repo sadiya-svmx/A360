@@ -1,0 +1,52 @@
+<template>
+    <template if:true={isOpen}>
+        <section
+            role="dialog"
+            tabindex="-1"
+            aria-labelledby={modalHeaderId}
+            aria-modal="true"
+            aria-describedby={modalContentId}
+            class={modalStyle}
+        >
+            <div class={computedClassForRelativeRendering}>
+                <header if:false={hasTitle} class="modal-header slds-modal__header slds-modal__header--empty">
+                    <lightning-button-icon
+                        icon-name="utility:close"
+                        onclick={handleClose}
+                        alternative-text="close"
+                        variant="bare-inverse"
+                        class="slds-modal__close" >
+                    </lightning-button-icon>
+                </header>
+                <header if:true={hasTitle} class="slds-modal__header">
+                    <lightning-layout horizontal-align="center">
+                        <lightning-layout-item size="11">
+                            <h2
+                                id={modalHeaderId}
+                                class="slds-modal__title slds-hyphenate"
+                            >
+                                {title}
+                            </h2>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="1">
+                            <lightning-button-icon
+                                icon-name="utility:close"
+                                alternative-text={i18n.closeAltText}
+                                onclick={handleClose}
+                                class={closeButtonStyle}
+                                icon-class="slds-button_icon-inverse"
+                            ></lightning-button-icon>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </header>
+                <div class={modalSectionStyle} id={modalContentId}>
+                    <slot name="body"></slot>
+                </div>
+                <footer if:false={noFooter} class="slds-modal__footer">
+                    <slot name="footer"></slot>
+                </footer>
+            </div>
+        </section>
+        <div class={backdropStyle}></div>
+    </template>
+</template>

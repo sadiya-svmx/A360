@@ -1,0 +1,269 @@
+<template>
+    <lightning-layout-item flexibility="grow">
+        <div class="slds-card">
+            <div class="slds-page-header">
+                <div class="slds-page-header__row">
+                    <div class="slds-page-header__col-title">
+                        <div class="slds-media">
+                            <div class="slds-media__figure">
+                                <lightning-icon src={iconName} size="large" alternative-text={i18n.titleDepotManagement}
+                                    title={i18n.titleDepotManagement}>
+                                </lightning-icon>
+                            </div>
+                            <div class="slds-media__body">
+                                <div class="slds-page-header__name">
+                                    <div class="slds-page-header__name-title">
+                                        <h1>
+                                            <span>{i18n.titleDepotManagement}</span>
+                                            <span class="slds-page-header__title"
+                                                title={i18n.titleSetting}>{i18n.titleSetting}</span>
+                                        </h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-page-header__col-actions">
+                        <div class="slds-page-header__controls">
+                            <div class="slds-page-header__control">
+                                <ul class="slds-button-group-list">
+                                    <template if:false={editMode}>
+                                        <li>
+                                            <lightning-button label={i18n.btnEdit} title={i18n.btnEdit}
+                                                onclick={handleEdit} class="svmx-modal_edit-btn slds-var-p-right_x-small"></lightning-button>
+                                                <lightning-button-icon
+                                                icon-name="utility:help"
+                                                variant="bare"
+                                                alternative-text={i18n.help}
+                                                title={i18n.help}
+                                                onclick={handleHelpClick}
+                                                class="svmx-help-link-button slds-m-left_x-small"
+                                            ></lightning-button-icon>
+                                        </li>
+                                    </template>
+                                    <template if:true={editMode}>
+                                        <li>
+                                            <lightning-button label={i18n.btnCancel} class="slds-var-p-right_x-small"
+                                                title={i18n.btnCancel} onclick={handleCancel}></lightning-button>
+                                            <lightning-button label={i18n.btnSave} class="slds-var-p-right_x-small"
+                                                variant="brand" title={i18n.btnSave} onclick={handleSave}>
+                                            </lightning-button>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <template if:true={apiInProgress}>
+            <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+        </template>
+        <div class="slds-card">
+            <div class="slds-card__body slds-card__body_inner">
+                <div class="slds-form" role="list">
+                    <c-x-expandable-section title={i18n.secDepotSettings}>
+                        <div class="slds-form__row">
+                            <div class="slds-form__item">
+                                <div
+                                    class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent">
+                                    <div class="slds-form-element__control">
+                                        <template if:false={editMode}>
+                                            <span class="slds-form-element__label">{i18n.lblEnableDepotLocator}</span>
+                                            <div class="slds-form-element__static">
+                                                <template if:false={isDepotFinder}>
+                                                    {i18n.lblNo}
+                                                </template>
+                                                <template if:true={isDepotFinder}>
+                                                    {i18n.lblYes}
+                                                </template>
+                                            </div>
+                                            <lightning-layout-item flexibility="auto"
+                                                class="slds-text-align_right action-col">
+                                                <lightning-button-icon icon-name="utility:edit" variant="bare"
+                                                    size="medium" alternative-text={i18n.btnEdit} title={i18n.btnEdit}
+                                                    onclick={handleEdit}></lightning-button-icon>
+                                            </lightning-layout-item>
+                                        </template>
+                                        <template if:true={editMode}>
+                                            <lightning-input label={i18n.lblEnableDepotLocator} type="checkbox"
+                                                checked={isDepotFinder} onchange={handleEnableDepotLocator}>
+                                            </lightning-input>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </c-x-expandable-section>
+                    <template if:true={isDepotFinder}>
+                        <c-x-expandable-section title={i18n.secMatchSettings}>
+                            <div class="slds-form__row">
+                                <div class="slds-form__item">
+                                    <div
+                                        class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent">
+                                        <div class="slds-form-element__control">
+                                            <template if:false={editMode}>
+                                                <span class="slds-form-element__label">{i18n.lblProductFamilyMatch}
+                                                </span>
+                                                <div class="slds-form-element__static">
+                                                    <template if:false={isProductFamilyMatch}>
+                                                        {i18n.lblNo}
+                                                    </template>
+                                                    <template if:true={isProductFamilyMatch}>
+                                                        {i18n.lblYes}
+                                                    </template>
+                                                </div>
+                                                <lightning-layout-item flexibility="auto"
+                                                    class="slds-text-align_right action-col">
+                                                    <lightning-button-icon icon-name="utility:edit" variant="bare"
+                                                        size="medium" alternative-text={i18n.btnEdit}
+                                                        title={i18n.btnEdit} onclick={handleEdit}>
+                                                    </lightning-button-icon>
+                                                </lightning-layout-item>
+                                            </template>
+                                            <template if:true={editMode}>
+                                                <lightning-input label={i18n.lblProductFamilyMatch} type="checkbox"
+                                                    checked={isProductFamilyMatch} onchange={handleProductFamilyMatch}>
+                                                </lightning-input>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-form__row">
+                                <div class="slds-form__item">
+                                    <div class="slds-form-element slds-form-element_edit slds-form-element_readonly 
+                                        slds-is-editing slds-form-element_stacked slds-hint-parent">
+                                        <div class="slds-form-element__control">
+                                            <template if:false={editMode}>
+                                                <span class="slds-form-element__label">{i18n.lblKeyMatch}</span>
+                                                <div class="slds-form-element__static">
+                                                    <template if:false={isKeyMatch}>
+                                                        {i18n.lblNo}
+                                                    </template>
+                                                    <template if:true={isKeyMatch}>
+                                                        {i18n.lblYes}
+                                                    </template>
+                                                </div>
+                                                <lightning-layout-item flexibility="auto"
+                                                    class="slds-text-align_right action-col">
+                                                    <lightning-button-icon icon-name="utility:edit" variant="bare"
+                                                        size="medium" alternative-text={i18n.btnEdit}
+                                                        title={i18n.btnEdit} onclick={handleEdit}>
+                                                    </lightning-button-icon>
+                                                </lightning-layout-item>
+                                            </template>
+                                            <template if:true={editMode}>
+                                                <lightning-input label={i18n.lblKeyMatch} type="checkbox"
+                                                    checked={isKeyMatch} onchange={handleKeyMatch}>
+                                                </lightning-input>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <template if:true={isKeyMatch}>
+                                <div class="slds-form__row">
+                                    <div class="slds-form__item">
+                                        <div
+                                            class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent">
+                                            <div class="slds-form-element__control">
+                                                <template if:false={editMode}>
+                                                    <span
+                                                        class="slds-form-element__label">{i18n.lblLocationServicesKey}</span>
+                                                    <div class="slds-form-element__static">
+                                                        {locationServiceFieldLabelName}
+                                                    </div>
+                                                    <lightning-layout-item flexibility="auto"
+                                                        class="slds-text-align_right action-col">
+                                                        <lightning-button-icon icon-name="utility:edit" variant="bare"
+                                                            size="medium" alternative-text={i18n.btnEdit}
+                                                            title={i18n.btnEdit} onclick={handleEdit}>
+                                                        </lightning-button-icon>
+                                                    </lightning-layout-item>
+                                                </template>
+                                                <template if:true={editMode}>
+                                                    <lightning-combobox label={i18n.lblLocationServicesKey}
+                                                        value={locationServiceFieldAPIName} placeholder={i18n.lblNotSet}
+                                                        options={locationServicesFieldOptions}
+                                                        onchange={handleLocationFieldChange}>
+                                                    </lightning-combobox>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="slds-form__row">
+                                    <div class="slds-form__item">
+                                        <div
+                                            class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent">
+                                            <div class="slds-form-element__control">
+                                                <template if:false={editMode}>
+                                                    <span class="slds-form-element__label">{i18n.lblKeySearchOnSource}
+                                                    </span>
+                                                    <div class="slds-form-element__static">
+                                                        {sourceFieldLabelName}
+                                                    </div>
+                                                    <lightning-layout-item flexibility="auto"
+                                                        class="slds-text-align_right action-col">
+                                                        <lightning-button-icon icon-name="utility:edit" variant="bare"
+                                                            size="medium" alternative-text={i18n.btnEdit}
+                                                            title={i18n.btnEdit} onclick={handleEdit}>
+                                                        </lightning-button-icon>
+                                                    </lightning-layout-item>
+                                                </template>
+                                                <template if:true={editMode}>
+                                                    <lightning-combobox label={i18n.lblKeySearchOnSource}
+                                                        value={sourceFieldAPIName} placeholder={i18n.lblNotSet}
+                                                        options={sourceObjectFieldOptions}
+                                                        onchange={handleSourceFieldChange}>
+                                                    </lightning-combobox>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                            <div class="slds-form__row">
+                                <div class="slds-form__item">
+                                    <div
+                                        class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent">
+                                        <div class="slds-form-element__control">
+                                            <template if:false={editMode}>
+                                                <span class="slds-form-element__label">{i18n.lblMapping}</span>
+                                                <div class="slds-form-element__static">
+                                                    {objectMappingLabel}
+                                                </div>
+                                                <lightning-layout-item flexibility="auto"
+                                                    class="slds-text-align_right action-col">
+                                                    <lightning-button-icon icon-name="utility:edit" variant="bare"
+                                                        size="medium" alternative-text={i18n.btnEdit}
+                                                        title={i18n.btnEdit} onclick={handleEdit}>
+                                                    </lightning-button-icon>
+                                                </lightning-layout-item>
+                                            </template>
+                                            <template if:true={editMode}>
+                                                <div class="slds-form-element__label fullwidth">
+                                                    {i18n.lblMapping}
+                                                    <a class="slds-float_right slds-text-link" href="#"
+                                                        onclick={handleCreateMapping}>
+                                                        {i18n.lblNewMapping}
+                                                    </a>
+                                                </div>
+                                                <lightning-combobox label={i18n.lblMapping} value={objectMapping}
+                                                    placeholder={i18n.lblNotSet} options={objectMappingOptions}
+                                                    onchange={handleMappingChange} variant="label-hidden">
+                                                </lightning-combobox>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </c-x-expandable-section>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </lightning-layout-item>
+</template>

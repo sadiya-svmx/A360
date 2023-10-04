@@ -1,0 +1,8 @@
+.svmx-action-property_form .slds-form-element__label {
+    max-width: calc(90% - var(--lwc-squareIconUtilityMedium,1.25rem));
+    flex-basis: calc(90% - var(--lwc-squareIconUtilityMedium,1.25rem));
+}
+.svmx-action-property_form .slds-form-element__control {
+    padding-left: 90%;
+    clear: none;
+}

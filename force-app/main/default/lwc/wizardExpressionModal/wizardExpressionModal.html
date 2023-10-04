@@ -1,0 +1,63 @@
+<template>
+    <c-modal-dialog
+        title={title}
+        is-open={modalOpen}
+        size="small"
+        modal-content-id="expressionContent"
+        modal-header-id="expressionHeader"
+        onmodalclosed={handleCancelModal}
+    >
+        <div slot="body">
+            <template if:true={error}>
+                <c-alert variant="error">{error}</c-alert>
+            </template>
+            <div class="slds-box slds-theme_shade">
+                <div
+                    class="slds-grid slds-grid_vertical-align-center slds-p-bottom_x-small"
+                >
+                    <div class="slds-col slds-size_1-of-2 slds-text-heading_small slds-truncate slds-p-right_xx-small svmx-name" title={expressionName}>
+                        {expressionName}
+                    </div>
+                    <div class="slds-col slds-size_1-of-2 slds-truncate svmx-developer-name" title={expressionDeveloperName}>
+                        {expressionDeveloperName}
+                    </div>
+                </div>
+                <div
+                    class="slds-truncate action-text svmx-description"
+                    title={expressionDescription}
+                >
+                    {expressionDescription}
+                </div>
+                <div class="slds-clearfix">
+                    <div class="slds-float_right">
+                        <lightning-button
+                            class="svmx-edit-expression-button"
+                            variant="base"
+                            label={i18n.editExpression}
+                            title={i18n.editExpression}
+                            onclick={handleEditExpressionClick}
+                        ></lightning-button>
+                    </div>
+                </div>
+                <div class="slds-box slds-theme_default">
+                    <c-expression-builder
+                        expression-data={expressionRecord}
+                        entity-definition={expressionEntityDefinition}
+                        edit-mode={expressionEditable}
+                        edit-mode-type="read"
+                    >
+                    </c-expression-builder>
+                </div>
+            </div>
+        </div>
+        <div slot="footer">
+            <lightning-button
+                label={i18n.ok}
+                title={i18n.ok}
+                variant="brand"
+                class="slds-align_absolute-center svmx-ok-button"
+                onclick={handleCancelModal}
+            ></lightning-button>
+        </div>
+    </c-modal-dialog>
+</template>

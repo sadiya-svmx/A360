@@ -1,0 +1,37 @@
+<aura:component implements="lightning:hasPageReference,force:appHostable,lightning:isUrlAddressable" 
+    controller="ADM_ProcessWizardComponent_LS">
+    <lightning:workspaceAPI aura:id="workspace" />
+    <lightning:navigation aura:id="navService" />
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+    <aura:handler name="change" value="{!v.uid}" action="{!c.init}" />
+    <aura:attribute name="objRecordId" type="String" />
+    <aura:attribute name="actionName" type="String" />
+    <aura:attribute name="mapping" type="String" />
+    <aura:attribute name="actionType" type="String" />
+    <aura:attribute name="stepName" type="String" />
+    <aura:attribute name="stepId" type="String" />
+    <aura:attribute name="objectApiName" type="String" />
+    <aura:attribute name="uniqueStepGuid" type="String" />
+    <aura:attribute name="isTrackingOn" type="Boolean" />
+    <aura:attribute name="stepIcon" type="String" />
+    <aura:attribute name="redirectRecordId" type="String" />
+    <aura:attribute name="uid" type="String" />
+    <aura:attribute name="isInModal" type="Boolean" />
+    <aura:attribute name="showError" type="Boolean" />
+    <aura:attribute name="errorMessage" type="Boolean" />
+    <aura:attribute name="stepComplete" type="Boolean" />
+    <aura:attribute name="stepCompletionEnabled" type="Boolean" default="false" />
+    <aura:attribute name="onStatusChange" type="Aura.action" />
+    <aura:method name="destroyComponent" action="{!c.destroyComponent}" />
+    <aura:registerEvent name="flowStatusEvent" type="c:SvmxFlowStatusEvent" />
+    <article class="slds-card" style="{!$Browser.formFactor != 'DESKTOP' ? 'border: none': ''}">
+        <aura:if isTrue="{!v.errorMessage}">
+            <div class="slds-text-color_error">
+                {!v.errorMessage}
+            </div>
+        </aura:if>
+        <div>
+            {!v.body}
+        </div>
+    </article>
+</aura:component>

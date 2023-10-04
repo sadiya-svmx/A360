@@ -1,0 +1,404 @@
+<template>
+    <c-admin-layout>
+        <div class="svmx-hierarchy-config-container">
+            <lightning-layout>
+                <lightning-layout-item flexibility="grow">
+                    <div class="slds-card">
+                        <c-svmx-page-header 
+                            title={i18n.hierarchy}
+                            icon-name={srcIconName}  
+                            sub-title={i18n.pageHeader}
+                            icon-title={i18n.hierarchy}
+                            icon-size={iconSize}
+                            is-object-home = "Object">
+                            <div class="slds-page-header__control" slot="actions">   
+                                <lightning-button-group>                                
+                                    <lightning-button
+                                            class="svmx-hierarchy-config_cancel-btn"
+                                            label={i18n.cancel}
+                                            title={i18n.cancel}
+                                            value={i18n.cancel}
+                                            onclick={handleCancel}
+                                        ></lightning-button>
+                                        <lightning-button
+                                            variant="brand"
+                                            class="svmx-hierarchy-config_save-btn"
+                                            label={i18n.save}
+                                            title={i18n.save}
+                                            onclick={handleSave}
+                                        ></lightning-button>
+                                </lightning-button-group>
+                            </div>
+                        </c-svmx-page-header>
+
+                        <lightning-card class="slds-grid slds-grid_vertical slds-scrollable_y">
+                            <div class="slds-card__body slds-card__body_inner">
+                                <template if:true={error}>
+                                    <c-alert variant="error">
+                                        {error}
+                                    </c-alert>
+                                </template>
+                                <template if:false={clearStateNeeded}>
+                                    <c-x-expandable-section title={i18n.generalInfoSection}>
+                                        <div class="slds-form__row">
+                                            <div class="slds-hierarchy-config_form-item" role="listitem" >
+                                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                    <lightning-input
+                                                        class="svmx-hierarchy-config_input-field svmx-hierarchy-config_name-input"
+                                                        type="text"
+                                                        data-field="name"
+                                                        title={i18n.hierarchyName}
+                                                        label={i18n.hierarchyName}
+                                                        value={recordInfo.name}
+                                                        onchange={handleFormInputChange}
+                                                        max-length="80" 
+                                                        oncommit={handleNameCommit}
+                                                        required
+                                                    ></lightning-input>
+                                                </div>
+                                            </div>
+                                            <div class="slds-hierarchy-config_form-item" role="listitem">
+                                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                    <lightning-textarea 
+                                                        title={i18n.description}
+                                                        label={i18n.description}
+                                                        data-field="description" 
+                                                        value={recordInfo.description}
+                                                        onchange={handleFormInputChange}
+                                                        class="svmx-hierarchy-config_input-field svmx-hierarchy-config_description-input"
+                                                    ></lightning-textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-form__row">
+                                            <div class="slds-hierarchy-config_form-item" role="listitem">
+                                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                    <lightning-input
+                                                        class="svmx-hierarchy-config_input-field svmx-hierarchy-config_developer-name-input"
+                                                        type="text" 
+                                                        title={i18n.developerName}
+                                                        name="developerName"
+                                                        data-field="developerName"
+                                                        label={i18n.developerName}
+                                                        value={recordInfo.developerName}
+                                                        max-length="40"
+                                                        onchange={handleFormInputChange}
+                                                        disabled={developerNameDisabled}
+                                                        required
+                                                    ></lightning-input>
+                                                </div>
+                                            </div>
+                                            <div class="slds-hierarchy-config_form-item" role="listitem" >                                            
+                                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                    <lightning-input 
+                                                        type="checkbox"
+                                                        title={i18n.setAsDefault}
+                                                        label={i18n.setAsDefault}
+                                                        data-field="defaultConfiguration" 
+                                                        class="svmx-hierarchy-config_input-field svmx-hierarchy-config-default-input"
+                                                        checked={recordInfo.defaultConfiguration}
+                                                        onchange={handleDefaultConfigChange}
+                                                        variant="label-stacked"
+                                                    ></lightning-input>
+                                                </div>
+                                            </div>
+                                        </div>                                    
+                                    </c-x-expandable-section>
+                                    <c-x-expandable-section title={i18n.objectSelection}>
+                                        <template for:each={hierarchyConfigObjectDetails} for:item="configDetail">
+                                            <lightning-accordion key={configDetail.objectAPIName} allow-multiple-sections-open="true" class="slds-var-p-vertical_x-small" active-section-name={configDetail.objLabel}>
+                                                <div key={configDetail.objectAPIName} class="slds-box objectsContainer">
+                                                    <lightning-accordion-section key={configDetail.objectAPIName} name={configDetail.objLabel} title={configDetail.objLabel} label={configDetail.objLabel}>
+                                                        <div class="slds-m-left_xx-small slds-p-top_small slds-p-horizontal_large">
+                                                            <div class="slds-media slds-m-bottom_medium">
+                                                                <div
+                                                                    class="slds-media__figure slds-size_1-of-2 slds-var-p-right_medium">
+                                                                    <c-modal-lookup
+                                                                        data-object={configDetail.objectAPIName}
+                                                                        data-field="displayIconName"
+                                                                        class="step-type-icon"
+                                                                        label={i18n.iconTitle}
+                                                                        variant="label-stacked"
+                                                                        hide-view-button
+                                                                        disabled={configDetail.fieldForDisplayIconName}
+                                                                        onmodalrequest={handleIconPickerOpen}
+                                                                        onvalueremoved={handleIconRemoved}
+                                                                        value={configDetail.iconLookupValue}>
+                                                                    </c-modal-lookup>
+                                                                    <template
+                                                                        if:true={configDetail.showIconPickerModal}>
+                                                                        <c-icon-picker
+                                                                            data-object={configDetail.objectAPIName}
+                                                                            data-field="displayIconName"
+                                                                            selected-icon={configDetail.displayIconName}
+                                                                            is-open={configDetail.showIconPickerModal}
+                                                                            oniconpickerclosed={handleIconPickerClose}
+                                                                            onapply={handleIconPickerApply}>
+                                                                        </c-icon-picker>
+                                                                    </template>
+                                                                </div>
+                                                                <div
+                                                                    class="slds-media__figure slds-size_1-of-2 slds-m-right_none">
+                                                                    <template
+                                                                        if:true={configDetail.fieldForDisplayIconNameOptions}>
+                                                                        <lightning-combobox name="progress" label={i18n.fieldForDisplayIconName}
+                                                                            value={configDetail.fieldForDisplayIconName}
+                                                                            data-field="fieldForDisplayIconName"
+                                                                            data-object={configDetail.objectAPIName}
+                                                                            disabled={configDetail.iconLookupValue}
+                                                                            placeholder=""
+                                                                            options={configDetail.fieldForDisplayIconNameOptions}
+                                                                            onchange={handleFieldForDisplayIconChange}>
+                                                                        </lightning-combobox>
+                                                                     </template>
+                                                                      <template
+                                                                          if:false={configDetail.fieldForDisplayIconNameOptions}>
+                                                                          <lightning-combobox name="progress"
+                                                                              label={i18n.fieldForDisplayIconName}
+                                                                              value={configDetail.fieldForDisplayIconName}
+                                                                              data-field="fieldForDisplayIconName"
+                                                                              data-object={configDetail.objectAPIName}
+                                                                              disabled
+                                                                              placeholder=""
+                                                                              options={configDetail.fieldForDisplayIconNameOptions}
+                                                                              onchange={handleFieldForDisplayIconChange}>
+                                                                          </lightning-combobox>
+                                                                        </template>
+                                                                </div>
+                                                            </div>
+                                                            <div class="slds-media">
+                                                                <div class="slds-media__figure slds-size_1-of-2 slds-var-p-right_medium">
+                                                                    <div class="slds-media slds-m-bottom_medium">
+                                                                        <div class="slds-media__figure slds-m-right_none">
+                                                                            <lightning-input
+                                                                                class="svmx-hierarchy-config_input-field"
+                                                                                type="checkbox"
+                                                                                data-field="defaultRecordActions"
+                                                                                data-object={configDetail.objectAPIName}
+                                                                                name="defaultRecordActions"
+                                                                                checked={configDetail.defaultRecordActions}
+                                                                                variant="label-hidden"
+                                                                                onchange={handleChange}
+                                                                            ></lightning-input>
+                                                                        </div>
+                                                                        <div class="slds-media__body">
+                                                                            <label class="slds-m-bottom_small">
+                                                                                {i18n.defaultRecordAccess}
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="slds-media__figure slds-size_1-of-2 slds-m-right_none">
+                                                                    <c-modal-lookup class="criteria-lookup criteria-input svmx-timeline-config-field-selection_input-field"
+                                                                        data-object={configDetail.objectAPIName}
+                                                                        data-field="qualifyingCriteria" 
+                                                                        data-fieldname="qualifyingCriteriaName"
+                                                                        data-notificationparent={configDetail.objectAPIName}
+                                                                        onmodalrequest={handleOpenSelector} 
+                                                                        onvalueremoved={handleCriteriaRemoved}
+                                                                        value={configDetail.selectedExpression} 
+                                                                        label={i18n.criteriaToShowRecord} 
+                                                                        hide-view-button>
+                                                                    </c-modal-lookup>
+                                                                </div>
+                                                            </div>
+                                                            <div class="slds-media slds-m-bottom_medium">
+                                                                <div class="slds-media__figure slds-size_1-of-2 slds-var-p-right_medium">
+                                                                    <div class="slds-media slds-m-bottom_medium">
+                                                                        <div class="slds-media__figure slds-m-right_none">
+                                                                            <lightning-input
+                                                                                class="svmx-hierarchy-config_input-field"
+                                                                                type="checkbox"
+                                                                                data-field="enableSPMWizards"
+                                                                                data-object={configDetail.objectAPIName}
+                                                                                name="enableSPMWizards"
+                                                                                checked={configDetail.enableSPMWizards}
+                                                                                variant="label-hidden"
+                                                                                onchange={handleChange}
+                                                                            ></lightning-input>
+                                                                        </div>
+                                                                        <div class="slds-media__body">
+                                                                            <label class="slds-m-bottom_small">
+                                                                                {i18n.enableSPMWizards}
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="slds-media__figure slds-size_1-of-2 slds-m-right_none">
+                                                                </div>
+                                                            </div>
+                                                            <template if:true={configDetail.hasAssetNotificationFields}>                                                            
+                                                                <div class="slds-media slds-m-bottom_medium">
+                                                                    <div class="slds-media__figure slds-size_1-of-2 slds-var-p-right_medium">
+                                                                        <div class="slds-media slds-m-bottom_medium">
+                                                                            <div class="slds-media__figure slds-m-right_none">
+                                                                                <lightning-input
+                                                                                    class="svmx-hierarchy-config_input-field"
+                                                                                    type="checkbox"
+                                                                                    data-field="enableNotifications"
+                                                                                    data-object={configDetail.objectAPIName}
+                                                                                    name="enableNotifications"
+                                                                                    checked={configDetail.enableNotifications}
+                                                                                    variant="label-hidden"
+                                                                                    onchange={handleChange}
+                                                                                ></lightning-input>
+                                                                            </div>
+                                                                            <div class="slds-media__body">
+                                                                                <label class="slds-m-bottom_small">
+                                                                                    {i18n.enableAssetNotification} 
+                                                                                </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="slds-media__figure slds-size_1-of-2 slds-m-right_none">
+                                                                        <c-modal-lookup class="criteria-lookup criteria-input svmx-timeline-config-field-selection_input-field"
+                                                                            data-object="SVMXA360__AssetNotification__c"
+                                                                            data-field="notificationCriteria" 
+                                                                            data-fieldname="notificationCriteriaName"
+                                                                            data-notificationparent={configDetail.objectAPIName}
+                                                                            onmodalrequest={handleOpenSelector} 
+                                                                            disabled={configDetail.enableNotificationExpression}
+                                                                            onvalueremoved={handleCriteriaRemoved}
+                                                                            value={configDetail.selectedNotificationsExpression} 
+                                                                            label={i18n.criteriaToShowNotificationRecord} 
+                                                                            hide-view-button>
+                                                                        </c-modal-lookup>
+                                                                    </div>
+                                                                </div>
+                                                            </template>
+                                                            <template if:true={configDetail.hasAllowManagingChildAssets}>                                                            
+                                                                <div class="slds-media slds-m-bottom_medium">
+                                                                    <div class="slds-media__figure slds-size_1-of-2 slds-var-p-right_medium">
+                                                                        <div class="slds-media slds-m-bottom_medium">
+                                                                            <div class="slds-media__figure slds-m-right_none">
+                                                                                <lightning-input
+                                                                                    class="svmx-hierarchy-config_input-field"
+                                                                                    type="checkbox"
+                                                                                    data-field="allowManagingChildAssets"
+                                                                                    data-object={configDetail.objectAPIName}
+                                                                                    name="allowManagingChildAssets"
+                                                                                    checked={configDetail.allowManagingChildAssets}
+                                                                                    variant="label-hidden"
+                                                                                    onchange={handleChange}
+                                                                                    disabled={configDetail.enableManagingChildAssets}
+                                                                                ></lightning-input>
+                                                                            </div>
+                                                                            <div class="slds-media__body">
+                                                                                <label class="slds-m-bottom_small">
+                                                                                    {i18n.allowManagingChildAssets} 
+                                                                                </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="slds-media__figure slds-size_1-of-2 slds-m-right_none">
+                                                                    </div>
+                                                                </div>
+                                                            </template>
+                                                            <div class="slds-m-bottom_medium">
+                                                                <c-x-expandable-section
+                                                                    title={i18n.selectFieldsForDisplay}>
+                                                                    <div class="slds-form__row">
+                                                                        <div class="slds-form__item" role="listitem">
+                                                                            <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                                                <lightning-dual-listbox
+                                                                                    name="displayFields"
+                                                                                    source-label={i18n.availableFields}
+                                                                                    selected-label={i18n.fieldstoDisplay}
+                                                                                    data-field="hierarchyConfigFieldList"
+                                                                                    data-object={configDetail.objectAPIName}
+                                                                                    options={configDetail.availableFields}
+                                                                                    value={configDetail.selectedFields}
+                                                                                    class="svmx-hierarchy-config_input-field"
+                                                                                    onchange={handleChange}
+                                                                                    max=15
+                                                                                    message-when-range-overflow={i18n.fieldsLimit}
+                                                                                    message-when-value-missing={i18n.selectoption}
+                                                                                    required>
+                                                                                </lightning-dual-listbox>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </c-x-expandable-section>
+                                                            </div>
+                                                        </div>                                
+                                                    </lightning-accordion-section>
+                                                </div>
+                                            </lightning-accordion>
+                                        </template>
+                                    </c-x-expandable-section>                                
+                                    <c-x-expandable-section title={i18n.profileAssignment}>
+                                        <div class="slds-form__row">
+                                            <div class="slds-hierarchy-config_form-item" role="listitem">
+                                                <template if:true={showProfileSelector}>
+                                                    <c-profile-selector
+                                                        class="svmx-profile-selector"
+                                                        hide-label={booleanTrue}
+                                                        assigned-profiles={assignedProfileIds}
+                                                        value={selectedProfileIds}
+                                                        onprofileselected={handleProfileSelected}
+                                                    ></c-profile-selector>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </c-x-expandable-section>     
+                                </template>                           
+                            </div>
+
+                            <template if:true={apiInProgress}>
+                                <lightning-spinner
+                                    variant="brand"
+                                    alternative-text={i18n.loading}
+                                ></lightning-spinner>
+                            </template>
+
+                        </lightning-card>
+                        <c-expression-selector class="slds-hyphenate slds-line-clamp svmx-timeline-config-field-selection_input-field" selector-modal-title={i18n.selectorModalTitle}
+                                        selector-modal-open={selectorModalOpen} data-field="qualifyingCriteria" data-fieldname="qualifyingCriteriaName" object-api-name={selectedObject} curr-record-id={selectedExpressionId}
+                                        onexpressionselectorclosed={handleCloseModal} onexpressionselected={handleExpressionSelected} page-mode="edit" data-notificationfield="notificationCriteria" data-notificationfieldname="notificationCriteriaName">
+                        </c-expression-selector>
+                        <c-modal-dialog title={i18n.cancelModalTitle} class="cancelModal"
+                            is-open={cancelModalDialogOpen} modal-content-id="cancelModalContent"
+                            modal-header-id="cancelModalHeader" onmodalclosed={handleCancelModal}>
+                            <div slot="body">
+                                <span slot="body">
+                                    <p>
+                                        <lightning-formatted-text value={i18n.cancelModalContent}>
+                                        </lightning-formatted-text>
+                                    </p>
+                                </span>
+                            </div>
+                            <div slot="footer">
+                                <lightning-button label={i18n.goBack} title={i18n.goBack} variant="neutral"
+                                    onclick={handleCancelModal} class="slds-p-right_x-small cancelButton"></lightning-button>
+                                <lightning-button class="confirmButton" label={i18n.continue} title={i18n.continue}
+                                    variant="brand" onclick={handleCancelConfirmModal}></lightning-button>
+                            </div>
+                        </c-modal-dialog>
+                        <c-modal-dialog title={i18n.reassignProfile} class="reAssignModal"
+                            is-open={reAssignModalDialogOpen} modal-content-id="reAssignModalContent"
+                            modal-header-id="reAssignModalHeader" onmodalclosed={handleReassignModalModal}>
+                            <div slot="body">
+                                <span slot="body">
+                                    <p>
+                                        <lightning-formatted-text class="slds-align_absolute-center" value={i18n.reassignProfileContent}></lightning-formatted-text>
+                                        <template for:each={profileAndConfigInfo} for:item="profileInfo">
+                                            <div key={profileInfo.profileName} class="slds-p-top_large slds-truncate slds-align_absolute-center">
+                                                <span class="slds-truncate" title={profileInfo.profileConfigInfo}>{profileInfo.profileConfigInfo}</span>
+                                            </div>
+                                        </template>
+                                    </p>
+                                </span>
+                            </div>
+                            <div slot="footer">
+                                <lightning-button label={i18n.goBack} title={i18n.goBack} variant="neutral"
+                                    onclick={handleReassignModalModal} class="slds-p-right_x-small"></lightning-button>
+                                <lightning-button class="confirmButton" label={i18n.continue} title={i18n.continue}
+                                    variant="brand" onclick={handleReassignConfirmModal}></lightning-button>
+                            </div>
+                        </c-modal-dialog>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+    </c-admin-layout>
+</template>

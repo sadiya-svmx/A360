@@ -1,0 +1,19 @@
+<template>
+    <div class="fill-in slds-p-around_small">
+    <template if:true={isLoaded}>
+        <lightning-input type="search" autocomplete="off" placeholder={i18n.searchPlaceholder}
+            variant="label-hidden" title="search" value={searchKey}
+            class="slds-col svmx-search-input" onchange={handleSearchKeyChange}>
+        </lightning-input>
+        <template if:false={noItems}>
+            <lightning-tree items={filteredMenuItems} selected-item={selectedMenuItem} onselect={handleSelect}>
+            </lightning-tree>     
+        </template>
+        <template if:true={noItems}>
+            <div class="slds-p-around_small">
+                <p>{i18n.noresults}</p>
+            </div>
+        </template>
+    </template>
+    </div>
+</template>

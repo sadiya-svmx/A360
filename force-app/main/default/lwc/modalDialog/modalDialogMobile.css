@@ -1,0 +1,37 @@
+@import 'c/xMobileStyle';
+
+.svmx-modal_large.slds-modal__container {
+    min-width: 100%;
+    max-height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.svmx-modal_medium.slds-modal__container {
+    max-height: 100%;
+    min-width: 96%;
+    margin-left: 2%;
+    margin-right: 2%;
+    padding-top: 45px;
+    padding-bottom: 45px;
+}
+
+.svmx-modal_small.slds-modal__container {
+    max-height: 100%;
+    min-width: 94%;
+    margin-left: 3%;
+    margin-right: 3%;
+    padding-top: 45px;
+    padding-bottom: 45px;
+}
+
+.svmx-modal_x_small.slds-modal__container {
+    max-height: 70%;
+    margin-top: 30%;
+    min-width: 90%;
+    margin-left: 5%;
+}
+
+.svmx-modal > .slds-modal__container.smvx-modal_expand-height-to-viewport > .slds-modal__content {
+    flex-grow: 1;
+}

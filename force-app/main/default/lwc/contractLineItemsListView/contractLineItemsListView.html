@@ -1,0 +1,87 @@
+<template>
+    <lightning-card title={i18n.title} icon-name="standard:contract_line_item">
+        <template if:true={error}>
+            <c-alert variant="error">{error}</c-alert>
+        </template>
+        <c-contract-line-item-detail oncloseandrefreshpage={handleRefresh}></c-contract-line-item-detail>
+        <div slot="actions" class="slds-grid slds-wrap">
+            <lightning-input type="search" autocomplete="off" placeholder={i18n.searchPlaceholder}
+                variant="label-hidden" title={i18n.searchPlaceholder}
+                class="slds-col svmx-contract-line-item-list-view_text-search"
+                onchange={handleSearch}>
+            </lightning-input>
+            <lightning-button icon-name="utility:add" label={i18n.newLineItem} variant="neutral"
+                onclick={handleNewRecord}
+                class="slds-col slds-m-left_x-small svmx-contract-lines-list-view_button-new">
+            </lightning-button>
+        </div>
+        <div class="slds-m-around_medium">
+            <div if:true={listViewRecords} class="slds-text-align_left">
+                {recordCountInfo}
+            </div>
+            <div style={computedDataTableHeight}>
+                <div if:true={apiInProgress} class="slds-is-relative">
+                    <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium">
+                    </lightning-spinner>
+                </div>
+                <div if:true={noRecordsFound} class="slds-align_absolute-center no-data">
+                    {i18n.noResults}
+                </div>
+                <template if:true={listViewRecords}>
+                    <lightning-datatable
+                        class="svmx-contract-lines-list-view_table"
+                        key-field="id"
+                        data={listViewRecords}
+                        columns={columns}
+                        onrowaction={handleRowAction}
+                        hide-checkbox-column
+                        default-sort-direction={sortDirection}
+                        sorted-direction={sortDirection}
+                        sorted-by={sortBy}
+                        onsort={handleColumnSort}
+                        enable-infinite-loading
+                        onloadmore={handleLoadMore}>
+                    </lightning-datatable>
+                </template>
+            </div>
+        </div>
+    </lightning-card>
+    <!-- delete popup-->
+    <template if:true={deleteModalDialogOpen}>
+        <c-modal-dialog title={i18n.deleteTitle}
+        class="svmx-contract-lines_delete-modal" is-open={deleteModalDialogOpen}
+        modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={handleCancelModal}>
+            <div slot="body">
+                <template if:true={error}>
+                    <c-alert variant="error">{error}</c-alert>
+                </template>
+                <p>
+                    <lightning-formatted-text class="slds-align_absolute-center"
+                        value={i18n.deleteConfirmMessage}>
+                    </lightning-formatted-text>
+                </p>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal}
+                    class="slds-p-right_x-small svmx-delete-modal_cancel-btn"></lightning-button>
+                <lightning-button class="svmx-delete-modal_confirm-btn" label={i18n.confirm} title={i18n.confirm} variant="brand"
+                    onclick={handleDeleteConfirmModal}></lightning-button>
+            </div>
+        </c-modal-dialog>
+    </template>
+    <c-modal-dialog title={i18n.deleteErrorHeader}
+        class="svmx-contract-lines-detail_delete-modal-error" is-open={deleteErrorMessageOpen}
+        modal-content-id="deleteModalErrorContent" modal-header-id="deleteModalErrorHeader" onmodalclosed={handleCancelModal}>
+        <div slot="body">
+            <p>
+                <lightning-formatted-rich-text class="slds-align_absolute-center"
+                    value={deleteErrorMsg}>
+                </lightning-formatted-rich-text>
+            </p>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal}
+                class="slds-p-right_x-small svmx-delete-modal_cancel-btn"></lightning-button>
+        </div>
+    </c-modal-dialog>
+</template>

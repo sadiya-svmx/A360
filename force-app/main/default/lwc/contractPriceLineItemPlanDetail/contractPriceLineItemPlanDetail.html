@@ -1,0 +1,330 @@
+<template>
+
+    <!-- Line Type selection modal-->
+    <div class="svmx-cpli-plan-detail_line-type-selection">
+        <c-modal-dialog title={i18n.lineTypeModalTitle} class="svmx-cpli-plan-detail_line-type-modal" size="SMALL"
+            is-open={lineTypeModal} modal-content-id="lineTypeModal" modal-header-id="lineTypeModalHeader"
+            onmodalclosed={handleNewCancelModal}>
+            <div slot="body">
+                <lightning-radio-group label={i18n.lineTypeSelection} name="lineTypeSelection"
+                    class="svmx-cpli-plan-detail_line-type-radio" onchange={handleLineTypeChange}
+                    options={lineTypeOptions} value={selectedLineType} type="radio">
+                </lightning-radio-group>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                    onclick={handleNewCancelModal}
+                    class="slds-p-right_x-small svmx-cpli-plan-detail_new-cancel-btn">
+                </lightning-button>
+                <lightning-button class="svmx-cpli-plan-detail_new-confirm-btn" label={i18n.next}
+                    title={i18n.next} variant="brand" onclick={handleLineTypeNext} disabled={isDisableLineTypeNextButton}>
+                </lightning-button>
+            </div>
+        </c-modal-dialog>
+    </div>
+
+    <!-- create and edit form-->
+    <div class="svmx-cpli-plan-detail_modal">
+        <c-modal-dialog title={i18n.cpliPlanModalTitle} class="svmx-cpli-plan-detail_edit-modal"
+            size="SMALL" is-open={contractPriceViewModalOpen} modal-content-id="editModalContent"
+            modal-header-id="editModalHeader" onmodalclosed={handleNewCancelModal}>
+            <div slot="body">
+                <template if:true={error}>
+                    <div class="slds-box slds-theme_error slds-p-left_medium slds-p-right_medium" role="alert">
+                        <p>{i18n.reviewError}</p>
+                    </div>
+                    <div
+                        class="slds-text-color_error slds-p-left_large slds-p-top_xx-small svmx-cpli-plan-detail_edit-modal-error">
+                        {error}
+                    </div>
+                </template>
+
+                <div if:true={apiInProgress} class="svmx-cpli-spinner">
+                    <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+                </div>
+
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                        <div class="slds-form-element slds-form-element_stacked">
+                            <c-svmx-lookup
+                                class="svmx-cpli-plan-detail_contractId required-input"
+                                advanced-search-config={booleanFalse}
+                                data-field="serviceContractPlanId"
+                                field-api-name="SVMXA360__ServiceContractPlanId__c"
+                                disabled={booleanFalse}
+                                enable-advanced-search={booleanFalse}
+                                icon-name="standard:service_contract"
+                                label={i18n.serviceContractPlan}
+                                target-object-api-name="SVMXA360__ServiceContractPlan__c"
+                                target-label-api-name={serviceContractPlanNameField}
+                                onlookupselect={handleLookupFieldChange}
+                                read-only={recordInfo.serviceContractPlanId}
+                                value={recordInfo.serviceContractPlanId}
+                                required>
+                            </c-svmx-lookup>
+                        </div>
+                    </div>
+
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                        <div class="slds-form-element slds-form-element_stacked">
+                            <span data-aria="true" class="slds-assistive-text">
+                            </span>
+                            <label for="lineType" class="slds-form-element__label slds-no-flex">{i18n.lineType}</label>
+                            <div class="slds-form-element__control slds-grow">
+                                <label id="lineType" class="slds-form-element__label slds-no-flex">{lineTypeLabel}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                        <div class="slds-form-element slds-form-element_stacked">
+                            <lightning-combobox
+                                label={i18n.pricingLevel}
+                                value={selectedPricingLevel}
+                                options={pricingLevelOptions}
+                                onchange={handleChangePricingLevel}
+                                field-level-help={i18n.pricingLevel}
+                                class="svmx-cpli-plan-detail_pricing-level-input required-input">
+                            </lightning-combobox>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-grid slds-wrap">
+                    <template if:true={showCLIPlan}>
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <c-svmx-lookup
+                                    class="svmx-cpli-plan-detail_contract-line-item required-input"
+                                    advanced-search-config={booleanFalse}
+                                    data-field="contractLineItemPlanId"
+                                    field-api-name="SVMXA360__ContractLineItemPlanId__c"
+                                    field-level-help={i18n.contractLineitemPlan}
+                                    disabled={booleanFalse}
+                                    enable-advanced-search={booleanFalse}
+                                    icon-name="standard:contract_line_item"
+                                    label={i18n.contractLineitemPlan}
+                                    target-object-api-name="SVMXA360__ContractLineItemPlan__c"
+                                    target-label-api-name={contractLinePlanNameField}
+                                    onlookupselect={handleLookupFieldChange}
+                                    read-only={booleanFalse}
+                                    value={recordInfo.contractLineItemPlanId}
+                                    filters={contractLinePlanFilter}
+                                    required>
+                                </c-svmx-lookup>
+                            </div>
+                        </div>
+                    </template>
+                    <template if:true={showESPlan}>
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <c-svmx-lookup
+                                    class="svmx-cpli-plan-detail_entitled-service required-input"
+                                    advanced-search-config={booleanFalse}
+                                    data-field="entitledServicePlan"
+                                    field-api-name="entitledServicePlan"
+                                    field-level-help={i18n.entitledServicePlan}
+                                    disabled={disableESPlan}
+                                    enable-advanced-search={booleanFalse}
+                                    icon-name="standard:entitlement"
+                                    label={i18n.entitledServicePlan}
+                                    target-object-api-name="SVMXA360__EntitledServicePlan__c"
+                                    target-label-api-name={entitledServicePlanNameField}
+                                    onlookupselect={handleLookupFieldChange}
+                                    read-only={booleanFalse}
+                                    value={recordInfo.entitledServicePlanId}
+                                    filters={entitledServicePlanFilter}
+                                    required>
+                                </c-svmx-lookup>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div if:false={isExpenseItemSection} class="slds-section slds-is-open">
+                    <h3 class="slds-section__title slds-theme_shade">
+                        <span class="slds-truncate slds-p-horizontal_small" title={i18n.product}>{i18n.product}</span>
+                    </h3>
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <lightning-combobox
+                                    label={i18n.type}
+                                    value={selectedProductType}
+                                    options={productTypeOptions}
+                                    onchange={handleChangeProductType}
+                                    field-level-help={i18n.type}
+                                    class="svmx-cpli-plan-detail_product-type-input required-input">
+                                </lightning-combobox>
+                            </div>
+                        </div>
+                        <div if:true={isProductVisible}
+                            class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <c-svmx-lookup
+                                    class="svmx-cpli-plan-detail_product-input required-input"
+                                    advanced-search-config={booleanFalse}
+                                    data-field="productId"
+                                    field-api-name="SVMXA360__ProductId__c"
+                                    field-level-help={i18n.product}
+                                    disabled={booleanFalse}
+                                    enable-advanced-search={booleanFalse}
+                                    icon-name="standard:product"
+                                    label={i18n.product}
+                                    target-object-api-name="Product2"
+                                    target-label-api-name={productNameField}
+                                    onlookupselect={handleLookupFieldChange}
+                                    read-only={booleanFalse}
+                                    value={recordInfo.productId}>
+                                </c-svmx-lookup>
+                            </div>
+                        </div>
+                        <div if:true={isProductFamilyVisible}
+                            class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <lightning-combobox
+                                data-field="productFamily"
+                                class="svmx-cpli-plan-detail_product-family-input required-input"
+                                label={i18n.productFamily}
+                                value={recordInfo.productFamily}
+                                options={productFamilyOptions}
+                                onchange={handleChange}>
+                            </lightning-combobox>
+                        </div>
+                    </div>
+                </div>
+
+                <div if:true={isExpenseItemSection} class="slds-section slds-is-open">
+                    <h3 class="slds-section__title slds-theme_shade">
+                        <span class="slds-truncate slds-p-horizontal_small"
+                            title={i18n.expenseItem}>{i18n.expenseItem}</span>
+                    </h3>
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <lightning-combobox data-field="expenseItem"
+                                class="svmx-cpli-plan-detail_expenseitem"
+                                label={i18n.expenseItem} value={recordInfo.expenseItem} options={expenseOptions}
+                                onchange={handleChange}>
+                            </lightning-combobox>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slds-section slds-is-open">
+                    <h3 class="slds-section__title slds-theme_shade">
+                        <span class="slds-truncate slds-p-horizontal_small" title={i18n.pricing}>{i18n.pricing}</span>
+                    </h3>
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <lightning-combobox
+                                class="svmx-cpli-plan-detail_pricing-type-input required-input"
+                                label={i18n.type}
+                                field-level-help={i18n.type}
+                                value={selectedPricingMethod}
+                                options={pricingTypeOptions}
+                                onchange={handleChangePricingMethod}
+                                message-when-value-missing={i18n.valueMissing} 
+                                required>
+                            </lightning-combobox>
+                        </div>
+                        <div if:true={isPricingVisible}
+                            class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <lightning-input
+                                data-field="entitledPrice"
+                                type="number"
+                                autocomplete="off"
+                                name="entitledPrice"
+                                label={i18n.entitledPrice}
+                                value={recordInfo.entitledPrice}
+                                onchange={handleChange}
+                                formatter={formatterType}
+                                field-level-help={i18n.entitledPrice}
+                                step="0.01"
+                                message-when-step-mismatch={currencyStepMismatchMessage}
+                                max={currencyMaxValue}
+                                message-when-range-overflow={currencyStepMismatchMessage}
+                                required
+                                message-when-value-missing={i18n.valueMissing}
+                                class="svmx-cpli-plan-detail_entitled-price-input required-input">
+                            </lightning-input>
+                        </div>
+                        <div if:true={showCurrencyCode}
+                            class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <lightning-combobox 
+                                data-field="currencyIsoCode"
+                                class="svmx-cpli-plan-detail_currency-input required-input"
+                                label={i18n.currency}
+                                field-level-help={i18n.currency}
+                                value={recordInfo.currencyIsoCode}
+                                options={currencyCodeOptions}
+                                onchange={handleChange}
+                                message-when-value-missing={i18n.valueMissing}
+                                required>
+                            </lightning-combobox>
+                        </div>
+                        <div if:true={isDiscountVisible}
+                            class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <lightning-input
+                                type="number"
+                                autocomplete="off"
+                                data-field="entitledDiscount"
+                                onchange={handleChange}
+                                name="entitledDiscount"
+                                label={i18n.entitledDiscount}
+                                value={recordInfo.entitledDiscount}
+                                formatter="percent-fixed"
+                                field-level-help={i18n.entitledDiscount}
+                                step="0.01"
+                                message-when-step-mismatch={percentStepMismatchMessage}
+                                min="0"
+                                max="100"
+                                message-when-range-overflow={i18n.discountError}
+                                message-when-range-underflow={i18n.discountError}
+                                required
+                                message-when-value-missing={i18n.valueMissing}
+                                class="svmx-cpli-plan-detail_entitled-discount-input required-input">
+                            </lightning-input>
+                        </div>
+                        <div if:true={isSurchargeVisible}
+                            class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <lightning-input
+                                type="number"
+                                autocomplete="off"
+                                data-field="surcharge"
+                                onchange={handleChange}
+                                name={i18n.surcharge} 
+                                label={i18n.surcharge}
+                                value={recordInfo.surcharge}
+                                formatter="percent-fixed"
+                                field-level-help={i18n.surcharge}
+                                step="0.01"
+                                message-when-step-mismatch={percentStepMismatchMessage}
+                                min="0"
+                                max={percentMaxValue}
+                                message-when-range-overflow={percentStepMismatchMessage}                                
+                                message-when-range-underflow={i18n.surchargeError}
+                                required
+                                message-when-value-missing={i18n.valueMissing}
+                                class="svmx-cpli-plan-detail_surcharge required-input">
+                            </lightning-input>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                    onclick={handleNewCancelModal}
+                    class="slds-p-right_x-small svmx-cpli-plan-detail_cancel-btn">
+                </lightning-button>
+                <lightning-button label={i18n.saveAndNew} title={i18n.saveAndNew} variant="neutral"
+                    onclick={handleSaveAndNew}
+                    class="slds-p-right_x-small svmx-cpli-plan-detail_save-and-new-btn">
+                </lightning-button>
+                <lightning-button class="svmx-cpli-plan-detail_save-btn" label={i18n.save}
+                    title={i18n.save} variant="brand" onclick={handleSave}>
+                </lightning-button>
+            </div>
+        </c-modal-dialog>
+    </div>    
+</template>

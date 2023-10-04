@@ -1,0 +1,139 @@
+<template>
+    <lightning-card title={i18n.manageWorkRule} icon-name="standard:maintenance_asset">
+        <div class="slds-scrollable" style="height:600px;">
+        <template if:true={error}>
+            <c-alert variant="error">{error}</c-alert>
+        </template>
+        <div slot="actions" class="slds-wrap">
+            
+                <lightning-layout>
+                    <lightning-layout-item size="8">
+                        <div class="slds-var-p-left_medium slds-var-p-top_small">{assetCount} | {workRulesCount}</div>
+                    </lightning-layout-item>
+                    <div if:false={isTemplate}>
+                        <lightning-layout-item size="4">
+                            <div class="slds-float_right">
+                            <lightning-input style="width: 450px;" type="search" autocomplete="off" placeholder={i18n.placeholderTitle}
+                                variant="label-hidden" class="slds-col svmx-mpln-summary-search_input" onchange={handleSearch}>
+                            </lightning-input>
+                            </div>
+                        </lightning-layout-item>
+                    </div>
+                </lightning-layout>
+        </div>
+            <div class="svmx-mpln-summary">
+                <div if:true={apiInProgress} class="slds-is-relative slds-p-top_xx-large">
+                    <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium">
+                    </lightning-spinner>
+                </div>
+
+
+                    <template if:true={assetSummaryList}>
+                        <lightning-accordion class="slds-var-p-vertical_x-small">
+                            <template for:each={assetSummaryList} for:item="asset" for:index="assetIndex">
+                                <div key={asset.assetId}  if:true={asset.showAssetHeader}>
+                                    <lightning-accordion-section key={asset.assetId} name={asset.assetName} title={asset.assetName} label={asset.assetName}>
+                                        <div slot="actions">
+                                            <lightning-button-menu
+                                                class="atadminContainerButton"
+                                                alternative-text={i18n.menuAlText}
+                                                variant="border-filled"
+                                                menu-alignment="right"
+                                                onselect={handleWorkRuleSelectMenu}
+                                            >
+                                                <template for:each={asset.workRuleMenuItems} for:item="item">
+                                                    <lightning-menu-item
+                                                        label={item.label}
+                                                        value={item}
+                                                        key={item.label}
+                                                    >
+                                                    </lightning-menu-item>
+                                                </template>
+                                            </lightning-button-menu>
+                                        </div>
+                                        
+                                        <template if:true={asset.showHeader}>
+                                        <div class="slds-scrollable_y">
+                                            <c-x-detail-tree-grid
+                                                key-field="id" 
+                                                data-field={asset.assetId}
+                                                table-data={asset.workRules}
+                                                columns={columns}
+                                                detail-grid-config={detailGridConfig}
+                                                table-class=''
+                                                expanded-rows={defaultExpandedRows}
+                                                highlighted-rows={highlightedRows}
+                                                onrowaction={handleRowAction}
+                                                onrowselection={handleSelectedRows}
+                                            >
+                                            </c-x-detail-tree-grid>
+                                        </div>
+                                        </template>
+                                    </lightning-accordion-section>
+                                </div>
+                            </template>
+                        </lightning-accordion>    
+                        
+                    </template>
+
+                <!--Add WorkRule to Asset Modal-->
+                <template if:true={showAddWorkRuleModal}>
+                    <c-mpln-add-work-rule 
+                        show-work-rule-modal={showAddWorkRuleModal} 
+                        onclosemodal={handleWorkTypeModalClose}
+                        onsaveworkrule={handleSaveWorkRule}
+                        work-rule-info={workRuleToEdit}
+                        row-action={action}
+                    ></c-mpln-add-work-rule>    
+                </template>
+                
+            </div>
+        <template if:false={isTemplate}>    
+            <c-svmx-form-footer
+                is-sticky
+                is-in-modal=true
+                alignment="right"
+                errors={bottomErrorMessage}
+                has-error={hasErrors}
+                >
+                <lightning-button
+                    variant="neutral"
+                    label={i18n.previous}
+                    title={i18n.previous}
+                    onclick={handlePrevious}
+                    class="slds-m-left_xx-small slds-m-right_xx-small svmx-previous"
+                ></lightning-button>
+                <lightning-button
+                    variant="brand"
+                    label={saveTitle}
+                    title={saveTitle}
+                    onclick={handleNext}
+                    class="slds-m-left_xx-small slds-m-right_xx-small createMaintenancePlan"
+                ></lightning-button>
+            </c-svmx-form-footer>
+        </template>
+
+        <!--Please select workrule to delete modal-->
+        <c-modal-dialog class="modal" title={modalTitle} is-open={openConfirmationModal} modal-content-id="modalContent" modal-header-id="modalHeader" onmodalclosed={handleWorkTypeModalClose}>
+        <div slot="body">
+            <p class="slds-align_absolute-center"><lightning-formatted-text value={modalBody}></lightning-formatted-text></p>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.ok} title={i18n.ok} variant="brand" onclick={handleWorkTypeModalClose} class="slds-p-right_x-small svmx-deleteConfigCancel"></lightning-button>
+        </div>
+    </c-modal-dialog>
+
+    <!--Are you sure to delete modal-->
+    <c-modal-dialog class="modal" title={modalTitle} is-open={openDeleteModal} modal-content-id="modalContent" modal-header-id="modalHeader" onmodalclosed={handleWorkTypeModalClose}>
+        <div slot="body">
+            <p class="slds-align_absolute-center"><lightning-formatted-text value={modalBody}></lightning-formatted-text></p>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.yes} title={i18n.yes} variant="brand" onclick={handleConfirmDeleteRow} class="slds-p-right_x-small svmx-deleteConfigCancel"></lightning-button>
+            <lightning-button label={i18n.no} title={i18n.no} variant="brand" onclick={handleWorkTypeModalClose} class="slds-p-right_x-small svmx-deleteConfigCancel"></lightning-button>
+        </div>
+    </c-modal-dialog>
+        </div>
+    </lightning-card>
+
+</template>

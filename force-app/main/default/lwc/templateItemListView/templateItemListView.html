@@ -1,0 +1,128 @@
+<template>
+    <div class="svmx-template-item-list-view">
+        <template if:true={error}>
+            <c-alert variant="error">{error}</c-alert>
+        </template>
+
+        <div class="slds-var-m-around_medium">
+            <div>
+                <table  class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th class="slds-text-align_left" scope="col" width="20%">
+                                <span>{i18n.attributeName}</span>
+                            </th>
+                            <th class="slds-text-align_left" scope="col" width="15%">
+                                <span >{i18n.type}</span>
+                            </th>
+                            <th class="slds-text-align_left" scope="col" width="35%">
+                                <span>{i18n.description}</span>
+                            </th>
+                            <th class="slds-text-align_left" scope="col" width="10%">
+                                <span>{i18n.required}</span>
+                            </th>
+                            <th class="slds-text-align_left" scope="col" width="10%">
+                                <span>{i18n.readOnly}</span>
+                            </th>
+                            <th class="slds-text-align_left" scope="col" width="5%"></th>
+                            <th class="slds-text-align_left" scope="col" width="5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template if:true={templateItems}>
+                            <template for:each={templateItems} for:item="templateItem" for:index="index">
+                                <tr class="slds-hint-parent" key={templateItem.attributeId} 
+                                    draggable="true" ondrop={onDrop} ondragstart={onDragStart} 
+                                    ondragover={onDragOver} data-seq={index}
+                                    data-id={templateItem.attributeId}>
+                                    <td role="gridcell" scope="col">
+                                        <div class="slds-truncate slds-text-align_left" 
+                                             title={templateItem.attributeName} 
+                                             data-seq={index}>
+                                             <a data-developer={templateItem.developerName} onclick={handleEditItem}
+                                                class="svmx-ta-template-item slds-p-left_xx-small">{templateItem.attributeName}</a>
+                                        </div>
+                                    </td>
+                                    <td role="gridcell" scope="col">
+                                        <div class="slds-truncate" 
+                                             title={templateItem.dataType} 
+                                             data-seq={index}>
+                                            {templateItem.dataType}
+                                        </div>
+                                    </td>
+                                    <td role="gridcell" scope="col">
+                                        <div class="slds-truncate" 
+                                             title={templateItem.helpText}
+                                             data-seq={index}>
+                                            {templateItem.helpText}
+                                        </div>
+                                    </td>
+                                    <td role="gridcell"  scope="col">
+                                        <div class="slds-align_absolute-center" data-seq={index}>
+                                            <template if:true={templateItem.isRequired}>
+                                                <lightning-icon icon-name="utility:check" 
+                                                                title={i18n.required}
+                                                                size="x-small">
+                                                </lightning-icon>
+                                            </template>
+                                        </div>
+                                    </td>
+                                    <td role="gridcell" scope="col">
+                                        <div class="slds-align_absolute-center" data-seq={index}>
+                                            <template if:true={templateItem.isReadOnly}>
+                                                <lightning-icon icon-name="utility:check" 
+                                                                title={i18n.readOnly}
+                                                                size="x-small">
+                                                </lightning-icon>
+                                            </template>
+                                        </div>
+                                    </td>
+                                    <td role="gridcell" scope="col" data-seq={index}>
+                                        <lightning-button-menu data-name={templateItem.developerName} 
+                                                class="slds-dropdown-trigger slds-dropdown-trigger_click svmx-row-action" 
+                                                onselect={handleOnselect} icon-size="x-small">
+                                            <lightning-menu-item  value="edit" 
+                                                                label={i18n.edit} >
+                                            </lightning-menu-item>
+                                            <lightning-menu-item  value="delete" 
+                                                                label={i18n.delete}>
+                                            </lightning-menu-item>
+                                        </lightning-button-menu>
+                                    </td>
+                                    <td role="gridcell" data-seq={index} scope="col">
+                                        <lightning-icon icon-name="utility:move" 
+                                                            size="x-small">
+                                        </lightning-icon>
+                                    </td>
+                                </tr>
+                            </template>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <c-template-item-detail
+                class="templateItemConfig"
+                modal-open={templateItemOpen}
+                ontemplateitemchanged={handleTemplateItemChanged}
+                ontemplateitemclosed={handleTemplateItemClosed}
+        ></c-template-item-detail>
+        
+        <c-modal-dialog title={i18n.deleteItem} class="deleteModal" is-open={deleteModalDialogOpen} 
+                        modal-content-id="deleteBody" modal-header-id="deleteModalHeader" 
+                        onmodalclosed={handleCancelModal}>
+            <div slot="body">
+                <p><lightning-formatted-text value={i18n.deleteTemplateItem}></lightning-formatted-text></p>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" 
+                                onclick={handleCancelModal} class="slds-var-p-right_x-small svmx-deleteCancel">
+                </lightning-button>
+                <lightning-button class="confirmButton svmx-deleteModalConfirm" label={i18n.confirm} 
+                                title={i18n.confirm} variant="brand" onclick={handleDelete}>
+                </lightning-button>             
+            </div>
+        </c-modal-dialog> 
+    </div>  
+</template>

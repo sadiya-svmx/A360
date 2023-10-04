@@ -1,0 +1,11 @@
+.nested-form-element {
+    padding-left: var(--lwc-spacingLarge, 1.25rem);
+}
+
+.header-item {
+    background-color: #fafaf9;
+    color: #514f4d;
+    padding: .25rem .5rem;
+    font-weight: 700;
+    line-height: normal;
+}

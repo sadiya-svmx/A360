@@ -1,0 +1,82 @@
+<template>
+    <div>
+        <div class="slds-grid slds-grid_vertical">
+            <!-- Custom Footer Buttons -->
+            <div class="slds-col svmx-header-buttons slds-p-around_x-small">
+                <lightning-layout horizontal-align="spread" vertical-align="center">
+
+                    <!-- Mark as Complete Checkbox -->
+                    <template if:true={showMarkAsComplete}>
+                        <lightning-layout-item>
+                            <lightning-input
+                                class="svmx-input_compact"
+                                name="mark"
+                                label={i18n.markAsComplete}
+                                type="checkbox"
+                                checked={markAsComplete}
+                                onchange={handleStepCompleteChange}
+                            ></lightning-input>
+                        </lightning-layout-item>
+                    </template>
+
+                    <!-- Cancel and Save/Done Buttons (Not Used in Flow Mode)-->
+                    <template if:false={isFlowContext}>
+                        <lightning-layout-item alignment-bump="left">
+                            <template if:false={isConfirmHidden}>
+                                <lightning-button
+                                    variant="neutral"
+                                    label={i18n.cancel}
+                                    title={i18n.cancel}
+                                    onclick={handleCancel}
+                                    class="svmx-button-cancel svmx-button_compact"
+                                ></lightning-button>
+                                <lightning-button
+                                    variant="brand"
+                                    disabled={shouldSaveDisabled}
+                                    label={i18n.save}
+                                    title={i18n.save}
+                                    onclick={handleSave}
+                                    class="svmx-button-save slds-var-m-left_x-small svmx-button_compact"
+                                ></lightning-button>
+                            </template>
+                        </lightning-layout-item>
+                    </template>
+
+                    <!-- Previous and Next Buttons (Flow Only)-->
+                    <template if:true={isFlowContext}>
+                        <lightning-layout-item alignment-bump="left">
+                            <template if:true={showPrevious}>
+                                <lightning-button
+                                    variant="neutral"
+                                    label={i18n.previous}
+                                    title={i18n.previous}
+                                    onclick={handlePrevious}
+                                    class="svmx-button-previous svmx-button_compact"
+                                ></lightning-button>
+                            </template>
+                            <lightning-button
+                                variant="brand"
+                                label={i18n.next}
+                                title={i18n.next}
+                                onclick={handleNext}
+                                class="svmx-button-next slds-var-m-left_xx-small svmx-button_compact"
+                            ></lightning-button>
+                        </lightning-layout-item>
+                    </template>
+                </lightning-layout>
+            </div>
+
+            <!-- Title and Subtitle -->
+            <div class="slds-col slds-text-align_center svmx-header-text slds-p-around_x-small">
+                <template if:false={isFlowContext}>
+                    <div class="slds-page-header__name-title">
+                        <h1>
+                            <span class="slds-page-header__title slds-truncate" title={title}>{title}</span>
+                            <span class="slds-text-color_weak">{subTitle}</span>
+                        </h1>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+</template>

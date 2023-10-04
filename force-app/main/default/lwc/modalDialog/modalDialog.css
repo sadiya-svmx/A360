@@ -1,0 +1,34 @@
+.svmx-modal-content_min-height {
+    min-height: 300px;
+}
+
+.svmx-modal-content_fixed-height {
+    height: calc(100vh - 100px);
+}
+
+.svmx-modal-container.slds-modal__container {
+    transform: none;
+}
+
+.svmx-modal_large {
+    width: 90%;
+}
+.svmx-modal_small {
+    width: 60%;
+}
+.svmx-modal_medium {
+    width: 70%;
+}
+
+.svmx-modal > .slds-modal__container.smvx-modal_expand-height-to-viewport > .slds-modal__content {
+    flex-grow: 1;
+}
+
+.svmx-modal_override {
+    top: 10%;
+    right: 34%;
+}
+
+.svmx-backdrop {
+    width: 64.5%;
+}

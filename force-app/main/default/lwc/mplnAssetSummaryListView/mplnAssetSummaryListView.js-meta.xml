@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>56.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>A360 - Asset Summary List View</masterLabel>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="templateId" type="String" label="Maintenance Plan Template record Id" required="true" role="inputOnly"/>
+            <property name="mode" type="String" label="Maintenance Plan setup mode (CREATE, EDIT and TEMPLATE)." role="inputOnly"/>
+            <property name="maintenanceAssetRecords" type="@salesforce/schema/SVMXA360__SM_MaintenancePlanAsset__c[]" label="Maintenance Asset Records" role="inputOnly"/>
+            <property name="maintenanceAssetRequest" type="String" role="outputOnly" label="Maintenance Asset Request JSON String"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

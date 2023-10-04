@@ -1,0 +1,9 @@
+.list-view-header {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: var(--lwc-borderWidthThin,1px) solid var(--lwc-colorBorder,rgb(221, 219, 218));
+    padding-top: var(--lwc-varSpacingVerticalMedium,1rem);
+    padding-right: var(--lwc-varSpacingHorizontalMedium,1rem);
+    padding-bottom: var(--lwc-varSpacingVerticalSmall,0.75rem);
+    padding-left: var(--lwc-varSpacingHorizontalMedium,1rem);
+}

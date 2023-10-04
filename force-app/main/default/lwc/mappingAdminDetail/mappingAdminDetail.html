@@ -1,0 +1,392 @@
+<template>
+    <c-admin-layout>
+        <div class="container">
+            <template if:true={isErrorMessage}>
+                <c-alert variant="warning">
+                    <div slot="header">
+                          <p>{exceptionMessage}</p>
+                    </div>
+                </c-alert>
+            </template>
+            <div class="slds-card">
+                <c-svmx-page-header 
+                    title={viewModel.name} 
+                    icon-name={srcIconName} 
+                    sub-title={i18n.pageHeader} 
+                    icon-title={viewModel.name}
+                    icon-size={iconSize}>
+                    <div class="slds-page-header__control" slot="actions"> 
+                        <lightning-button
+                            if:false={isNew}
+                            label={i18n.whereUsed}
+                            title={i18n.whereUsed}
+                            onclick={handleWhereUsed}
+                            class="svmx-whereUsed slds-p-right_xx-small"
+                        ></lightning-button>         
+                        <lightning-button
+                            label={i18n.cancel} 
+                            title={i18n.cancel} 
+                            onclick={handleCancelEdit} 
+                            class="svmx-cancel-button"
+                        ></lightning-button>
+                        <lightning-button
+                            variant="brand"
+                            label={i18n.save}
+                            title={i18n.save} 
+                            onclick={handleSave} 
+                            class="slds-m-horizontal_xx-small svmx-save-button"
+                        ></lightning-button>
+                        <lightning-button-icon
+                            icon-name="utility:help"
+                            class="svmx-help-link-button"
+                            variant="container"
+                            alternative-text={i18n.help}
+                            title={i18n.help}
+                            onclick={handleHelpClick}
+                        ></lightning-button-icon>
+                    </div>       
+                </c-svmx-page-header> 
+            </div>
+            <div class="scrollable">
+                <div class="slds-card__body slds-card__body_inner">
+                    <template if:true={error}>
+                        <c-alert variant="error" class="svmx-error">{error}</c-alert>
+                    </template>
+                    <template if:true={headerObjectError}>
+                        <c-alert variant="error" class="svmx-header-error">{headerObjectError}</c-alert>
+                    </template>
+                    <div class="slds-section slds-is-open">
+                        <h3 class="slds-section__title slds-theme_shade">
+                            <span
+                                class="slds-truncate slds-p-horizontal_small"
+                                title={i18n.generalInfoSection}
+                                >{i18n.generalInfoSection}</span
+                            >
+                        </h3>
+                    </div>                        
+                    <template if:false={clearStateNeeded}>
+                        <div class="slds-form" role="list">
+                            <div class="slds-form__row">
+                                <div class="slds-form__item" role="listitem">
+                                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                        <lightning-input placeholder={i18n.titlePlaceholder} label={i18n.title} data-field="name" pattern=".*\S.*" message-when-pattern-mismatch={i18n.titleMissing} message-when-value-missing={i18n.titleMissing} required value={viewModel.name} max-length="80" onchange={handleMappingInputChange} onblur={handleNameBlur} class="svmx-mapping_name-input"></lightning-input>
+                                    </div>
+                                </div>
+                                <div class="slds-form__item" role="listitem">
+                                    <template if:true={headerObjectEditable}>
+                                        <c-combobox
+                                            filterable
+                                            class="svmx-currentRecordHeaderInput dataField"
+                                            variant="label-stacked"
+                                            placeholder={i18n.select}
+                                            label={i18n.dataSourceObject}
+                                            value={viewModel.headerObjectAPIName}
+                                            items={recordHeaderOptions}
+                                            onchange={handleRecordHeaderChange}
+                                        ></c-combobox>
+                                    </template>
+                                    <template if:false={headerObjectEditable}>
+                                        <div class="slds-form-element slds-form-element_stacked">
+                                            <span class="slds-form-element__label">{i18n.dataSourceObject}</span>
+                                           <div class="slds-form-element__static svmx-mapping_header-label">
+                                            {viewModel.headerObjectLabel}
+                                           </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="slds-form__row">
+                                <div class="slds-form__item" role="listitem">
+                                    <template if:true={developerNameEditable}>
+                                        <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                            <c-x-extended-text-box class="svmx-mapping_developer-name-input_xtended"
+                                            data-field="developerName_xtended" 
+                                                value={viewModel.developerName} editable>
+                                            <lightning-input placeholder={i18n.developerName} label={i18n.developerName} data-field="developerName" message-when-value-missing={i18n.developerNameMissing} required value={viewModel.developerName} max-length="40" onchange={handleMappingInputChange} class="svmx-mapping_developer-name-input"></lightning-input>
+                                            </c-x-extended-text-box>
+                                        </div>
+                                    </template>
+                                    <template if:false={developerNameEditable}>
+                                        <div class="slds-form-element slds-form-element_stacked">
+                                            <span class="slds-form-element__label">{i18n.developerName}</span>
+                                           <c-x-extended-text-box
+                                               class="svmx-mapping_developer-name-label" value={viewModel.developerName}>
+                                               <div class="slds-form-element__static">
+                                                   {viewModel.developerName}
+                                               </div>
+                                           </c-x-extended-text-box>
+                                        </div>
+                                    </template>
+                                </div>
+                                <div class="slds-form__item" role="listitem">
+                                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                        <lightning-textarea label={i18n.description} max-length="512" value={viewModel.description} data-field="description" onchange={handleMappingInputChange} class="svmx-mapping_description-textarea"></lightning-textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>                        
+                    <div>
+                        <ul class="slds-has-dividers_bottom-space slds-border_right slds-border_left">
+                            <li class="slds-item header-item">
+                                <lightning-layout multiple-rows vertical-align="center">
+                                    <lightning-layout-item flexibility="auto">
+                                        <div class="slds-text-heading--small slds-text-align--left">
+                                            <strong>{i18n.targetObject} : </strong>
+                                            <span class="slds-text-heading--small slds-text-align--left svmx-mapping_target-object">{viewModel.targetObjectLabel}sadasasd</span>
+                                        </div>
+                                    </lightning-layout-item>
+                                    <template if:true={viewModel.isFieldType}>
+                                        <lightning-layout-item flexibility="auto">
+                                            <div class="slds-text-heading--small slds-text-align--left">
+                                                <strong>{i18n.sourceObject} : </strong>
+                                                <span class="slds-text-heading--small slds-text-align--left svmx-mapping_source-object">{viewModel.sourceObjectLabel}ssdssd</span>
+                                            </div>
+                                        </lightning-layout-item>
+                                    </template>
+                                    <lightning-layout-item flexibility="auto, no-grow" padding="horizontal-small">
+                                        <lightning-input type="toggle" class="mappingToggle" label={i18n.toggleLabel} message-toggle-inactive={i18n.toggleInactive} message-toggle-active={i18n.toggleActive} onchange={handleMappingToggle}></lightning-input>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item flexibility="auto, no-grow" class="slds-p-bottom_x-small">
+                                        <lightning-button label={i18n.clearAll} title={i18n.clearAll} variant="neutral" onclick={handleClearAll} class="svmx-mapping_clearAll-button"></lightning-button>
+                                        <!--<lightning-button label={i18n.refreshMetadata} title={i18n.refreshMetadata} disabled variant="neutral" icon-name="utility:refresh" class="slds-m-horizontal_x-small"></lightning-button>-->
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </li>
+                            <li class="slds-item">
+                                <lightning-layout vertical-align="center">
+                                    <lightning-layout-item flexibility="auto">
+                                        <lightning-input type="search" autocomplete="off" value={searchInputValue} label={i18n.searchPlaceholder} placeholder={i18n.searchPlaceholder} variant="label-hidden" class="slds-size_large searchInput svmx-mapping-row_search-input" onchange={handleSearchKeyChange}></lightning-input>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </li>
+                            <template if:true={filteredObjectMappingDetails}>
+                                <template for:each={filteredObjectMappingDetails} for:item="detail">
+                                    <li key={detail.targetFieldAPIName} data-row-key={detail.targetFieldAPIName} class="slds-item detail-item svmx-mapping_row" onclick={handleRowSelection}>
+                                        <lightning-layout multiple-rows vertical-align="center">
+                                            <lightning-layout-item size="12" medium-device-size="3" class="slds-align-top">
+                                                <div class="slds-media slds-media_center">
+                                                    <div class="slds-media__figure">
+                                                        <template if:true={detail.hasWarning}>
+                                                            <lightning-icon variant="error" title={detail.warningMessage} icon-name="utility:error" size="x-small"></lightning-icon>
+                                                        </template>
+                                                        <template if:false={detail.hasWarning}>
+                                                            <lightning-icon size="x-small" icon-name={detail.targetFieldDataTypeIcon}></lightning-icon>
+                                                        </template>
+                                                    </div>
+                                                    <div class="slds-media__body">
+                                                        <template if:true={detail.isTargetFieldDeleted}>
+                                                            <section class="slds-is-relative ">
+                                                                <div title={detail.targetFieldLabel} class="slds-text-body--regular slds-text-color--default slds-truncate" data-row-key={detail.targetFieldAPIName} onmouseover={handleTargetFieldErrorMouseOver} 
+                                                                onmouseout={handleTargetFieldErrorMouseOut}>{detail.targetFieldLabel}</div>
+                                                                <template if:true={detail.showTargetFieldErrorTooltip}>
+                                                                    <div class="svmx-mapping_tooltip 
+                                                                                slds-popover 
+                                                                                slds-popover_tooltip
+                                                                                slds-nubbin_bottom-left" id={detail.targetFieldAPIName} role="tooltip">
+                                                                        <div class="slds-popover__body slds-p-vertical_xx-small">
+                                                                            {i18n.mappingErrorMessage}
+                                                                        </div>
+                                                                    </div>
+                                                                </template>
+                                                            </section>
+                                                        </template>
+                                                        <template if:false={detail.isTargetFieldDeleted}>
+                                                            <div title={detail.targetFieldLabel} class="slds-text-body--regular slds-text-color--default slds-truncate">{detail.targetFieldLabel}</div>
+                                                        </template>
+                                                        <div title={detail.targetFieldAPIName} class="Text slds-text-body--regular slds-text-color--inverse-weak slds-truncate">{detail.targetFieldAPIName}</div>
+                                                    </div>
+                                                </div>
+                                            </lightning-layout-item>
+                                            <template if:true={detail.editMode}>
+                                                <lightning-layout-item size="12" medium-device-size="2" class="slds-align-top">
+                                                    <lightning-combobox placeholder={i18n.select} value={detail.mappingType} data-row-key={detail.targetFieldAPIName} onchange={handleMappingTypeChange} options={detail.mappingTypeOptions} variant="label-hidden"  class="slds-p-right_small svmx-mapping-row_type-combobox"></lightning-combobox>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item class={detail.computedMappingEditorClass}>
+                                                    <template if:true={detail.isFieldMappingType}>
+                                                        <input type="text" 
+                                                            readonly
+                                                            class="slds-input slds-combobox__input slds-combobox__input-value svmx-relatedpicklist-field" 
+                                                            placeholder={i18n.select}
+                                                            value={detail.referenceFieldLabel}
+                                                            data-line-field="detail.sourceFieldAPIName" 
+                                                            data-row-key={detail.targetFieldAPIName} 
+                                                            onclick={handleFieldChange}
+                                                        />
+                                                        <template if:true={detail.showRelatedPicklist}>
+                                                            <c-related-field-selector 
+                                                                data-line-field="detail.sourceFieldAPIName" 
+                                                                object-api-name={viewModel.sourceObjectAPIName}
+                                                                object-label-name={viewModel.sourceObjectLabel}
+                                                                data-row-key={detail.targetFieldAPIName} 
+                                                                onrelatedpicklistselected={handleRelatedPicklistSelected}
+                                                                oncancelmodal={handleCancelRelatedPicklist} 
+                                                                field-value = {detail.sourceFieldAPIName}
+                                                                related-object-details = {detail.relatedObjectDetails}
+                                                                reference-label={detail.referenceFieldLabel}
+                                                                target-field = {detail.targetField}
+                                                                is-compatibility-fields-required = "true">
+                                                            </c-related-field-selector>
+                                                        </template>
+                                                    </template>
+                                                    <template if:true={detail.isValueMappingType}>
+                                                        <c-value-input required field-definition={detail.targetField} timezone={timeZoneForGmt} meta={detail.meta} value={detail.value} data-line-field="detail.targetFieldAPIName" data-row-key={detail.targetFieldAPIName} onvalueinputchange={handleValueChange} class="svmx-mapping-row_value-input"></c-value-input>
+                                                    </template>
+                                                    <template if:true={detail.isFunctionMappingType}>
+                                                        <lightning-combobox required placeholder={i18n.select} message-when-value-missing={i18n.enterValueMissing} data-line-field="detail.value" value={detail.value} data-row-key={detail.targetFieldAPIName} options={detail.functionOptions} onchange={handleFunctionChange} variant="label-hidden" class="svmx-mapping-row_value-combobox"></lightning-combobox>
+                                                    </template>
+                                                </lightning-layout-item>
+                                                <template if:true={detail.isLiteralFunctionMappingType}>
+                                                    <lightning-layout-item class="slds-align-top slds-size_12-of-12 slds-medium-size_3-of-12 slds-p-left_x-small">
+                                                        <section class="slds-is-relative ">
+                                                            <input type="text" 
+                                                                    readonly
+                                                                    class="disabled slds-input slds-combobox__input slds-combobox__input-value svmx-mapping-row_literal-input" 
+                                                                    placeholder={i18n.select}
+                                                                    value={detail.referenceFieldLabel}
+                                                                    data-field="headerRecordObjectAPIName"
+                                                                    data-line-field="detail.literalParameterAPIName" 
+                                                                    data-row-key={detail.targetFieldAPIName} 
+                                                                    onclick={handleLiteralChange}
+                                                                    onmouseover={handleCurrentHeaderLiteralMouseOver} 
+                                                                     onmouseout={handleCurrentHeaderLiteralMouseOut}
+                                                            />
+                                                            <template if:true={detail.isCurrentRecordHeader}>
+                                                                <template if:true={headerSelectionTooltip}>
+                                                                    <template if:true={detail.showHeaderSelectionTooltip}>
+                                                                        <div class="svmx-mapping_tooltip 
+                                                                                    slds-popover 
+                                                                                    slds-popover_tooltip
+                                                                                    slds-nubbin_bottom-left" id={detail.targetFieldAPIName} role="tooltip">
+                                                                            <div class="slds-popover__body slds-p-vertical_xx-small">
+                                                                                {i18n.headerRecordSelectionEnable}
+                                                                            </div>
+                                                                        </div>
+                                                                    </template>
+                                                                </template>
+                                                            </template>
+                                                        </section>
+                                                        <template if:true={detail.showRelatedPicklistForLiteral}>
+                                                            <c-related-field-selector 
+                                                                data-line-field="detail.literalParameterAPIName" 
+                                                                object-api-name={literalObjectAPIName}
+                                                                object-label-name={literalObjectLabel}
+                                                                data-row-key={detail.targetFieldAPIName} 
+                                                                onrelatedpicklistselected={handleRelatedPicklistSelected}
+                                                                oncancelmodal={handleCancelRelatedPicklist} 
+                                                                field-value = {detail.literalParameterAPIName}
+                                                                related-object-details = {detail.relatedObjectDetails}
+                                                                reference-label={detail.referenceFieldLabel}
+                                                                target-field = {detail.targetField}
+                                                                is-compatibility-fields-required = "true">
+                                                            </c-related-field-selector>
+                                                        </template>                             
+                                                    </lightning-layout-item>
+                                                </template>
+                                                <lightning-layout-item flexibility="auto, no-grow" class="slds-m-left_xx-small slds-m-top_xx-small slds-align-top">
+                                                    <template if:true={detail.mappingType}>
+                                                        <lightning-button-icon icon-name="utility:clear" variant="bare" size="medium" alternative-text={i18n.clear} data-row-key={detail.targetFieldAPIName} onclick={handleClearDetail} class="svmx-mapping-row_button-clear"></lightning-button-icon>
+                                                    </template>
+                                                </lightning-layout-item>
+                                            </template>
+                                            <template if:false={detail.editMode}>
+                                                <lightning-layout-item size="12" medium-device-size="2">
+                                                    <div title={detail.mappingType} class="slds-text-body--regular slds-text-color--default slds-truncate slds-p-right_small svmx-mapping-row_mapping-type-label">
+                                                        <template if:true={detail.mappingType}>
+                                                            {detail.mappingTypeLabel}
+                                                        </template>
+                                                        <template if:false={detail.mappingType}>
+                                                            {i18n.select}
+                                                        </template>
+                                                    </div>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="12" medium-device-size="3">
+                                                    <section class="slds-is-relative ">
+                                                        <template if:true={detail.isFieldMappingType}>
+                                                            <div title={detail.referenceFieldLabel} data-row-key={detail.targetFieldAPIName} class="slds-text-body--regular slds-text-color--default value-truncate svmx-mapping-row_field-label" onmouseover={handleMouseOver}
+                                                                onmouseout={handleMouseOut}>{detail.referenceFieldLabel}</div>
+                                                        </template>
+                                                        <template if:true={detail.isValueMappingType}>
+                                                            <div title={detail.valueLabel} data-row-key={detail.targetFieldAPIName} class="slds-text-body--regular slds-text-color--default value-truncate svmx-mapping-row_value-label" onmouseover={handleMouseOver} onmouseout={handleMouseOut}>{detail.valueLabel}</div>
+                                                        </template>
+                                                        <template if:true={detail.isFunctionMappingType}>
+                                                            <div title={detail.functionValueLabel} class="slds-text-body--regular slds-text-color--default value-truncate svmx-mapping-row_function-label">{detail.functionValueLabel}</div>
+                                                        </template>
+                                                        <template if:true={detail.showTooltip}>
+                                                            <div class="svmx-mapping_tooltip 
+                                                                    slds-popover 
+                                                                    slds-popover_tooltip
+                                                                    slds-nubbin_bottom-left" id={detail.targetFieldAPIName} role="tooltip">
+                                                                <div class="slds-popover__body slds-p-vertical_xx-small">
+                                                                    {detail.tooltip}
+                                                                </div>
+                                                            </div>
+                                                        </template>
+                                                    </section>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="12" medium-device-size="3">  
+                                                    <section class="slds-is-relative "> 
+                                                        <template if:true={detail.isLiteralFunctionMappingType}>
+                                                            <div title={detail.referenceFieldLabel} data-row-key={detail.targetFieldAPIName} class="slds-text-body--regular slds-text-color--default value-truncate svmx-mapping-row_function-label" 
+                                                                onmouseover={handleMouseOverForLiteral} onmouseout={handleMouseOutForLiteral}>{detail.referenceFieldLabel}</div>
+                                                        </template>
+                                                        <template if:true={detail.showTooltipForLiteral}>
+                                                            <div class="svmx-mapping_tooltip 
+                                                                        slds-popover 
+                                                                        slds-popover_tooltip
+                                                                        slds-nubbin_bottom-left" id={detail.targetFieldAPIName} role="tooltip">
+                                                                <div class="slds-popover__body slds-p-vertical_xx-small">
+                                                                    {detail.literalTooltip}
+                                                                </div>
+                                                            </div>
+                                                        </template>
+                                                    </section> 
+                                                </lightning-layout-item>
+                                            </template>
+                                            <lightning-layout-item flexibility="auto" class="slds-text-align_right action-col">
+                                                <button class="slds-button slds-button_icon slds-cell-edit__button slds-m-left_x-small svmx-mapping-row_button-edit" tabindex="-1" title={i18n.edit}>
+                                                    <svg class="slds-button__icon slds-button__icon_hint slds-button__icon_edit" aria-hidden="true">
+                                                        <use xlink:href="/_slds//icons/utility-sprite/svg/symbols.svg#edit"></use>
+                                                    </svg>
+                                                    <span class="slds-assistive-text">{i18n.edit}</span>
+                                                </button>
+                                            </lightning-layout-item>
+                                        </lightning-layout>
+                                    </li>
+                                </template>
+                            </template>
+                        </ul>
+                    </div>              
+                </div>
+                        
+                <template if:true={apiInProgress}>
+                    <lightning-spinner variant="brand" alternative-text={i18n.savingMappingRecords}></lightning-spinner>
+                </template>
+            </div>
+            <template if:true={whereUsedModalDialogOpen}>
+                <c-where-used-modal-dialog
+                    class="svmx-whereUsedModalDialog"
+                    module-type={moduleType} 
+                    config-type={configType}
+                    configuration-id={configurationId}  
+                    config-developer-name={configDeveloperName} 
+                    config-name={configName}
+                    operation-type={operationType}
+                    oncancelwhereusedmodal={handleCancelDeleteModal}
+                    onsavemodal={handleWhereUsedSave}>
+                </c-where-used-modal-dialog>             
+            </template>
+            <c-modal-dialog title={i18n.cancelModalTitle} class="cancelModal" is-open={cancelModalDialogOpen} modal-content-id="cancelModalContent" modal-header-id="cancelModalHeader" onmodalclosed={handleCancelModal}>
+                <div slot="body">
+                    <span slot="body">
+                        <p><lightning-formatted-text value={i18n.cancelModalContent}></lightning-formatted-text></p>
+                    </span>
+                </div>
+                <div slot="footer">
+                    <lightning-button label={i18n.goBack} title={i18n.goBack} variant="neutral" onclick={handleCancelModal} class="slds-p-right_x-small cancelButton"></lightning-button>
+                    <lightning-button class="confirmButton" label={i18n.continue} title={i18n.continue} variant="brand" onclick={handleCancelConfirmModal}></lightning-button>
+                </div>
+            </c-modal-dialog>    
+        </div>
+    </c-admin-layout>
+</template>

@@ -1,0 +1,15 @@
+.slds-icon_xx-small {
+    height : .700rem
+}
+
+.resetBackgroundColor {
+    background-color: transparent;
+}
+
+.hideUtilitySortIcon {
+    display: none !important;
+}
+
+.showUtilitySortIcon {
+    display: block !important;
+}

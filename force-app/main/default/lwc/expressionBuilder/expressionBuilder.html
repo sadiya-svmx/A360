@@ -1,0 +1,123 @@
+<template>
+    <template if:true={apiInProgress}>
+        <lightning-spinner
+            variant="brand"
+            alternative-text={i18n.loading}
+        ></lightning-spinner>
+      </template>
+    <template if:true={_expressionData}>
+        <ul>
+            <template if:true={hasDetails}>
+                <template
+                    iterator:expressiondetail={_expressionDataForItem.expressionDetails}
+                >
+                    <c-expression-builder-item
+                        key={expressiondetail.value.guid}
+                        object-api-name={_expressionDataForItem.objectAPIName}
+                        object-label={_expressionDataForItem.objectLabel}
+                        user-label={userLabel}
+                        header-record-object={headerRecordObject}
+                        header-record-object-label={headerObjectLabel}
+                        class="svmx-expression-builder_item"
+                        detail={expressiondetail.value}
+                        object-api-field={objectApiField}
+                        record-type-object-details={recordTypeObjectDetails}
+                        edit-mode={editMode}
+                        edit-mode-type={editModeType}
+                        delete-disabled={hasOneExpressionDetail}
+                        index={expressiondetail.index}
+                        onfieldchange={handleFieldChange}
+                        onliteralfieldchange={handleLiteralFieldChange}
+                        ondeletecondition={handleDeleteCondition}
+                        onaddcondition={handleAddCondition}
+                        onoperatorchange={handleOperatorChange}
+                        onedittypechange={handleEditTypeChange}
+                        onoperandchange={handleOperandChange}
+                        onoperandtypechange={handleOperandTypeChange}
+                        ontoggleedit={handleToggleEdit}
+                        is-lookup-criteria={isLookupCriteria}
+                        onshowloading={handleLoading}
+                        show-as-title-tooltip={showAsTitleTooltip}
+                    ></c-expression-builder-item>
+                </template>
+            </template>
+        </ul>
+        <template if:true={editMode}>
+            <div class="slds-expression__buttons">
+                <lightning-button
+                    label={i18n.addCondition}
+                    title={i18n.addCondition}
+                    icon-name="utility:add"
+                    class="slds-m-left_x-small svmx-addExpressionCondition"
+                    onclick={handleAddCondition}
+                    disabled={disableAddConditionButton}
+                ></lightning-button>
+                <div if:true={disableAddConditionButton} class="svmx-warningMaxRulesContainer">
+                    <span class="svmx-warningMaxRules">{i18n.maxFiveRulesInVC}</span>
+                </div>
+            </div>
+            <div class="slds-expression__custom-logic slds-m-top_xx-large">
+                <template if:true={showAdvancedExpression}>
+                    <lightning-input
+                        class="advancedExpressionInput"
+                        label={i18n.advancedExpressionEdit}
+                        value={_expressionDataUnwrapped._advancedExpression}
+                        max-length="250"
+                        onchange={handleValueChange}
+                        onblur={handleAdvancedValidation}
+                    ></lightning-input>
+                </template>
+            </div>
+            <template if:true={showTags}>
+                <div class="slds-section slds-is-open slds-p-top_medium">
+                    <h3 class="slds-section__title slds-theme_shade">
+                        <span
+                            class="slds-truncate slds-p-horizontal_small slds-p-bottom_x-small"
+                            title={i18n.tags}
+                            >{i18n.tags}</span
+                        >
+                    </h3>
+                </div>
+                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                    <c-combobox
+                        class="tagsInput"
+                        value={_expressionDataUnwrapped._selectedTagsValue}
+                        variant="label-stacked"
+                        items={tagOptions}
+                        onchange={handleTagChange}
+                        multiple
+                        filterable>
+                    </c-combobox>
+                </div>
+            </template>
+        </template>
+        <template if:false={editMode}>
+            <template if:true={hasMoreThanOneExpressionDetail}>
+                <span class="slds-form-element__label slds-p-left_medium">
+                    {i18n.advancedExpression}
+                </span>
+                <div class="slds-form-element__control slds-p-left_medium">
+                    <div class="slds-form-element">
+                        {_expressionDataUnwrapped._advancedExpression}
+                    </div>
+                </div>
+            </template>
+            <template if:true={showTags}>
+                <div class="slds-section slds-is-open slds-p-top_medium">
+                    <h3 class="slds-section__title slds-theme_shade">
+                        <span
+                            class="slds-truncate slds-p-horizontal_small slds-p-bottom_x-small"
+                            title={i18n.tags}
+                            >{i18n.tags}</span
+                        >
+                    </h3>
+                </div>
+                <template iterator:tag={_expressionDataUnwrapped._selectedTagsArray}>
+                    <span key={tag.key} class="slds-pill">
+                        <span class="slds-pill__label">{tag.value}</span>
+                    </span>
+                </template>
+            </template>
+        </template>
+    </template>
+</template>

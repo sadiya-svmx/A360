@@ -1,0 +1,88 @@
+<template>
+    <div class="slds-grid slds-gutters_x-small slds-p-around_medium">
+        <div class="slds-col">
+            <div class="slds-form-element">
+                <div class="slds-form-element__control">
+                    <div class="slds-input-has-icon slds-input-has-icon--right">
+                        <lightning-input
+                            placeholder={i18n.labelSearch}
+                            variant="label-hidden"
+                            value={searchTerm}
+                            onchange={handleSearchTermChange}
+                            autocomplete="off"
+                            class="svmx-search-input"
+                        ></lightning-input>
+                        <lightning-icon
+                            icon-name="utility:search"
+                            class="slds-input__icon" size="xx-small"
+                        ></lightning-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slds-col slds-grow-none">
+            <lightning-button-icon-stateful
+                icon-name="utility:campaign"
+                selected={applyContextFilter}
+                disabled={isOverrideContextDisable}
+                onclick={handleContextFilterCheckbox}
+            ></lightning-button-icon-stateful>
+        </div>
+        <!-- Disabled for now until we determine requirements around limiting which objects can be
+            created, etc: https://servicemax.atlassian.net/browse/A360ENG-1743 -->
+        <!-- <div class="slds-col slds-grow-none">
+            <lightning-button-icon-stateful
+                icon-name="utility:add"
+                onclick={handleAddModalOpen}
+            ></lightning-button-icon-stateful>
+        </div> -->
+    </div>
+
+    <c-modal-dialog
+        title={addRecordTitle}
+        is-open={isAddModalOpen}
+        onmodalclosed={handleAddModalCancel}
+        modal-content-id="lookupAddRecordModalContent"
+
+    >
+        <div slot="header">
+            <lightning-layout horizontal-align="spread" vertical-align="center">
+                <lightning-layout-item alignment-bump="right" flexibility="auto">
+                    <div>
+                        <h2
+                            id="lookupAddRecordModalHeader"
+                            class="slds-modal__title slds-hyphenate "
+                        >
+                            {addRecordTitle}
+                        </h2>
+                    </div>
+                </lightning-layout-item>
+                <lightning-layout-item alignment-bump="left" flexibility="no-shrink">
+                    <lightning-button
+                        label={i18n.labelCancel}
+                        title={i18n.labelCancel}
+                        variant="neutral"
+                        onclick={handleAddModalCancel}
+                        class="slds-m-right_small"
+                    ></lightning-button>
+
+                    <lightning-button
+                        label={i18n.labelSave}
+                        title={i18n.labelSave}
+                        variant="brand"
+                        onclick={handleAddModalSave}
+                    ></lightning-button>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+
+        <div slot="body" class="slds-m-around_small">
+            <lightning-record-form
+                object-api-name={objectApiName}
+                layout-type="FULL"
+                oncancel={handleAddModalCancel}
+                onsuccess={handleAddModalSuccess}
+            ></lightning-record-form>
+        </div>
+    </c-modal-dialog>
+</template>

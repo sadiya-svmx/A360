@@ -1,0 +1,35 @@
+<template>
+    <template if:true={hasSections}>
+        <template for:each={sections} for:item="section">
+            <c-x-expandable-section key={section.id} title={section.name} disable-expandable={section.disableExpandable}>
+                <lightning-layout if:true={section.hasElements} multiple-rows>
+                    <template for:each={section.elementsByRow} for:item="row">
+                        <template for:each={row.elements} for:item="element">
+                            <lightning-layout-item key={element.name} size={section.columnWidth} padding="horizontal-small">
+                                <template if:true={element.isField}>
+                                        <c-value-input
+                                            context={element.context}
+                                            data-field-apiname={element.name}
+                                            disabled={element.disabled}
+                                            field-definition={element.fieldMetadata}
+                                            field-id={element.id}
+                                            key={element.id}
+                                            onvalueinputchange={handleValueChange}
+                                            required={element.required}
+                                            meta={element.meta}
+                                            value={element.value}
+                                            variant="label-stacked"
+                                            engine-id={engineId}
+                                        ></c-value-input>
+                                </template>
+                                <template if:false={element.isField}>
+                                    <div class="slds-p-around_medium slds-m-bottom_x-small" key={element.id}>&nbsp;</div>
+                                </template>
+                            </lightning-layout-item>
+                        </template>
+                    </template> 
+                </lightning-layout>
+            </c-x-expandable-section>
+        </template>
+    </template>
+</template>

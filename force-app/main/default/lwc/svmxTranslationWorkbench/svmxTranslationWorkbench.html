@@ -1,0 +1,146 @@
+<template>
+    <div class="slds-card">
+        <c-svmx-page-header title={i18n.title_translationWorkbench} sub-title={i18n.label_applicationConfiguration}
+            icon-name={srcIconName} icon-title={i18n.title_translationWorkbench} icon-size={iconSize}>
+            <div class="slds-page-header__control" slot="actions">
+                <lightning-button variant="Neutral" class="svmx-manageLanguage slds-hide"
+                    label={i18n.title_manageLanguage} title={i18n.title_manageLanguage} onclick={handleManageLanguage}>
+                </lightning-button>
+            </div>
+            <lightning-button-icon
+            slot="actions"
+            icon-name="utility:help"
+            variant="container"
+            alternative-text={i18n.help}
+            title={i18n.help}
+            onclick={handleHelpClick}
+            class="svmx-help-link-button"
+        ></lightning-button-icon>
+        </c-svmx-page-header>
+        <div class="slds-card__body slds-card__body_inner">
+            <div class="slds-grid">
+                <div class="slds-col slds-size_1-of-6">
+                    <lightning-combobox name="Context" label={i18n.label_context}
+                        class="svmx-translation-workbench_contextSelector" options={translationContexts}
+                        value={context} onchange={handleContextChange}></lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_2-of-6 svmx-search_input_div" onchange={handleKeyUpForSearch}>
+                    <lightning-input name="enter-search" label="" type="search"
+                        class="slds-p-top_xx-small slds-p-left_x-small" placeholder={i18n.placeholder_search}>
+                    </lightning-input>
+                </div>
+                <div class="slds-col slds-size_3-of-6">
+                    <lightning-combobox name="Language" class="slds-float_right svmx-translation-workbench_languageselector" label={i18n.label_targetLanguage}
+                        value={defaultLanguage} options={filteredLangoptions} onchange={handleLangChange}>
+                    </lightning-combobox>
+                </div>
+            </div>
+            <div class=" slds-p-top_small svmx-translation-workbench-height">
+                <c-x-datatable class="expressionListViewTable" key-field="key" data={filteredListViewData}
+                    draft-values={draftValues} column-widths-mode="fixed" show-row-number-column="false"
+                    columns={columns} enable-infinite-loading onloadmore={loadMoreData} sorted-direction={sortDirection}
+                    default-sort-direction="asc" sorted-by="contextLabel" hide-checkbox-column onsort={handleSortRows}
+                    onrowaction={handleRowAction} oncellchange={handleCellChange} onsave={handleSave}>
+                </c-x-datatable>
+            </div>
+            <template if:true={showLoading}>
+                <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+            </template>
+        </div>
+    </div>
+    <template if:true={showManageLanguage}>
+        <c-modal-dialog class="svmx-manage-language_detail-modal" is-open={showManageLanguage}
+            modal-content-id="alertDetailsModalContent" modal-header-id="alertDetailsModalHeader"
+            onmodalclosed={handleCloseModalClick} title={i18n.title_manageLanguage}>
+            <div slot="body">
+                <lightning-formatted-text class="slds-p-horizontal_small " value={i18n.message_editLanguage}>
+                </lightning-formatted-text>
+                <div class="slds-m-top_x-small">
+                    <div class="slds-grid slds-wrap">
+                        <template for:each={languages} for:item="language">
+                            <div class="slds-p-around_small slds-size_6-of-12" key={language.value}>
+                                <template if:true={language.readonly}>
+                                    <lightning-input type="checkbox" label={language.label} value={language.selected}
+                                        data-label={language.label} class="svmx-manage-language-list" disabled
+                                        checked={language.selected} name={language.value}></lightning-input>
+                                </template>
+                                <template if:false={language.readonly}>
+                                    <lightning-input type="checkbox" label={language.label} value={language.selected}
+                                        class="svmx-manage-language-list" data-label={language.label}
+                                        checked={language.selected} name={language.value}></lightning-input>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            <div slot="footer">
+                <template if:true={error}>
+                    <lightning-formatted-text class="slds-p-horizontal_small slds-text-color_error" value={error}>
+                    </lightning-formatted-text>
+                </template>
+                <lightning-button class="svmx-modal_button-cancel slds-p-right_small" label={i18n.button_cancel}
+                    onclick={handleCloseModalClick} title={i18n.button_cancel} variant="Neutral"></lightning-button>
+                <lightning-button class="svmx-modal_button-save" label={i18n.button_update}
+                    onclick={handleUpdateLanguages} title={i18n.button_update} variant="brand"></lightning-button>
+            </div>
+        </c-modal-dialog>
+    </template>
+    <template if:true={showConfirmation}>
+        <c-modal-dialog class="svmx-manage-language_detail-modal" is-open={showConfirmation}
+            modal-content-id="alertDetailsModalContent" modal-header-id="alertDetailsModalHeader"
+            onmodalclosed={handleCloseConfirmationClick} title={i18n.title_editingItem}>
+            <div slot="body">
+                <div class="slds-align_absolute-center">
+                    <lightning-formatted-text class="slds-p-horizontal_small " value={i18n.message_unsavedChanges}>
+
+                    </lightning-formatted-text>
+                </div>
+                <div class="slds-align_absolute-center ">
+                    <lightning-formatted-text class="slds-p-horizontal_small " value={i18n.title_confirmUnsavedChanges}>
+                    </lightning-formatted-text>
+                </div>
+            </div>
+            <div slot="footer">
+
+                <lightning-button class="svmx-modal_button-cancel slds-p-right_small" label={i18n.button_stayOnList}
+                    onclick={handleCloseConfirmationClick} title={i18n.button_stayOnList} variant="Neutral">
+                </lightning-button>
+                <lightning-button class="svmx-modal_button-save" label={i18n.button_discardChanges}
+                    onclick={handleEditLanguages} title={i18n.button_discardChanges} variant="brand"></lightning-button>
+            </div>
+        </c-modal-dialog>
+    </template>
+    <template if:true={showEditTranslations}>
+        <c-modal-dialog class="svmx-edit-language_detail-modal" is-open={showEditTranslations}
+            modal-content-id="alertDetailsModalContent" modal-header-id="alertDetailsModalHeader"
+            onmodalclosed={handleCloseEditModalClick} title={i18n.title_editLanguage}>
+            <div slot="body">
+                <div class="slds-m-top_x-small">
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-p-horizontal_small slds-size_2-of-2">
+                            {i18n.label_masterText}
+                        </div>
+                        <div class="slds-p-horizontal_small slds-size_2-of-2">
+                            <h1 class="slds-text-heading_large"> {editedMasterText}
+                            </h1>
+                        </div>
+                        <template for:each={translatedList} for:item="language">
+                            <div class="slds-p-horizontal_small slds-size_2-of-2" key={language.name}>
+                                <lightning-input type="Text" label={language.label} value={language.value}
+                                    class="svmx-edit-multiple-languages" data-name={language.name}>
+                                </lightning-input>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            <div slot="footer">
+                <lightning-button class="svmx-modal_button-cancel slds-p-right_small" label={i18n.button_cancel}
+                    onclick={handleCloseEditModalClick} title={i18n.button_cancel} variant="Neutral"></lightning-button>
+                <lightning-button class="svmx-modal_button-save" label={i18n.button_save} onclick={handleSaveModal}
+                    title={i18n.button_save} variant="brand"></lightning-button>
+            </div>
+        </c-modal-dialog>
+    </template>
+</template>

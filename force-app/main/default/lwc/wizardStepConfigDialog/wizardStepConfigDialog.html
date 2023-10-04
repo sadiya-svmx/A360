@@ -1,0 +1,423 @@
+<template>
+    <c-modal-dialog
+        title={modalTitle}
+        is-open={modalOpen}
+        size="small"
+        modal-content-id="stepConfigurationContent"
+        modal-header-id="stepConfigurationHeader"
+        onmodalclosed={handleCancelModal}
+        relative-to-viewport
+    >
+        <div slot="body">
+            <template if:true={error}>
+                <c-alert variant="error">{error}</c-alert>
+            </template>
+            <template if:false={selectStepProperties}>
+                <c-card-selector
+                    steptypeslist={steptypesdata}
+                    onwizardstepselected={handleStepTypeChange}>
+                </c-card-selector>
+            </template>
+            <template if:true={selectStepProperties}>
+                <div class="slds-form" role="list">
+                    <div class="slds-form__row">
+                        <div
+                            class="slds-form__item"
+                            role="listitem"
+                        >
+                        <template if:true={showAsPlainText}>
+                            <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                <lightning-input class="required-field step-type-lookup"
+                                    placeholder={i18n.selectStep} label={i18n.selectStep}
+                                    message-when-value-missing={i18n.urlStepMissing} required
+                                    value={processStepRecord.target}
+                                    max-length="255" onchange={handleStepTargetChanged}></lightning-input>
+                            </div>
+                        </template>
+                        <template if:false={showAsPlainText}>
+                            <c-modal-lookup
+                                class="step-type-lookup required-field"
+                                label={i18n.selectStep}
+                                variant="label-stacked"
+                                message-when-value-missing={i18n.stepMissing}
+                                placeholder={i18n.selectStep}
+                                onviewclick={handleViewStepClick}
+                                onmodalrequest={handleStepModalRequest}
+                                onvalueremoved={handleStepRemoved}
+                                required
+                                value={stepLookupValue}
+                            >
+                            </c-modal-lookup>
+                        </template>
+                        </div>
+                        <div
+                            class="slds-form__item"
+                            role="listitem"
+                        >
+                            <c-modal-lookup
+                                class="criteria-lookup"
+                                label={i18n.criteria}
+                                variant="label-stacked"
+                                placeholder={i18n.selectCriteria}
+                                onviewclick={handleViewCriteriaClick}
+                                onmodalrequest={handleCriteriaModalRequest}
+                                onvalueremoved={handleCriteriaRemoved}
+                                value={criteriaLookupValue}
+                            >
+                            </c-modal-lookup>
+                        </div>
+                    </div>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item" role="listitem">
+                            <div
+                                class="slds-form-element slds-form-element_stacked slds-is-editing"
+                            >
+                                <lightning-input
+                                    class="required-field svmx-step-name"
+                                    placeholder={i18n.stepNamePlaceholder}
+                                    label={i18n.stepName}
+                                    pattern=".*\S.*"
+                                    message-when-pattern-mismatch={i18n.nameMissing}
+                                    message-when-value-missing={i18n.nameMissing}
+                                    required
+                                    value={processStepRecord.name}
+                                    max-length="80"
+                                    onchange={handleStepNameChanged}
+                                    onblur={updateUrlStepDevName}
+                                ></lightning-input>
+                            </div>
+                        </div>
+                        <div class="slds-form__item" role="listitem">
+                            <div
+                                class="slds-form-element slds-form-element_stacked slds-is-editing"
+                            >
+                                <lightning-combobox
+                                    class={computedCriteriaAction}
+                                    name="criteriaAction"
+                                    label={i18n.criteriaAction}
+                                    options={criteriaActionOptions}
+                                    value={processStepRecord.criteriaAction}
+                                    required={isCriteriaActionRequired}
+                                    onchange={handleCriteriaActionChange}
+                                ></lightning-combobox>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item" role="listitem">
+                            <div
+                                class="slds-form-element slds-form-element_stacked slds-is-editing"
+                            >
+                                <lightning-textarea
+                                    label={i18n.tooltip}
+                                    max-length="255"
+                                    value={processStepRecord.helpText}
+                                    onchange={handleTooltipChanged}
+                                    class="svmx-step-tooltip"
+                                ></lightning-textarea>
+                            </div>
+                        </div>
+                        <div class="slds-form__item" role="listitem">
+                            <div
+                                class="slds-form-element slds-form-element_stacked slds-is-editing"
+                            >
+                                <lightning-textarea
+                                    label={i18n.criteriaActionHelpText}
+                                    max-length="255"
+                                    value={processStepRecord.criteriaActionHelpText}
+                                    onchange={handleCriteriaActionHelpTextChanged}
+                                    class="svmx-action-helptext"
+                                ></lightning-textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item" role="listitem">
+                            <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                <template if:true={developerNameEditable}>
+                                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                        <lightning-input
+                                            class="required-field step-developer-name"
+                                            placeholder={i18n.developerName}
+                                            label={i18n.developerName}
+                                            pattern=".*\S.*"
+                                            message-when-pattern-mismatch={i18n.developerNameMissing}
+                                            message-when-value-missing={i18n.developerNameMissing}
+                                            required
+                                            value={processStepRecord.developerName}
+                                            max-length="140"
+                                            onchange={handleDeveloperNameChanged}
+                                        ></lightning-input>
+                                    </div>
+                                </template>
+                                <template if:false={developerNameEditable}>
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <span class="slds-form-element__label">
+                                            <abbr
+                                                    class="slds-required"
+                                                    title={i18n.required}
+                                                    >*</abbr
+                                                >{i18n.developerName}</span>
+                                        <div class="slds-form-element__control">
+                                            <div class="slds-form-element__static">{processStepRecord.developerName}</div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                        <div class="slds-form__item" role="listitem">
+                            <div
+                                class="slds-form-element slds-form-element_stacked slds-is-editing"
+                            >
+                                <c-modal-lookup
+                                    class="step-type-icon"
+                                    label={i18n.iconName}
+                                    variant="label-stacked"
+                                    hide-view-button
+                                    onmodalrequest={handleIconPickerOpen}
+                                    onvalueremoved={handleIconRemoved}
+                                    value={iconLookupValue}
+                                >
+                                </c-modal-lookup>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item" role="listitem">
+                            <div
+                                class="slds-form-element slds-form-element_stacked slds-is-editing"
+                            >
+                             <template if:true={showOpenAsModal}>
+                                <lightning-input
+                                    class="svmx-step-openAsModal"
+                                    label={i18n.openAsModal}
+                                    type="checkbox"
+                                    checked={processStepRecord.openAsModal}
+                                    onchange={handleOpenModalChanged}
+                                    field-level-help={i18n.openModalHelpText}
+                                ></lightning-input>
+                            </template>
+                            </div>
+                        </div>
+                        <div class="slds-form__item" role="listitem"></div>
+                    </div>
+                    <template if:true={showDependentStepDropDown}>
+                        <div class="slds-form__row">
+                            <div class="slds-form__item" role="listitem"></div>
+                            <div class="slds-form__item" role="listitem">
+                                <div class="slds-form-element slds-form-element_stacked slds-is-editing" >
+                                    <c-combobox
+                                        class="svmx-dependency-step-value"
+                                        value={selectedDependencyValue}
+                                        variant="label-stacked"
+                                        items={dependentStepsList}
+                                        onchange={handleStepDependencyValueSelect}
+                                        label={i18n.labelDependentStepList}
+                                    >
+                                    </c-combobox>
+                                </div>
+                            </div>                                                            
+                        </div>
+                    </template>
+                    <template if:true={isTypeParameterized}>
+                        <div class="slds-section slds-is-open">
+                            <h3 class="slds-section__title slds-section__title-action">
+                                <span class="slds-truncate" title={i18n.parameters}>{i18n.parameters}</span>
+                            </h3>
+                            <ul class="slds-has-dividers_bottom-space slds-border_right slds-border_left">
+                                <li class="slds-item header-item">
+                                    <lightning-layout multiple-rows vertical-align="center" horizontal-align="spread">
+                                        <lightning-layout-item size="12" medium-device-size="3" class="slds-align-top">
+                                            <span>{i18n.parameterName}</span>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="12" medium-device-size="3" class="slds-align-top">
+                                            <span>{i18n.valueType}</span>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="12" medium-device-size="3" class="slds-align-top">
+                                            <span>{i18n.value}</span>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                </li>
+                                <template if:false={hasParameters}>
+                                    <li class="slds-item">
+                                        <span>{i18n.noParameters}</span>
+                                    </li>
+                                </template>
+                                <template if:true={hasParameters}>
+                                    <template for:each={processStepRecord.stepParameters} for:item="stepParameter">
+                                        <li key={stepParameter.referenceId}
+                                            class="slds-item"
+                                        >
+                                            <lightning-layout multiple-rows vertical-align="center" horizontal-align="spread">
+                                                <lightning-layout-item size="12" medium-device-size="3" class="slds-align-top">
+                                                    <lightning-input
+                                                        data-field="parameterKey"
+                                                        data-row-key={stepParameter.referenceId}
+                                                        class="required-field svmx-step-parameter-input_key"
+                                                        placeholder={i18n.parameterName}
+                                                        value={stepParameter.parameterKey}
+                                                        label={i18n.parameterName}
+                                                        pattern="^\S*$"
+                                                        message-when-pattern-mismatch={i18n.noSpaceAllowed}
+                                                        message-when-value-missing={i18n.enterValue}
+                                                        required
+                                                        onchange={handleStepParameterChange}
+                                                        variant="label-hidden">
+                                                    </lightning-input>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="12" medium-device-size="3" class="slds-align-top">
+                                                    <lightning-combobox
+                                                        data-field="valueType"
+                                                        data-row-key={stepParameter.referenceId} 
+                                                        class="required-field svmx-step-parameter-combo_value-type"
+                                                        placeholder={i18n.select}
+                                                        value={stepParameter.valueType}
+                                                        label={i18n.valueType}
+                                                        options={valueTypeOptions}
+                                                        variant="label-hidden"
+                                                        onchange={handleStepParameterChange}
+                                                    ></lightning-combobox>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="12" medium-device-size="3" class="slds-align-top">
+                                                    <template if:true={stepParameter.isFieldMappingType}>
+                                                        <c-combobox
+                                                            filterable
+                                                            required
+                                                            data-field="parameterValue"
+                                                            data-row-key={stepParameter.referenceId}
+                                                            class="required-field svmx-step-parameter-combo_value"
+                                                            placeholder={i18n.select}
+                                                            value={stepParameter.parameterValue}
+                                                            onchange={handleStepParameterChange}
+                                                            items={fieldOptions}
+                                                            variant="label-hidden"
+                                                        ></c-combobox>
+                                                    </template>
+                                                    <template if:false={stepParameter.isFieldMappingType}>
+                                                        <lightning-input
+                                                            data-field="parameterValue"
+                                                            data-row-key={stepParameter.referenceId}
+                                                            placeholder={i18n.value}
+                                                            value={stepParameter.parameterValue}
+                                                            label={i18n.value}
+                                                            pattern=".*\S.*"
+                                                            message-when-pattern-mismatch={i18n.enterValue}
+                                                            message-when-value-missing={i18n.enterValue}
+                                                            required
+                                                            class="required-field svmx-step-parameter-input_value"
+                                                            onchange={handleStepParameterChange}
+                                                            variant="label-hidden">
+                                                        </lightning-input>
+                                                    </template>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item flexibility="auto" class="slds-text-align_right action-col">
+                                                    <lightning-button-icon
+                                                        data-row-key={stepParameter.referenceId}
+                                                        class="svmx-step-parameter_delete"
+                                                        title={i18n.deleteParameter}
+                                                        icon-name="utility:delete"
+                                                        onclick={handleDeleteParameter}
+                                                    ></lightning-button-icon>
+                                                </lightning-layout-item>
+                                            </lightning-layout>
+                                        </li>
+                                    </template>
+                                </template>
+                            </ul>
+                        </div>
+                        <lightning-button
+                                label={i18n.addRow}
+                                title={i18n.addRow}
+                                icon-name="utility:add"
+                                class="slds-p-top_x-small svmx-addStepParameter"
+                                onclick={handleAddParameter}
+                            ></lightning-button>
+                    </template>
+                    <template if:true={showExpressionSelector}>
+                        <c-expression-selector
+                            modal-size="large"
+                            object-api-name={objectApiName}
+                            selector-modal-title={i18n.selectExpression}
+                            selector-modal-open={showExpressionSelector}
+                            onexpressionselectorclosed={handleExpressionModalClosed}
+                            onexpressionselected={handleExpressionSelected}
+                        >
+                        </c-expression-selector>
+                    </template>
+                    <template if:true={showStepSelector}>
+                        <c-flow-selector
+                            object-api-name={_objectApiName}
+                            step-type-name={_processStepRecord.type}
+                            step-icon-name={_processStepRecord.iconName}
+                            selector-modal-open={showStepSelector}
+                            onflowselected={handleStepTargetSelected}
+                            onflowselectorclosed={handleStepModalClosed}
+                        >
+                        </c-flow-selector>
+                    </template>
+                    <template if:true={showExpressionViewModal}>
+                        <c-wizard-expression-modal
+                            expression-id={expressionId}
+                            modal-open={showExpressionViewModal}
+                            onexpressionmodalclosed={handleExpressionViewModalClosed}
+                        >
+                        </c-wizard-expression-modal>
+                    </template>
+                    <template if:true={showIconPickerModal}>
+                        <c-icon-picker 
+                            selected-icon={processStepRecord.iconName}
+                            is-open={showIconPickerModal}
+                            oniconpickerclosed={handleIconPickerClose}
+                            onapply={handleIconPickerApply}
+                        ></c-icon-picker>
+                    </template>
+                    <template if:true={showPreviewModal}>
+                        <c-svmx-wizard-step-preview-dialog 
+                            process-step-record={processStepRecord}
+                            object-api-name={_objectApiName}
+                            is-open={showPreviewModal}
+                            onmodalclosed={handlePreviewModalClose}
+                        ></c-svmx-wizard-step-preview-dialog>
+                    </template>
+                </div>
+            </template>      
+        </div>
+        <div slot="footer">
+            <template if:true={showPreviewMode}>
+                <lightning-button 
+                    label={i18n.buttonTest}
+                    title={i18n.buttonTest}
+                    variant="neutral" 
+                    onclick={handlePreviewWizardStep}
+                    class="slds-float_left slds-p-right_x-small svmx-preview-button"
+                ></lightning-button>
+            </template>
+            <lightning-button
+                label={i18n.cancel}
+                title={i18n.cancel}
+                variant="neutral"
+                onclick={handleCancelModal}
+                class="slds-p-right_x-small svmx-cancel-button"
+            ></lightning-button>
+            <template if:false={selectStepProperties}>
+                <lightning-button
+                    label={i18n.next}
+                    title={i18n.next}
+                    variant="brand"
+                    onclick={handleNext}
+                    disabled={nextButtonDisabled}
+                    class="svmx-next-button"
+                ></lightning-button>
+            </template>
+            <template if:true={selectStepProperties}>
+                <lightning-button
+                    label={i18n.apply}
+                    title={i18n.apply}
+                    variant="brand"
+                    onclick={handleApply}
+                    class="svmx-apply-button"
+                ></lightning-button>
+            </template>
+        </div>
+    </c-modal-dialog>
+</template>

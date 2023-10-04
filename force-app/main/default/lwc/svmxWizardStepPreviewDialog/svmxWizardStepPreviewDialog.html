@@ -1,0 +1,54 @@
+<template>
+    <c-modal-dialog class="svmx-wizard-step-preview-dialog" is-open={isOpen} onmodalclosed={handleCloseModalClick}
+        size="SMALL" title={i18n.previewStepTitle}>
+        <div slot="body">
+            <lightning-formatted-text value={i18n.msg_RunPreview} class="svmx-alert_detail-modal-label">
+            </lightning-formatted-text>
+            <template if:true={error}>
+                <c-alert variant="error">{error}</c-alert>
+            </template>
+            <div class="slds-form slds-m-top_x-small">
+                <div class="slds-form-element">
+                    <lightning-input required class="svmx-wizard-step-preview-recordField" type="text"
+                        label={i18n.recordLabel} message-when-value-missing={i18n.requiredFieldMessage}
+                        field-level-help={i18n.recordIdHelpText} onchange={handleRecordIdChange} value={recordId}>
+                    </lightning-input>
+                </div>
+                <template if:true={hasParameters}>
+                    <template for:each={processStepRecord.stepParameters} for:item="parameter">
+                        <div class="slds-form-element" key={parameter.parameterKey}>
+                            <template if:true={parameter.editable}>
+                                <lightning-input type="text" label={parameter.parameterKey}
+                                    name={parameter.parameterKey} class="svmx-wizard-step-preview-param"
+                                    value={parameter.value}>
+                                </lightning-input>
+                            </template>
+                            <template if:false={parameter.editable}>
+                                <lightning-input type="text" label={parameter.parameterKey}
+                                    name={parameter.parameterKey} class="svmx-wizard-step-preview-param" disabled
+                                    placeholder={parameter.parameterValue} value={parameter.value}>
+                                </lightning-input>
+                            </template>
+                        </div>
+                    </template>
+                </template>
+            </div>
+        </div>
+
+        <div slot="footer">
+            <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCloseModalClick}
+                class="slds-p-right_x-small svmx-cancel-button"></lightning-button>
+            <template if:true={disablerunpreview}>
+                <lightning-button label={i18n.runPreview} title={i18n.runPreview} disabled variant="brand"
+                    onclick={handleRunPreview} class="svmx-wizard-step-preview-button"></lightning-button>
+            </template>
+            <template if:false={disablerunpreview}>
+                <lightning-button label={i18n.runPreview} title={i18n.runPreview} variant="brand"
+                    onclick={handleRunPreview} class="svmx-wizard-step-preview-button">
+                </lightning-button>
+            </template>
+
+        </div>
+    </c-modal-dialog>
+
+</template>

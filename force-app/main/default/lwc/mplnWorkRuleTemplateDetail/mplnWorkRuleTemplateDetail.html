@@ -1,0 +1,299 @@
+<template>
+  <div class="topContainer">
+    <template if:true={detailError}>
+      <c-alert variant="error">{detailError}</c-alert>
+    </template>
+    <div class="slds-section slds-is-open parentContainer">
+      <h3 class="slds-section__title slds-theme_shade">
+        <lightning-button-icon class="button-icon generalInfoIcon" icon-name={generalInformationIcon}
+          onclick={handleClickGeneralInformationSection} size="medium" variant="bare">
+        </lightning-button-icon>
+        <span title={i18n.labelGeneralInformation}
+          class="slds-truncate slds-p-horizontal_small sectionTitle">{i18n.labelGeneralInformation}</span>
+      </h3>
+      <div if:true={showGeneralInformation}>
+        <div class="workRuleTitle">
+          <lightning-input type="text" required name="workruleTemplateTitle" value={onEditData.workRuleTitle}
+            onchange={onTemplateTitleChange} label={i18n.labelWorkRuleTemplateTitle} placeholder="Title">
+          </lightning-input>
+        </div>
+        <div class="worktype">
+          <c-svmx-lookup target-object-api-name={apiNameWorkType} value={valueWorkType} icon-name={lookupIcon}
+            label={i18n.workType} onlookupselect={onLookupChange} target-label-api-name={refFieldWorkType}
+            advanced-search-config={advancedSearchConfig}></c-svmx-lookup>
+        </div>
+        <div class="workRuleType">
+          <lightning-combobox class="svmx-workRuleType" name="Work Rule Type" value={workRuleType} options={workRuleTypeOption}
+            label={i18n.workRuleType} onchange={handleWorkRuleTypeChange} disabled={isCriteriaBasedDisabled}>
+          </lightning-combobox>
+        </div>
+        <div class="sortOrder">
+          <lightning-input type="number" name="Sort Order" required value={onEditData.sortOrder}
+            class="sortOrderInput"
+            onchange={onSortOrderChange} label={i18n.labelSortOrder} placeholder={i18n.labelSortOrder}>
+          </lightning-input>
+        </div>
+        <div if:true={isSelectedProduct} class="applicableProduct">
+          <lightning-input type="text" disabled value={selectedProductName} name="applicableProduct"
+            label={i18n.labelApplicableProduct}></lightning-input>
+        </div>
+      </div>
+    </div>
+
+    <div if:false={isCriteriaBasedDisabled} class="slds-section slds-is-open parentContainer">
+      <h3 class="slds-section__title slds-theme_shade">
+        <lightning-button-icon class="button-icon criteriaDefiIcon" icon-name={criteriaDefinitionIcon}
+          onclick={handleClickCriteriaDefinitionSection} size="medium" variant="bare" disabled={criteriaSectionButtonDisabled}>
+        </lightning-button-icon>
+        <span title={i18n.criteriaDefinition}
+          class="slds-truncate slds-p-horizontal_small svmx-criteria-title sectionTitle svmx-section-title-disabled">{i18n.criteriaDefinition}</span>
+      </h3>
+      <div if:true={showCriteriaDefinition}>
+        <div class="recordsetFilterCriteria">
+          <c-svmx-lookup class="svmx-recordset-filter-criteria" target-object-api-name={filterCriteriaApiName} value={valueFilterCriteria} icon-name={lookupIconForRFC}
+            label={i18n.recordsetFilterCriteria} onlookupselect={onLookupChangeRFC} target-label-api-name={refFieldRFC}
+            advanced-search-config={advancedSearchConfig} required filters={rfcFilter}></c-svmx-lookup>
+        </div>
+      </div>
+    </div>
+
+    <div class="slds-section  parentContainer">
+      <h3 class="slds-section__title slds-theme_shade">
+        <lightning-button-icon class="button-icon recInfoIcon" icon-name={recurrenceSectionIcon}
+          onclick={handleClickRecurrenceSection} size="medium" variant="bare" disabled={recurrencPattSectionButtonDisabled}>
+        </lightning-button-icon>
+        <span title={i18n.labelRecurrencePattern}
+          class="slds-truncate slds-p-horizontal_small svmx-recurrence-title sectionTitle">{i18n.labelRecurrencePattern}</span>
+      </h3>
+
+      <div if:true={showRecurrenceSection}>
+        <!-- FREQ -->
+        <div class="slds-form-element__row addPadding ">
+          <div class="slds-size_1-of-2">
+            <div class="slds-form-element">
+              <div class="inlineContainer workRuleInterval">
+                <lightning-input 
+                  type="number" 
+                  value={interval} 
+                  class="interval"
+                  min="1"
+                  message-when-range-underflow={i18n.labelErrorLowNumber}
+                  required 
+                  onchange={onIntervalChange}
+                  name="frequencyCount" 
+                  label={i18n.labelScheduleEvery}>
+                </lightning-input>
+              </div>
+              <div class="comboboxContainer freqContainer">
+                <lightning-combobox name="Frequency" value={editFrequencyValue} class="frequency"
+                  options={frequencyOptions} onchange={handleFrequencyChange}>
+                </lightning-combobox>
+              </div>
+
+            </div>
+          </div>
+          <!-- END schedule section start-->
+          <div class="slds-size_1-of-2 endScheduleContainer">
+            <div class="slds-form-element">
+              <fieldset class="slds-form-element">
+                <label class="slds-form-element__label slds-no-flex">
+                  <abbr title="required" class="slds-required">*</abbr>{i18n.labelEndSchedule}
+                </label>
+                <div class="slds-form-element__control">
+                  <span class="slds-radio slds-m-top_xx-small slds-m-bottom_xx-large nvrCntnr">
+                    <input type="radio" id={enumEndScheduleOptions.never} checked={endScheduleRadioButton.never}
+                      class="endSchd-neverRadio"
+                      onchange={onEndScheduleRadioChange} value={enumEndScheduleOptions.never} name="endschedule" />
+                    <label class="slds-radio__label" for={enumEndScheduleOptions.never}>
+                      <span class="slds-radio_faux"></span>
+                      <span class="slds-form-element__label">{i18n.labelNever}</span>
+                    </label>
+                  </span>
+                  <span class="slds-radio slds-m-top_x-large cntnOccurences">
+                    <input type="radio" id={enumEndScheduleOptions.after} onchange={onEndScheduleRadioChange}
+                      class="endSchd-afterRadio"
+                      checked={endScheduleRadioButton.after} value={enumEndScheduleOptions.after} name="endschedule" />
+                    <label class="slds-radio__label" for={enumEndScheduleOptions.after}>
+                      <span class="slds-radio_faux"></span>
+                      <span class="slds-form-element__label">{i18n.labelAfter}</span>
+                    </label>
+                    <div class="comboboxContainer endSched_occurence">
+                      <span class="occLabel">{i18n.labelOccurences}</span>
+                      <lightning-input 
+                        type="number"
+                        class="qryOccurences"  
+                        min="1"
+                        message-when-range-underflow={i18n.labelErrorLowNumber}
+                        disabled={endScheduleRadioSelection.disableOccurence}
+                        value={endScheduleValues.after} 
+                        name="occurences"
+                        onchange={onEndScheduleChange}>
+                      </lightning-input>
+
+                    </div>
+                  </span>
+                  <span class="slds-radio slds-m-top_x-large dateSpan">
+                    <input type="radio" id={enumEndScheduleOptions.on} onchange={onEndScheduleRadioChange}
+                      class="endSchd-onRadio"
+                      checked={endScheduleRadioButton.on} value={enumEndScheduleOptions.on} name="endschedule" />
+                    <label class="slds-radio__label" for={enumEndScheduleOptions.on}>
+                      <span class="slds-radio_faux"></span>
+                      <span class="slds-form-element__label">{i18n.labelOn}</span>
+                    </label>
+                    <div class="comboboxContainer endSched_date">
+                      <lightning-input type="date" value={endScheduleValues.on}
+                        class="endScheduleDate"
+                        disabled={endScheduleRadioSelection.disableDate} onchange={onEndScheduleChange}
+                        name={enumEndScheduleOptions.on}></lightning-input>
+                    </div>
+                  </span>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+          <!-- END schedule section END-->
+        </div>
+
+        <div if:true={isFrequencyDay} class="slds-form-element__row addPadding">
+          <div class="slds-size_1-of-2">
+            <div class="slds-form-element">
+              <!-- DAY -->
+            </div>
+          </div>
+        </div>
+        <div if:true={isFrequencyWeek} class="slds-form-element__row addPadding">
+          <!-- WEEK -->
+          <div class="slds-size_1-of-2">
+            <fieldset class="slds-form-element">
+              <div class="slds-form-element__control">
+                <div class="slds-checkbox_button-group weekdayContainer">
+                  <template for:each={weekDayNameList} for:item="item">
+                    <span key={item.weekDay} class="slds-button slds-checkbox_button">
+                      <input onchange={onWeekChange} checked={item.selected} type="checkbox" id={item.weekDay}
+                        class="weekdayOption"
+                        value={item.weekDay} name="checkbox" />
+                      <label class="slds-checkbox_button__label" for={item.weekDay}>
+                        <span class="slds-checkbox_faux weekDayLabel">{item.label}</span>
+                      </label>
+                    </span>
+                  </template>
+                </div>
+              </div>
+            </fieldset>
+            <!-- field set end-->
+          </div>
+        </div>
+        <div if:true={isFrequencyMonth} class="slds-form-element__row addPadding slds-m-top_large monthContainer">
+          <!-- Month -->
+          <div class="slds-size_1-of-2">
+            <div class="slds-form-element">
+              <fieldset class="slds-form-element">
+                <div class="slds-form-element__control">
+
+                  <span class="slds-radio">
+                    <input type="radio" id="radio-43" class="radio-43 mnth-monthDayRadio" checked={monthRadioButton.monthDay}
+                      onchange={onRadioChangeForMonthSelection} value={enumMonthRadioValues.monthDay} name="months" />
+                    <label class="slds-radio__label" for="radio-43">
+                      <span class="slds-radio_faux"></span>
+                      <span class="slds-form-element__label">{i18n.labelOnDay}</span>
+                    </label>
+                    <div class="comboboxContainer monthDay">
+                      <lightning-combobox onchange={onMonthComboboxChange} 
+                        name={enumMonthRadioValues.monthDay}
+                        class="monthDay-month-cmbx"
+                        value={monthSubOptionValues.monthDay} disabled={monthRadioSelection.disableMonthDay}
+                        options={monthControlOptions.monthDay}></lightning-combobox>
+                    </div>
+
+                  </span>
+                  <span class="slds-radio slds-m-top_large">
+                    <input type="radio" id="radio-44" onchange={onRadioChangeForMonthSelection}
+                      class="mnth-dayPositionRadio"
+                      checked={monthRadioButton.dayPosition} value={enumMonthRadioValues.dayPosition} name="months" />
+                    <label class="slds-radio__label" for="radio-44">
+                      <span class="slds-radio_faux"></span>
+                      <span class="slds-form-element__label">{i18n.labelOnThe}</span>
+                    </label>
+                    <div class="comboboxContainer setpos">
+                      <lightning-combobox onchange={onMonthComboboxChange} name={subOptionKeyNames.setPos}
+                        value={monthSubOptionValues.setPos} disabled={monthRadioSelection.disableDayPosition}
+                        class="setPos-month-cmbx"
+                        options={monthControlOptions.setPos}></lightning-combobox>
+                    </div>
+                    <div class="comboboxContainer setpos slds-m-left_x-small">
+                      <lightning-combobox onchange={onMonthComboboxChange} value={monthSubOptionValues.weekDay}
+                        class="weekDay-month-cmbx"
+                        name={subOptionKeyNames.weekDay} disabled={monthRadioSelection.disableDayPosition}
+                        options={monthControlOptions.weekDay}></lightning-combobox>
+                    </div>
+                  </span>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+        <div if:true={isFrequencyYear} class="slds-form-element__row addPadding yearContainer">
+          <div class="slds-size_1-of-2">
+            <div class="slds-form-element">
+              <!-- Years -->
+              <fieldset class="slds-form-element">
+                <!-- <legend class="slds-form-element__legend slds-form-element__label">Months</legend> -->
+                <div class="slds-form-element__control">
+                  <span class="slds-radio">
+                    <input onchange={onradioChangeForYearSection} type="radio" id="radio-45"
+                      class="onMonthDayRadio"
+                      checked={yearRadioButton.monthDay} value={enumYearRadioValues.monthAndDay} name="years" />
+                    <label class="slds-radio__label" for="radio-45">
+                      <span class="slds-radio_faux"></span>
+                      <span class="slds-form-element__label">{i18n.labelOn}</span>
+                    </label>
+                    <div class="comboboxContainer yearCombobx yearMonthFirstCbx">
+                      <lightning-combobox disabled={yearRadioSelection.disableMonthDay} onchange={onYearComboboxChange}
+                        name={subOptionKeyNames.month} value={yearSubOptionValues.monthDayMonth}
+                        options={yearControlOptions.month}></lightning-combobox>
+
+                    </div>
+                    <div class="comboboxContainer yearCombobx yearMarginCbxFix">
+                      <lightning-combobox disabled={yearRadioSelection.disableMonthDay} onchange={onYearComboboxChange}
+                        name={subOptionKeyNames.day} value={yearSubOptionValues.day}
+                        options={yearControlOptions.day}></lightning-combobox>
+                    </div>
+
+                  </span>
+                  <span class="slds-radio yearSecondRow">
+                    <input onchange={onradioChangeForYearSection} type="radio" id="radio-46"
+                      class="monthWeekDayRadioBtn"
+                      checked={yearRadioButton.monthWeekDay} value={enumYearRadioValues.monthAndWeekdayAndPos}
+                      name="years" />
+                    <label class="slds-radio__label" for="radio-46">
+                      <span class="slds-radio_faux"></span>
+                      <span class="slds-form-element__label">{i18n.labelOnThe}</span>
+                    </label>
+                    <div class="comboboxContainer yearCombobx yearSetPos">
+                      <lightning-combobox disabled={yearRadioSelection.disableMonthWeekDay}
+                        name={subOptionKeyNames.setPos} value={yearSubOptionValues.setPos}
+                        onchange={onYearComboboxChange} options={yearControlOptions.setPos}></lightning-combobox>
+                    </div>
+
+                    <div class="comboboxContainer yearCombobx yearMarginCbxFix">
+                      <lightning-combobox disabled={yearRadioSelection.disableMonthWeekDay}
+                        name={subOptionKeyNames.weekDay} value={yearSubOptionValues.weekDay}
+                        onchange={onYearComboboxChange} options={yearControlOptions.weekDay}></lightning-combobox>
+                    </div>
+                    <span class="yearMonthCbxLbl">{i18n.labelOf}</span>
+                    <div class="comboboxContainer yearCombobx yearMonthCbx">
+                      <lightning-combobox disabled={yearRadioSelection.disableMonthWeekDay}
+                        name={subOptionKeyNames.month} value={yearSubOptionValues.month} onchange={onYearComboboxChange}
+                        options={yearControlOptions.month}></lightning-combobox>
+                    </div>
+
+                  </span>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

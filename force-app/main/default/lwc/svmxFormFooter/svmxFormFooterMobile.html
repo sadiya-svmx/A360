@@ -1,0 +1,75 @@
+<template>
+        <div class="slds-var-m-bottom_x-small">
+            <!-- Custom Footer Buttons -->
+            <lightning-layout horizontal-align="spread">
+                <lightning-layout-item size="1">
+                    <template if:false={isFlowContext}>
+                        <div class="slds-align_absolute-center" style="justify-content: left;height: 100%">
+                            <button class="cancel-back_button" onclick={handleCancel}>
+                                <svg
+                                    focusable="false"
+                                    data-key="chevronleft"
+                                    aria-hidden="true"
+                                    viewBox="0 0 52 52"
+                                    class="slds-icon_small"
+                                >
+                                    <g>
+                                        <path
+                                            d="M34.2 47.7L13.4 27.2c-.6-.6-.6-1.6 0-2.2L34.2 4.5c.6-.6 1.6-.6 2.2 0l2.2 2.2c.6.6.6 1.6 0 2.2L22.1 25c-.6.6-.6 1.6 0 2.2l16.3 16.1c.6.6.6 1.6 0 2.2l-2.2 2.2c-.5.5-1.4.5-2 0z"
+                                        ></path>
+                                    </g>
+                                </svg>
+                            </button>
+                        </div>
+                    </template>
+                </lightning-layout-item>
+                <lightning-layout-item size={titleSize}>
+                    <template if:false={isFlowContext}>
+                        <div class="slds-page-header__name-title">
+                            <h1>
+                                <span class="slds-page-header__title slds-truncate" title={title}>{title}</span>
+                                <span class="slds-text-color_weak">{subTitle}</span>
+                            </h1>
+                        </div>
+                    </template>
+                </lightning-layout-item>
+                <template if:false={isFlowContext}>
+                    <lightning-layout-item size={saveButtonSize}>
+                        <div class="slds-align_absolute-center slds-m-right_large" 
+                            style="height: 100%" if:false={isConfirmHidden}>
+                            <lightning-button
+                                variant="brand"
+                                disabled={shouldSaveDisabled}
+                                label={i18n.save}
+                                title={i18n.save}
+                                onclick={handleSave}
+                                class="svmx-button-save slds-var-m-left_xx-small"
+                            ></lightning-button>
+                        </div>
+                    </lightning-layout-item>
+                </template>
+                <template if:true={isFlowContext}>
+                    <lightning-layout-item size={saveButtonSize}>
+                        <div class="slds-align_absolute-center slds-m-right_large"  style="height: 100%">
+                            <template if:true={showPrevious}>
+                                <lightning-button
+                                    variant="neutral"
+                                    label={i18n.previous}
+                                    title={i18n.previous}
+                                    onclick={handlePrevious}
+                                    class="svmx-button-previous"
+                                ></lightning-button>
+                            </template>
+                            <lightning-button
+                                variant="brand"
+                                label={i18n.next}
+                                title={i18n.next}
+                                onclick={handleNext}
+                                class="svmx-button-next slds-var-m-left_xx-small"
+                            ></lightning-button>
+                        </div>
+                    </lightning-layout-item>
+                </template>
+            </lightning-layout>
+        </div>
+</template>

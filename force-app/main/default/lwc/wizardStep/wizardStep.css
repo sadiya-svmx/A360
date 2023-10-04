@@ -1,0 +1,29 @@
+.step-card:active,
+.step-card:focus,
+.step-card-is-focused {
+    outline: 0;
+    border-color: #1589ee;
+    background-color: #fff;
+    box-shadow: 0 0 3px #0070d2;
+}
+
+.step-card .step-config-button {
+    opacity: 0;
+}
+
+.step-card:hover .step-config-button {
+    opacity: 1;
+}
+
+:host:focus,
+:host:active {
+    outline: 0;
+}
+
+.svmx-wizard-step_dev-name:after {
+    content: "]"
+  }
+  
+.svmx-wizard-step_dev-name:before {
+content: "["
+}

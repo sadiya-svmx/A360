@@ -1,0 +1,52 @@
+.ViewServiceCoverages__remaininghours--font {
+    font-style: italic;
+}
+
+.ViewServiceCoverages__subtitle {
+    font-size: x-small;
+}
+
+.ViewServiceCoverages__title {
+    font-size: small;
+    font-weight: bold;
+    line-height: var(--lwc-lineHeightHeading,1.25);
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ViewServiceCoverages_illustration-wrapper {
+    background-color: var(--lwc-colorBackgroundAlt,rgb(255, 255, 255));
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.ViewServiceCoverages_SectionStyle {
+    max-height: 175px;
+}
+
+.ViewServiceCoverages_filter-panel {
+    height: 580px;
+}
+
+.ViewServiceCoverages_filter-panel-header {
+    border: 0;
+}
+
+.ViewServiceCoverages_datatable-style {
+    height: auto !important;
+    max-height: 600px;
+    width: 100%;
+}
+
+.ViewServiceCoverages_filter-layout {
+    height: 34px;
+}
+
+.ViewServiceCoverages_match-account-title {
+    display: flex;
+}

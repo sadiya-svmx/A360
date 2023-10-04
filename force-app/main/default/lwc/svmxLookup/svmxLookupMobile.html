@@ -1,0 +1,140 @@
+<template>
+    <div class={computedFormClass}>
+        <template if:false={_multiple}>
+            <div
+                class={computedTriggerClass}
+                aria-expanded="true"
+                aria-haspopup="listbox"
+                role="combobox"
+            >
+                <label class={computedLabelClass}>
+                    <template if:true={required}>
+                        <abbr
+                            class="slds-required"
+                            title={i18n.required}
+                        >*</abbr>
+                    </template>
+                    {label}
+                    <lightning-helptext
+                        if:true={fieldLevelHelp}
+                        content={fieldLevelHelp}
+                        class="svmx-lookup_help-icon"
+                    ></lightning-helptext>
+                </label>
+
+                <!-- pill for selected item - when read only -->
+                <template if:true={hasSelectionAndReadOnly}>
+                    <c-svmx-lookup-value
+                        icon={iconName}
+                        label={selectionLabel}
+                    ></c-svmx-lookup-value>
+                </template>
+
+                <!-- pill for selected item - when in cell mode -->
+                <template if:true={hasSelectionAndInCell}>
+                    <c-svmx-lookup-value
+                        icon={iconName}
+                        label={selectionLabel}
+                        is-cell
+                        editable={editable}
+                    ></c-svmx-lookup-value>
+                </template>
+
+                <!-- pill for selected item -->
+                <template if:true={hasSelectionAndNotInCell}>
+                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon--right">
+                        <lightning-input
+                            placeholder={placeholder}
+                            variant="label-hidden"
+                            value={selectionLabel}
+                            autocomplete="off"
+                            onfocus={handleFocus}
+                            required={required}
+                            disabled={disabled}
+                            onclick={handleAdvancedSearchSelect}
+                            class="svmx-lookup_search-input"
+                        ></lightning-input>
+                        <lightning-icon
+                            onclick={handleRemovePill}
+                            icon-name="utility:close"
+                            class="slds-input__icon"
+                            size="xx-small"
+                        ></lightning-icon>
+                    </div>
+                </template>
+
+                <!-- search input with an icon -->
+                <template if:true={allowInput}>
+                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon--right">
+                        <lightning-input
+                            placeholder={placeholder}
+                            variant="label-hidden"
+                            value={searchTerm}
+                            autocomplete="off"
+                            onfocus={handleAdvancedSearchSelect}
+                            required={required}
+                            disabled={disabled}
+                            onclick={handleAdvancedSearchSelect}
+                            class="svmx-lookup_search-input"
+                        ></lightning-input>
+                        <lightning-icon
+                            onclick={handleAdvancedSearchSelect}
+                            icon-name="utility:search"
+                            class="slds-input__icon"
+                            size="xx-small"
+                        ></lightning-icon>
+                    </div>
+                </template>
+            </div>
+
+            <template if:true={hasHelpMessage}>
+                <div
+                    id="help-text"
+                    data-help-text
+                    class="slds-form-element__help"
+                    aria-live="assertive"
+                >{helpMessage}</div>
+            </template>
+        </template>
+
+        <template if:true={_multiple}>
+            <button
+                class="svmx-fab slds-button slds-button_icon slds-button_icon-border slds-button_icon-small slds-var-m-around_x-small slds-var-p-around_large"
+                title={label}
+                onclick={handleAdvancedSearchSelect}
+            >
+                <lightning-icon
+                    icon-name="utility:relate"
+                    alternative-text={label}
+                    title={label}
+                    variant="inverse"
+                    size="small"
+                ></lightning-icon>
+                <span class="slds-assistive-text">{label}</span>
+            </button>
+        </template>
+
+        <div if:true={_showAdvancedSearchModal}>
+            <c-lookup-advanced-search-modal
+                search-term={searchTerm}
+                results={options}
+                columns={_advancedSearchColumns}
+                onsearch={handleAdvancedModalSearch}
+                context-label={lookupMatchingFieldLabel}
+                context-value={contextValue}
+                context-record-label={contextRecordLabel}
+                object-api-name={targetObjectApiName}
+                object-label={targetObjectLabel}
+                object-plural-label={targetObjectPluralLabel}
+                override-lookup-context={_overrideLookupContext}
+                onmodallookupselect={modalLookupSelect}
+                onmodalmultiaddselect={modalMultiAddSelect}
+                oncancel={captureCancel}
+                nested-modal={nestedModal}
+                api-in-progress={apiInProgress}
+                multiple={_multiple}
+                is-embedded={isEditingChild}
+            ></c-lookup-advanced-search-modal>
+        </div>
+    </div>
+</template>

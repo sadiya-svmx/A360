@@ -1,0 +1,24 @@
+<template>
+    <template if:false={loading} >
+        <lightning-tabset variant="scoped" class={classList}>
+            <template for:each={tabs} for:item="tab">
+                <lightning-tab class="svmx-mobile-tab"
+                        label={tab.label} 
+                        key={tab.id} 
+                        value={tab.value} 
+                        onactive={handleActive} 
+                        show-error-indicator={tab.showErrorIndicator}>
+                    <template if:true={tab.header}>
+                        <c-runtime-header
+                        ></c-runtime-header>
+                    </template>
+                    <template if:false={tab.header}>
+                       <c-runtime-details
+                            child-id={tab.value}
+                       ></c-runtime-details>
+                    </template>
+                </lightning-tab>
+            </template>
+        </lightning-tabset>
+    </template>
+</template>

@@ -1,0 +1,14 @@
+.svmx-runtime-gutters {
+    margin-top: var(--lwc-spacingSmall,0.75rem);
+    margin-bottom: var(--lwc-varSpacingVerticalSmall,0.75rem);
+    padding: 0 var(--lwc-varSpacingHorizontalMedium,1rem);
+}
+
+.svmx-runtime_scrollable {
+    position: sticky;
+    top: 90px;
+    z-index: 1;
+    min-height: calc(100vh - 100px);
+    height: calc(100vh - 100px);
+    overflow-y: scroll;
+}

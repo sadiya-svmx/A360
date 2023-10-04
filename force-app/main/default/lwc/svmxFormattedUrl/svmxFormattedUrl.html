@@ -1,0 +1,28 @@
+<template>
+    <template if:true={disabled}>
+        <div title={tooltip}>
+            <lightning-icon icon-name="utility:warning" variant="error" title={tooltip} size="x-small">
+            </lightning-icon>
+            <lightning-formatted-text value={label} class="slds-p-left_xx-small">
+            </lightning-formatted-text>
+        </div>
+    </template>
+    <template if:false={disabled}>
+        <template if:true={showPopover}>
+            <lightning-formatted-url value={value} label={label} target={target} onmouseover={handleMouseOver}
+                onmouseout={handleMouseOut} onclick={handleClick} >
+            </lightning-formatted-url>
+        </template>
+        <template if:false={showPopover}>
+            <lightning-formatted-url if:false={isTypeTransaction} value={value} tooltip={tooltip} label={label} target={target}>
+            </lightning-formatted-url>
+
+            <div onclick={transactionHandleClick} if:true={isTypeTransaction} class="url-link-style">
+                <span>{label}</span>
+            </div>
+        </template>
+    </template>
+    <template if:true={isPopoverVisible}>
+        <c-svmx-record-popover onclose={handlePopoverClose}></c-svmx-record-popover>
+    </template>
+</template>

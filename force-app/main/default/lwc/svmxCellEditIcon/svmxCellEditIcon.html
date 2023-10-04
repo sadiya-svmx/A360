@@ -1,0 +1,20 @@
+<template>
+    <template if:false={disabled}>
+        <lightning-button-icon
+            alternative-text={i18n.edit}
+            class="slds-cell-edit__button svmx-cell-edit-icon_edit-button slds-m-around_xx-small"
+            icon-class="slds-button__icon_edit svmx-cell-edit-icon_edit"
+            icon-name="utility:edit"
+            size="medium"
+            title={i18n.edit}
+            variant="bare"
+        ></lightning-button-icon>
+    </template>
+    <template if:true={disabled}>
+        <lightning-icon
+            class="svmx-cell-edit-icon_lock slds-m-around_xx-small"
+            icon-name="utility:lock"
+            size="xx-small"
+        ></lightning-icon>
+    </template>
+</template>

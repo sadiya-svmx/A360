@@ -1,0 +1,93 @@
+<template>
+    <c-modal-dialog
+        title={titleModal}
+        is-open={isModalOpen}
+        onmodalclosed={handleCancel}
+        modal-content-id="lookupModalContent"
+        relative-to-viewport
+        expand-height-to-viewport
+        size={modalSize}
+    >
+        <div slot="header">
+            <lightning-layout horizontal-align="spread" vertical-align="center">
+                <lightning-layout-item alignment-bump="right" flexibility="auto">
+                    <div>
+                        <h2
+                            id="lookupModalHeader"
+                            class="slds-modal__title slds-hyphenate"
+                        >
+                            {titleModal}
+                        </h2>
+                    </div>
+                </lightning-layout-item>
+                <lightning-layout-item alignment-bump="left" flexibility="no-shrink">
+                    <lightning-button
+                        label={i18n.buttonCancel}
+                        title={i18n.buttonCancel}
+                        variant="neutral"
+                        onclick={handleCancel}
+                        class="slds-m-right_small"
+                    ></lightning-button>
+
+                    <lightning-button
+                        label="Add Selected"
+                        title="Add Selected"
+                        variant="neutral"
+                        onclick={handleApply}
+                        disabled={hasEmptySelectedId}
+                    ></lightning-button>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+
+        <div slot="body">
+            <!-- Error Display-->
+            <template if:true={error}>
+                <c-alert variant="error">{error}</c-alert>
+            </template>
+
+            <!-- Search Controls -->
+            <template if:true={filterExpression}>
+                <c-lookup-modal-search-box
+                    filter-expression={filterExpression}
+                    search-term={searchTerm}
+                    onsearch={handleSearchEvent}
+                    override-lookup-context={overrideLookupContext}
+                    context-label={contextLabel}
+                    context-value={contextValue}
+                    context-record-label={contextRecordLabel}
+                    object-api-name={objectApiName}
+                    object-label={objectLabel}
+                ></c-lookup-modal-search-box>
+            </template>
+
+            <template if:true={apiInProgress}>
+                <div class="svmx-lookup-advanced-search_spinner">
+                    <lightning-spinner
+                        variant="brand"
+                        alternative-text={i18n.labelLoading}
+                        size="large"
+                    ></lightning-spinner>
+                </div>
+            </template>
+
+            <template if:false={apiInProgress}>
+                <!-- Search Results -->
+                <template if:true={hasResults}>
+                    <c-x-radio-list
+                        options={results}
+                        onchange={handleSearchResultOptionsSelected}
+                        multiple={multiple}
+                    ></c-x-radio-list>
+                </template>
+
+                <!-- Display state when no results found -->
+                <template if:false={hasResults}>
+                    <div class="slds-align_absolute-center slds-text-heading_small svmx-lookup-advanced-search_message">
+                        {messageNoResults}
+                    </div>
+                </template>
+            </template>
+        </div>
+    </c-modal-dialog>
+</template>

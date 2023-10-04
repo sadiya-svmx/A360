@@ -1,0 +1,18 @@
+<aura:component>
+    <aura:attribute name="expanded" type="boolean" default="true"></aura:attribute>
+    <c:utils aura:id="utils" />
+    <lightning:navigation aura:id="navService"/>
+
+    <div class="slds-grid slds-template__container">
+        <div class="{!v.expanded == true ? 'slds-split-view_container slds-is-open split-container' : 'slds-split-view_container slds-is-closed split-container'}">
+            <lightning:ButtonIcon class="{!v.expanded == true ? 'splitter-button slds-split-view__toggle-button slds-is-open' : 'splitter-button slds-split-view__toggle-button slds-is-closed'}" iconName="utility:left" ariaControls="menu" ariaExpanded="{!v.expanded}" size="x-small" variant="bare" onclick="{!c.handleSplitterClick}" alternativeText="{!v.expanded == true ? $Label.c.AltText_SplitViewOpen : $Label.c.AltText_SplitViewOpen}"></lightning:ButtonIcon>
+
+            <div id="menu" class="slds-split-view slds-grid slds-grid_vertical slds-grow slds-card">
+                <c:svmxMenu onmenuselection="{!c.handleMenuSelection}"></c:svmxMenu>
+            </div>
+        </div>
+        <div class="slds-card main-content slds-m-left_small">
+            {!v.body}
+        </div>
+    </div>  
+</aura:component>

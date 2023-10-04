@@ -1,0 +1,97 @@
+<template>
+    <template if:true={_isVisible}>
+        <div class={computedCssClass} role="alert">
+            <template if:true={alternativeText}>
+                <span class="slds-assistive-text">{alternativeText}</span>
+            </template>
+
+            <!-- Alert Icon -->
+            <lightning-icon
+                icon-name={computedIconName}
+                alternative-text={variant}
+                size="small"
+                variant="inverse"
+                class="slds-m-right_small"
+            >
+            </lightning-icon>
+
+            <!-- Alert Content -->
+            <div class="slds-notify__content">
+                <h2 class="svmx-alert_header-label slds-text-heading_small">
+                    <slot name="header" onslotchange={handleHeaderSlotChange}></slot>
+
+                    <!-- Fallback content if header slot unused -->
+                    <template if:false={_hasHeaderSlot}>{headerLabel}</template>
+                </h2>
+                <div class="svmx-alert-message-wrap">
+                    <slot onslotchange={handleDescriptionSlotChange}></slot>
+
+                    <!-- Fallback content if description slot unused -->
+                    <template if:true={_hasDescription}>
+                        {_descriptionFirstLine}
+                        <template if:true={_descriptionHasMultipleLines}>
+                            <a
+                                href="#"
+                                class="svmx-alert_details-link slds-text-link slds-m-left_xx-small"
+                                onclick={handleDetailsClick}
+                            >{i18n.details}</a>
+                        </template>
+                    </template>
+                </div>
+            </div>
+
+            <template if:true={isCloseable}>
+                <div class="svmx-alert_notify-close slds-notify__close">
+                    <lightning-button-icon
+                        icon-name="utility:close"
+                        alternative-text={i18n.altTextClose}
+                        title={i18n.altTextClose}
+                        onclick={handleCloseClick}
+                        variant="bare-inverse"
+                    ></lightning-button-icon>
+                </div>
+            </template>
+        </div>
+
+        <!-- Alert Details - Modal Overlay -->
+        <c-modal-dialog
+            class="svmx-alert_detail-modal" 
+            is-open={_detailsModalOpen}
+            modal-content-id="alertDetailsModalContent"
+            modal-header-id="alertDetailsModalHeader"
+            onmodalclosed={handleCloseModalClick}
+            title={detailsHeaderLabel}
+        >
+            <div slot="body">
+                <lightning-formatted-text 
+                    value={_descriptionLabel}
+                    class="svmx-alert_detail-modal-label"
+                ></lightning-formatted-text>
+
+                <div class="slds-m-top_x-small">
+                    <lightning-button
+                        class="svmx-alert_detail-modal-button-copy"
+                        label={i18n.copyToClipboard}
+                        onclick={handleCopyToClipboardClick}
+                        title={i18n.copyToClipboard}
+                        icon-name="utility:copy_to_clipboard"
+                    ></lightning-button>
+
+                    <template if:true={_clipboardErrorVisible}>
+                        <div class="slds-text-color_destructive">{i18n.copyToClipboardError}</div>
+                    </template>
+                </div>
+            </div>
+
+            <div slot="footer">
+                <lightning-button
+                    class="svmx-modal_button-confirm"
+                    label={i18n.ok}
+                    onclick={handleCloseModalClick}
+                    title={i18n.ok}
+                    variant="brand"
+                ></lightning-button>
+            </div>
+        </c-modal-dialog>
+    </template>
+</template>

@@ -1,0 +1,52 @@
+<template>
+    <c-modal-dialog
+        is-open
+        modal-content-id="editModalContent"
+        modal-header-id="editModalHeader"
+        section-class="svmx-modal-content_min-height slds-p-around_none"
+        title={title}
+        size={modalSize}
+        onmodalclosed={handleModalClose}
+        relative-to-viewport
+        relative-to-debugpanel={relativeToDebugpanel}
+    >
+        <div slot="body">
+            <template if:true={hasError}>
+                <c-alert variant="error">{error}</c-alert>
+            </template>
+            <div class="slds-p-top_large">
+                <c-runtime-section
+                    onrecordmodified={handleRecordModified}
+                    sections={sections}
+                    onerror={handleError}
+                    engine-id={engineId}
+                ></c-runtime-section>
+            </div>
+            <template if:true={apiInProgress}>
+                <div class="slds-spinner_container" style="background-color: transparent;">
+                    <div role="status" class="slds-spinner slds-spinner_medium slds-spinner_brand">
+                      <span class="slds-assistive-text">{i18n.loading}</span>
+                      <div class="slds-spinner__dot-a"></div>
+                      <div class="slds-spinner__dot-b"></div>
+                    </div>
+                </div>
+            </template>
+        </div>
+        <div slot="footer">
+            <lightning-button
+                class="svmx-modal_button-cancel slds-p-right_x-small"
+                label={i18n.buttonCancel}
+                onclick={handleModalClose}
+                title={i18n.buttonCancel}
+                variant="neutral"
+            ></lightning-button>
+            <lightning-button
+                class="svmx-modal_button-save"
+                label={i18n.buttonApply}
+                onclick={handleModalSave}
+                title={i18n.buttonApply}
+                variant="brand"
+            ></lightning-button>
+        </div>
+    </c-modal-dialog>
+</template>

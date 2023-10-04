@@ -1,0 +1,671 @@
+<template>
+    <c-admin-layout>
+        <div class="container svmx-timeline-config-container">
+            <div class="slds-card">
+                <div class="slds-page-header">
+                    <div class="slds-page-header__row">
+                        <div class="slds-page-header__col-title">
+                            <div class="slds-media">
+                                <div class="slds-media__figure">
+                                    <c-service-max-logo-icon
+                                        title-text={i18n.pageHeader}
+                                        alternative-text={i18n.pageHeader}
+                                        icon-size="large"
+                                    ></c-service-max-logo-icon>
+                                </div>
+                                <div class="slds-media__body">
+                                    <div class="slds-page-header__name">
+                                        <div class="slds-page-header__name-title">
+                                            <h1>
+                                                <span>{i18n.pageHeader}</span>
+                                                <span class="slds-page-header__title slds-truncate">{i18n.timelineConfigHeader}</span>
+                                            </h1>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-page-header__col-actions">
+                            <div class="slds-page-header__controls">
+                                <div class="slds-page-header__control">
+                                    <lightning-button-group slot="actions">
+                                        <lightning-button label={i18n.closeButton} onclick={handleCancel}></lightning-button>
+                                        <lightning-button variant="brand" label={i18n.saveButton} onclick={handleSave}></lightning-button>
+                                    </lightning-button-group>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="slds-p-around_medium">
+                    <div class="slds-p-around_medium">
+                        <template if:true={error}>
+                            <c-alert variant="error">{error}</c-alert>
+                        </template>
+                        <template if:true={showConfigDetails}>
+                        <lightning-layout multiple-rows>
+                                        <lightning-layout-item size="6">
+                                            <div class="slds-p-around_small">
+                                                <lightning-input
+                                                        class="svmx-timeline-config_input-field svmx-timeline-config_name-input"
+                                                        type="text"
+                                                        data-field="name"
+                                                        title={i18n.labelName}
+                                                        label={i18n.labelName}
+                                                        value={recordInfo.name}
+                                                        onchange={handleFormInputChange}
+                                                        max-length="80" 
+                                                        oncommit={handleNameCommit}
+                                                        message-when-value-missing={missingFieldMessage}
+                                                        required
+                                                    ></lightning-input>
+                                            </div>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="6">
+                                            <div class="slds-p-around_small">
+                                                <lightning-input
+                                                        class="svmx-timeline-config_input-field svmx-timeline-config_developer-name-input"
+                                                        type="text"
+                                                        disabled={hasRecordId}
+                                                        data-field="developerName"
+                                                        title={i18n.labelDeveloperName}
+                                                        label={i18n.labelDeveloperName}
+                                                        value={recordInfo.developerName}
+                                                        onchange={handleFormInputChange}
+                                                        message-when-value-missing={missingFieldMessage}
+                                                        max-length="40" 
+                                                        required
+                                                    ></lightning-input>
+                                            </div>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="6">
+                                            <div class="slds-p-around_small">
+                                            <lightning-input 
+                                            class="svmx-timeline-config_input-field svmx-timeline-config_is-default-input"
+                                            type="checkbox" 
+                                            data-field="isDefault" 
+                                            checked={recordInfo.isDefault} 
+                                            onchange={handleFormInputChange}
+                                            label={i18n.labelSetAsDefault}></lightning-input>
+                                        </div>
+                                        </lightning-layout-item>
+                            <lightning-layout-item size="6">
+                                <div class="slds-p-around_small">
+                                    <lightning-textarea 
+                                    class="svmx-timeline-config_input-field svmx-timeline-config_description-input"
+                                    label={i18n.labelDescription} 
+                                    data-field="description" 
+                                    value={recordInfo.description}
+                                    onchange={handleFormInputChange}></lightning-textarea>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </template>
+                    </div>
+                    <c-x-expandable-section title={i18n.labelObjectSelection}>
+                        <lightning-accordion allow-multiple-sections-open class="slds-var-p-vertical_x-small" active-section-name={activeSections}>
+                            <div class="slds-box atadminContainer">
+                                <lightning-accordion-section
+                                    name="bands"
+                                    label={bandLabel}
+                                >
+                                <div slot="actions">
+                                    <template if:true={showWizardDevName}>
+                                        <div class="slds-float_left slds-var-p-right_medium slds-var-p-top_medium">
+                                            <div class="svmx-wizard_dev-name slds-text-body_regular slds-text-color_weak slds-list_horizontal">
+                                                <div class="slds-truncate slds-col">
+                                                <lightning-formatted-rich-text
+                                                    value={wizardDevName} disable-linkify>
+                                                </lightning-formatted-rich-text>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <lightning-button-menu
+                                        class="atadminContainerButton"
+                                        alternative-text={i18n.menuAlText}
+                                        variant="border-filled"
+                                        menu-alignment="right"
+                                        icon-name="utility:settings"
+                                        onselect={handleSettingsMenuSelect}
+                                    >
+                                        <template for:each={menuItemsForBands} for:item="item">
+                                            <lightning-menu-item
+                                                label={item.label}
+                                                value={item.value}
+                                                key={item.id}
+                                            >
+                                            </lightning-menu-item>
+                                        </template>
+                                    </lightning-button-menu>
+                                </div>
+                                    <template for:each={objectsConfiguredAsBands} for:item="object" for:index="idx">
+                                        <lightning-tile class={computedCardClass} type="media" key={object.sequence} data-index={object.sequence} data-sequence={object.sequence}>
+                                            <div class="slds-card__header slds-grid">
+                                                <header
+                                                    class="slds-media slds-media_center slds-has-flexi-truncate"
+                                                >
+                                                    <div class="slds-media__figure">
+                                                        <lightning-icon slot="media" icon-name={object.iconName}></lightning-icon>
+                                                    </div>
+                                            
+                                                    <div class="slds-media__body slds-text-link_reset">
+                                                        <div class="slds-grid">
+                                                            <div class="slds-no-flex">
+                                                                <h2 class="slds-card__header-title">
+                                                                    <span>{object.objectLabel}</span>
+                                                                </h2>
+                                                            </div>
+                                                            <template if:true={object.qualifyingCriteriaName}>
+                                                                <div class="slds-no-flex slds-m-left_medium slds-m-right_medium">
+                                                                    <lightning-icon slot="media" icon-name="utility:dash" size="xx-small"></lightning-icon>
+                                                                </div>
+                                                                <div class="slds-no-flex" if:true={object.qualifyingCriteriaName}>
+                                                                    <span>{object.qualifyingCriteriaName}</span>
+                                                                </div>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                    <div class="slds-no-flex">
+                                                        <lightning-button-menu
+                                                            class="step-config-button"
+                                                            alternative-text={i18n.menuAltText}
+                                                            variant="border-filled"
+                                                            menu-alignment="right"
+                                                            icon-name="utility:settings"
+                                                            onselect={handleRowAction}
+                                                        >
+                                                            <template for:each={objectRowActions} for:item="item">
+                                                                <lightning-menu-item
+                                                                    label={item.label}
+                                                                    value={item.value}
+                                                                    key={item.value}
+                                                                >
+                                                                </lightning-menu-item>
+                                                            </template>
+                                                        </lightning-button-menu>
+                                                    </div>
+                                                </header>
+                                            </div>
+                                        </lightning-tile>
+                                    </template>
+                                    <div class="slds-p-vertical_medium">
+                                        <lightning-button-icon  name={i18n.labelAddObject} alternative-text={i18n.labelAddObject} icon-name="utility:add" onclick={handleOpenObjectPropertiesModal}></lightning-button-icon>
+                                    </div>
+                                </lightning-accordion-section>
+                                </div>
+                            
+                        </lightning-accordion>
+                        <lightning-accordion allow-multiple-sections-open class="slds-var-p-vertical_x-small" active-section-name={activeSections}>
+                                    <div class="slds-box atadminContainer">
+                                <lightning-accordion-section
+                                    name="events"
+                                    label={eventsLabel}
+                                >
+                                <div slot="actions">
+                                    <template if:true={showWizardDevName}>
+                                        <div class="slds-float_left slds-var-p-right_medium slds-var-p-top_medium">
+                                            <div class="svmx-wizard_dev-name slds-text-body_regular slds-text-color_weak slds-list_horizontal">
+                                                <div class="slds-truncate slds-col">
+                                                <lightning-formatted-rich-text
+                                                    value={wizardDevName} disable-linkify>
+                                                </lightning-formatted-rich-text>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <lightning-button-menu
+                                        class="atadminContainerButton"
+                                        alternative-text={i18n.menuAlText}
+                                        variant="border-filled"
+                                        menu-alignment="right"
+                                        icon-name="utility:settings"
+                                        onselect={handleSettingsMenuSelect}
+                                    >
+                                        <template for:each={menuItemsForEvents} for:item="item">
+                                            <lightning-menu-item
+                                                label={item.label}
+                                                value={item.value}
+                                                key={item.id}
+                                            >
+                                            </lightning-menu-item>
+                                        </template>
+                                    </lightning-button-menu>
+                                </div>
+                                    <template for:each={objectsConfiguredAsEvents} for:item="object" for:index="idx" >
+                                        <lightning-tile class={computedCardClass} type="media" key={object.sequence} data-index={object.sequence} data-sequence={object.sequence}>
+                                            <div class="slds-card__header slds-grid">
+                                                <header
+                                                    class="slds-media slds-media_center slds-has-flexi-truncate"
+                                                >
+                                                    <div class="slds-media__figure">
+                                                        <lightning-icon slot="media" icon-name={object.iconName}></lightning-icon>
+                                                    </div>
+                                            
+                                                    <div class="slds-media__body slds-text-link_reset">
+                                                        <div class="slds-grid">
+                                                            <div class="slds-no-flex">
+                                                                <h2 class="slds-card__header-title">
+                                                                    <span>{object.objectLabel}</span>
+                                                                </h2>
+                                                            </div>
+                                                            <template if:true={object.qualifyingCriteriaName}>
+                                                                <div class="slds-no-flex slds-m-left_medium slds-m-right_medium">
+                                                                    <lightning-icon slot="media" icon-name="utility:dash" size="xx-small"></lightning-icon>
+                                                                </div>
+                                                                <div class="slds-no-flex" if:true={object.qualifyingCriteriaName}>
+                                                                    <span>{object.qualifyingCriteriaName}</span>
+                                                                </div>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                    <div class="slds-no-flex">
+                                                        <lightning-button-menu
+                                                            class="step-config-button"
+                                                            alternative-text={i18n.menuAltText}
+                                                            variant="border-filled"
+                                                            menu-alignment="right"
+                                                            icon-name="utility:settings"
+                                                            onselect={handleRowAction}
+                                                        >
+                                                            <template for:each={objectRowActions} for:item="item">
+                                                                <lightning-menu-item
+                                                                    label={item.label}
+                                                                    value={item.value}
+                                                                    key={item.value}
+                                                                >
+                                                                </lightning-menu-item>
+                                                            </template>
+                                                        </lightning-button-menu>
+                                                    </div>
+                                                </header>
+                                            </div>
+                                        </lightning-tile>
+                                    </template>
+                                    <div class="slds-p-vertical_medium">
+                                        <lightning-button-icon  name={i18n.labelAddObject} alternative-text={i18n.labelAddObject} icon-name="utility:add" onclick={handleOpenObjectPropertiesModal}></lightning-button-icon>
+                                    </div>
+                                </lightning-accordion-section>
+                            </div>
+                        
+                        </lightning-accordion>
+                        <lightning-accordion allow-multiple-sections-open class="slds-var-p-vertical_x-small"  active-section-name={activeSections}>
+                            <div class="slds-box atadminContainer">
+                                <lightning-accordion-section
+                                    name="milestones"
+                                    label={milestonesLabel}
+                                >
+                                <div slot="actions">
+                                    <template if:true={showWizardDevName}>
+                                        <div class="slds-float_left slds-var-p-right_medium slds-var-p-top_medium">
+                                            <div class="svmx-wizard_dev-name slds-text-body_regular slds-text-color_weak slds-list_horizontal">
+                                                <div class="slds-truncate slds-col">
+                                                <lightning-formatted-rich-text
+                                                    value={wizardDevName} disable-linkify>
+                                                </lightning-formatted-rich-text>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <lightning-button-menu
+                                        class="atadminContainerButton"
+                                        alternative-text={i18n.menuAlText}
+                                        variant="border-filled"
+                                        menu-alignment="right"
+                                        icon-name="utility:settings"
+                                        onselect={handleSettingsMenuSelect}
+                                    >
+                                        <template for:each={menuItemsForMilestones} for:item="item">
+                                            <lightning-menu-item
+                                                label={item.label}
+                                                value={item.value}
+                                                key={item.id}
+                                            >
+                                            </lightning-menu-item>
+                                        </template>
+                                    </lightning-button-menu>
+                                </div>
+                                    <template for:each={objectsConfiguredAsMilestones} for:item="object" for:index="idx">
+                                        <lightning-tile class={computedCardClass} type="media" key={object.sequence} data-index={object.sequence} data-sequence={object.sequence}>
+                                            <div class="slds-card__header slds-grid">
+                                                <header
+                                                    class="slds-media slds-media_center slds-has-flexi-truncate"
+                                                >
+                                                    <div class="slds-media__figure">
+                                                        <lightning-icon slot="media" icon-name={object.iconName}></lightning-icon>
+                                                    </div>
+                                            
+                                                    <div class="slds-media__body slds-text-link_reset">
+                                                        <div class="slds-grid">
+                                                            <div class="slds-no-flex">
+                                                                <h2 class="slds-card__header-title">
+                                                                    <span>{object.objectLabel}</span>
+                                                                
+                                                                </h2>
+                                                            </div>
+                                                            
+                                                            <template if:true={object.qualifyingCriteriaName}>
+                                                                <div class="slds-no-flex slds-m-horizontal_x-small">
+                                                                    <lightning-icon slot="media" icon-name="utility:dash" size="xx-small"></lightning-icon>
+                                                                </div>
+                                                                <div class="slds-no-flex" if:true={object.qualifyingCriteriaName}>
+                                                                    <span>{object.qualifyingCriteriaName}</span>
+                                                                </div>
+                                                            </template>
+                                                            <template if:true={object.startDateFieldAPIName}>
+                                                                <div class="slds-no-flex slds-m-horizontal_x-small">
+                                                                    <lightning-icon slot="media" icon-name="utility:dash" size="xx-small"></lightning-icon>
+                                                                </div>
+                                                                <div class="slds-no-flex" >
+                                                                    <span>{object.startDateFieldLabel}</span>
+                                                                </div>
+                                                            </template>
+                                                            <template if:true={object.endDateFieldAPIName}>
+                                                                <div class="slds-no-flex slds-m-left_xx-small slds-m-right_xx-small">
+                                                                   <span>{i18n.labelTo}</span>
+                                                                </div>
+                                                                <div class="slds-no-flex" >
+                                                                    <span>{object.endDateFieldLabel}</span>
+                                                                </div>
+                                                            </template>
+                                                           
+                                                        </div>
+                                                    </div>
+                                                    <div class="slds-no-flex">
+                                                        <lightning-button-menu
+                                                            class="step-config-button"
+                                                            alternative-text={i18n.menuAltText}
+                                                            variant="border-filled"
+                                                            menu-alignment="right"
+                                                            icon-name="utility:settings"
+                                                            onselect={handleRowAction}
+                                                        >
+                                                            <template for:each={objectRowActions} for:item="item">
+                                                                <lightning-menu-item
+                                                                    label={item.label}
+                                                                    value={item.value}
+                                                                    key={item.value}
+                                                                >
+                                                                </lightning-menu-item>
+                                                            </template>
+                                                        </lightning-button-menu>
+                                                    </div>
+                                                </header>
+                                            </div>
+                                        </lightning-tile>
+                                    </template>
+                                    <div class="slds-p-vertical_medium">
+                                        <lightning-button-icon  name={i18n.labelAddObject} alternative-text={i18n.labelAddObject} icon-name="utility:add" onclick={handleOpenObjectPropertiesModalForMilestone}></lightning-button-icon>
+                                    </div>
+                                </lightning-accordion-section>
+                            </div>
+                        
+                        </lightning-accordion>
+                        <div class="slds-p-around_medium">
+                            <lightning-button label={i18n.labelAddObject} icon-name="utility:add" onclick={handleOpenObjectPropertiesModal}></lightning-button>
+                        </div>
+                    </c-x-expandable-section>
+                    <c-x-expandable-section title={i18n.labelProfileAssignment}>
+                        <div class="slds-size_6-of-12 slds-p-around_medium">
+                            <div class="slds-timeline-config_form-item" role="listitem">
+                                <template if:true={showProfileSelector}>
+                                    <c-profile-selector
+                                        class="svmx-profile-selector"
+                                        hide-label={booleanTrue}
+                                        assigned-profiles={assignedProfileIds}
+                                        value={selectedProfileIds}
+                                        onprofileselected={handleProfileSelected}
+                                    ></c-profile-selector>
+                                </template>
+                            </div>
+                        </div>
+                    </c-x-expandable-section>
+                </div>
+            </div>
+            <c-modal-dialog title={i18n.objectProperties} class="objectPropertiesModal" is-open={objectPropertiesModalDialogOpen} modal-content-id="objectPropertiesModalContent" modal-header-id="objectPropertiesModalHeader" onmodalclosed={handleCancelObjectModal}>
+                <div slot="body">
+                    <div class="slds-notify slds-notify_alert slds-alert_error" if:true={saveError} role="alert">
+                        <lightning-icon icon-name="utility:error" alternative-text={saveError} title={saveError}></lightning-icon>
+                        <h2>{saveError}</h2>
+                    </div>
+                    <div class="slds-p-around_medium">
+                    <lightning-layout multiple-rows>
+                        <lightning-layout-item size="6">
+                            <div class="slds-p-horizontal_small">
+                                <div class="slds-form-element">
+                                <c-combobox
+                                                required
+                                                filterable
+                                                class="svmx-ObjectInput dataField svmx-timeline-config-detail_input-field"
+                                                variant="label-stacked"
+                                                data-field="objectAPIName"
+                                                label={i18n.object}
+                                                message-when-value-missing={i18n.enterValueMissing}
+                                                value={selectedObject}
+                                                disabled={disableObjectField}
+                                                items={availableObjects}
+                                                onchange={handleObjectChange}
+                                            ></c-combobox>
+                                            <div if:true={showNoAssetRefError}
+                                                class="slds-text-color_destructive slds-text-body_small">Object does not have Asset Reference.</div>
+                                    </div>
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6">
+                            <div class="slds-p-horizontal_small slds-form-element">
+                                    <c-modal-lookup
+                                class="criteria-lookup criteria-input svmx-timeline-config-field-selection_input-field"
+                                data-field="criteria-input"
+                                onmodalrequest={handleOpenSelector}
+                                onvalueremoved={handleCriteriaRemoved}
+                                value={selectedExpression}
+                                label={i18n.criteriaToShowRecord}
+                                hide-view-button
+                            >
+                            </c-modal-lookup>
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6">
+                            <div class="slds-p-horizontal_small">
+                                <c-combobox
+                                                required
+                                                filterable
+                                                class="svmx-ObjectInput dataField svmx-timeline-config-detail_input-field svmx-timeline-config-field-selection_input-field"
+                                                variant="label-stacked"
+                                                data-field="sourceFieldAPIName"
+                                                label={i18n.sourceField}
+                                                message-when-value-missing={i18n.enterValueMissing}
+                                                value={selectedSourceFieldApiName}
+                                                disabled={disableSourceFieldApi}
+                                                items={sourceFields}
+                                                onchange={handleSourceFieldChange}
+                                            ></c-combobox>
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6">
+                            <div class="slds-p-horizontal_small">
+                                <c-combobox
+                                                required={isDisplayFieldRequired}
+                                                filterable
+                                                disabled={isDisableDisplayField}
+                                                class="svmx-ObjectInput dataField svmx-timeline-config-detail_input-field svmx-timeline-config-field-selection_input-field"
+                                                variant="label-stacked"
+                                                data-field="displayFieldAPIName"
+                                                label={i18n.displayField}
+                                                message-when-value-missing={i18n.enterValueMissing}
+                                                value={selectedDisplayFieldApiName}
+                                                items={availableFields}
+                                                onchange={handleDisplayFieldChange}
+                                            ></c-combobox>
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6">
+                            <div class="slds-p-horizontal_small svmx-colorbar" onmouseenter={handleColorBarMouseEnter} onmouseleave={handleColorBarMouseLeave} if:true={showColorBar}>
+                                <lightning-input type="color" label="Bar Color" class="svmx-timeline-config-detail_input-field" required data-field-id="bandColor" value={selectedColor} onchange={handleSelectedColor}></lightning-input>
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6">
+                            <div class="slds-p-horizontal_small slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <c-modal-lookup
+                                    class="display-icon-lookup display-icon-input svmx-timeline-config-field-selection_input-field"
+                                    data-field="display-icon-input"
+                                    onmodalrequest={handleShowObjectIconPickerModal}
+                                    onvalueremoved={handleIconRemoved}
+                                    value={icon}
+                                    label={i18n.displayIcon}
+                                    hide-view-button
+                                >
+                                </c-modal-lookup>
+                                    <c-icon-picker 
+                            selected-icon={iconName}
+                            is-open={showConfigObjectIconPickerModal}
+                            oniconpickerclosed={handleConfigObjectIconPickerClose}
+                            onapply={handleConfigObjectIconPickerApply}
+                        ></c-icon-picker>
+                                </div>
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6">
+                            <div class="slds-p-horizontal_small">
+                                <c-combobox
+                                required
+                                filterable
+                                class="svmx-ObjectInput dataField svmx-timeline-config-detail_input-field svmx-timeline-config-field-selection_input-field"
+                                variant="label-stacked"
+                                data-field="startDateFieldAPIName"
+                                label={i18n.startDate}
+                                message-when-value-missing={i18n.enterValueMissing}
+                                value={selectedStartDateFieldApiName}
+                                items={dateFields}
+                                onchange={handleStartDateChange}
+                            ></c-combobox>
+                            </div>
+                            <div if:true={showStartDateInvalid}
+                            class="slds-p-horizontal_small slds-text-color_destructive slds-text-body_small">{i18n.datesInvalidError}</div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6">
+                            <div class="slds-p-horizontal_small">
+                                <c-combobox
+                                filterable
+                                class="svmx-ObjectInput dataField svmx-timeline-config-field-selection_input-field"
+                                variant="label-stacked"
+                                data-field="endDateFieldAPIName"
+                                label={i18n.endDate}
+                                value={selectedEndDateFieldApiName}
+                                items={dateFields}
+                                onchange={handleEndDateChange}
+                            ></c-combobox>
+                            </div>
+                            <div if:true={showEndDateInvalid}
+                            class="slds-p-horizontal_small slds-text-color_destructive slds-text-body_small">{i18n.datesInvalidError}</div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6">
+                            <div class="slds-p-horizontal_small">
+                                <lightning-input type="checkbox" data-field="showMatchingRecords"
+                                    class="defaultCheckbox" label={i18n.showMatchingRecords}
+                                    checked={showMatchingRecords} onchange={handleShowMatchingRecordsChange}>
+                                    </lightning-input>
+                            </div>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                    </div>
+                </div>
+                <div slot="footer">
+                    <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                        onclick={handleCancelObjectModal}
+                        class="svmx-timeline-config_save-btn slds-p-right_x-small svmx-deleteConfigCancel">
+                    </lightning-button>
+                    <lightning-button class="saveButton svmx-saveObjectPropertiesConfirm" label={i18n.save} title={i18n.save} variant="brand" onclick={handleSaveObjectModal}></lightning-button>
+                </div>
+            </c-modal-dialog> 
+            <c-expression-selector class="slds-hyphenate slds-line-clamp svmx-timeline-config-field-selection_input-field" selector-modal-title={i18n.selectorModalTitle}
+                                        selector-modal-open={selectorModalOpen} data-field="qualifying-criteria" object-api-name={selectedObject} curr-record-id={selectedExpressionId}
+                                        onexpressionselectorclosed={handleCloseModal} onexpressionselected={handleExpressionSelected} page-mode="edit">
+            </c-expression-selector>
+            <c-modal-dialog class="matchModal"
+                            is-open={matchModalDialogOpen} modal-content-id="matchModalContent"
+                            modal-header-id="matchModalHeader" onmodalclosed={handleMatchModal}>
+                            <div slot="body">
+                                <span slot="body">
+                                    <p>
+                                        <lightning-formatted-text value={i18n.matchModalContent}>
+                                        </lightning-formatted-text>
+                                    </p>
+                                </span>
+                            </div>
+                            <div slot="footer">
+                                <lightning-button class="confirmButton" label={i18n.ok} title={i18n.ok}
+                                    variant="brand" onclick={handleMatchModal}></lightning-button>
+                            </div>
+                        </c-modal-dialog>
+                        <c-modal-dialog title={i18n.cancelModalTitle} class="cancelModal"
+                        is-open={cancelModalDialogOpen} modal-content-id="cancelModalContent"
+                        modal-header-id="cancelModalHeader" onmodalclosed={handleCancelModal}>
+                        <div slot="body">
+                            <span slot="body">
+                                <p>
+                                    <lightning-formatted-text value={i18n.cancelModalContent}>
+                                    </lightning-formatted-text>
+                                </p>
+                            </span>
+                        </div>
+                        <div slot="footer">
+                            <lightning-button label={i18n.goBack} title={i18n.goBack} variant="neutral"
+                                onclick={handleCancelModal} class="slds-p-right_x-small"></lightning-button>
+                            <lightning-button class="confirmButton" label={i18n.continue} title={i18n.continue}
+                                variant="brand" onclick={handleCancelConfirmModal}></lightning-button>
+                        </div>
+                    </c-modal-dialog>
+            <c-modal-dialog title={i18n.reassignProfile} class="reAssignModal"
+                            is-open={reAssignModalDialogOpen} modal-content-id="reAssignModalContent"
+                            modal-header-id="reAssignModalHeader" onmodalclosed={handleReassignModalModal}>
+                            <div slot="body">
+                                <span slot="body">
+                                    <p>
+                                        <lightning-formatted-text class="slds-align_absolute-center" value={i18n.reassignProfileContent}></lightning-formatted-text>
+                                        <template for:each={profileAndConfigInfo} for:item="profileInfo">
+                                            <div key={profileInfo.profileName} class="slds-p-top_large slds-truncate slds-align_absolute-center">
+                                                <span class="slds-truncate" title={profileInfo.profileConfigInfo}>{profileInfo.profileConfigInfo}</span>
+                                            </div>
+                                        </template>
+                                    </p>
+                                </span>
+                            </div>
+                            <div slot="footer">
+                                <lightning-button label={i18n.goBack} title={i18n.goBack} variant="neutral"
+                                    onclick={handleReassignModalModal} class="slds-p-right_x-small"></lightning-button>
+                                <lightning-button class="confirmButton" label={i18n.continue} title={i18n.continue}
+                                    variant="brand" onclick={handleReassignConfirmModal}></lightning-button>
+                            </div>
+                        </c-modal-dialog>
+                    <c-reorder-dialog
+                        class="reorderStepsDialog"
+                        dialog-title={reorderTitle}
+                        modal-open={reorderStepsOpen}
+                        options={objectSeqOptions}
+                        onchange={handleStepOrderChange}
+                        onreordermodalclosed={handleStepOrderClosed}
+                    >
+                    </c-reorder-dialog>
+                    <template if:true={showRenameTitle}>
+                        <c-modal-dialog title={i18n.labelUpdateTitle} class="objectPropertiesModal" is-open={showRenameTitle} modal-content-id="objectPropertiesModalContent" modal-header-id="objectPropertiesModalHeader" onmodalclosed={handleCancelTitleCategory}>
+                            <div slot="body">
+                                <div class="slds-p-around_medium">
+                                    <lightning-input type="text" label={i18n.labelTitleName} class="titleClass" max-length="50" required value={currTitleName}></lightning-input>
+                                </div>
+                            </div>
+                            <div slot="footer">
+                                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                                    onclick={handleCancelTitleCategory}
+                                    class="svmx-timeline-config_save-btn slds-p-right_x-small svmx-deleteConfigCancel">
+                                </lightning-button>
+                                <lightning-button class="saveButton svmx-saveCategoryPropertiesConfirm" label={i18n.save} title={i18n.save} variant="brand" onclick={handleSaveTitleCategorytModal}></lightning-button>
+                            </div>
+                        </c-modal-dialog>
+                    </template>
+        </div>
+    </c-admin-layout>
+</template>

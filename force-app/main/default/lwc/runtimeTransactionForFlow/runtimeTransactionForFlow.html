@@ -1,0 +1,23 @@
+<template>
+    <template if:false={apiInProgress}>
+        <c-runtime
+            developer-name={developerName}
+            context={context}
+            header-record-data={headerRecordData}
+            page-data-config={pageDataConfig}
+            error={error}
+            is-in-modal={isInModal}
+            icon-name={iconName}
+            child-record-data={childRecordData}
+            source-record-id={recordId}
+            show-previous={showPrevious}
+            show-next={showNext}
+        ></c-runtime>
+    </template>
+    <template if:true={apiInProgress}>
+        <lightning-spinner
+            variant="brand"
+            alternative-text={i18n.loading}
+        ></lightning-spinner>
+    </template>
+</template>

@@ -1,0 +1,278 @@
+<template>
+    <span aria-live="assertive">
+        <span class={computedAriaLiveClassForNavMode}>{ariaLiveNavigationModeText}</span>
+        <span class={computedAriaLiveClassForActionMode}>{ariaLiveActionModeText}</span>
+    </span>
+    <div lwc:dom="manual" class="dt-width-observer" style="width: 100%; height: 0px;"></div>
+    <div class="dt-outer-container" style="height: 100%; position: relative;">
+    <c-primitive-datatable-iedit-panel
+        data-iedit-panel="true"
+        visible={state.inlineEdit.isPanelVisible}
+        row-key-value={state.inlineEdit.rowKeyValue}
+        col-key-value={state.inlineEdit.colKeyValue}
+        edited-value={state.inlineEdit.editedValue}
+        column-def={state.inlineEdit.columnDef}
+        is-mass-edit-enabled={state.inlineEdit.massEditEnabled}
+        number-of-selected-rows={state.inlineEdit.massEditSelectedRows}
+        onieditfinished={handleInlineEditFinish}
+        onmasscheckboxchange={handleMassCheckboxChange}
+    ></c-primitive-datatable-iedit-panel>
+    <div class={computedTableContainerClass} onscroll={handleHorizontalScroll} style={scrollerXStyles}>
+        <div class="slds-scrollable_y" onscroll={handleVerticalScroll} style={computedScrollerStyle}>
+            <table class={computedTableClass} role={computedTableRole} style={computedTableStyle}
+                onkeydown={handleTableKeydown}
+                onclick={handleCellClick}
+                onfocusin={handleTableFocusIn}
+                onfocusout={handleTableFocusOut}
+                aria-rowcount={ariaRowCount}>
+                <template if:false={hasValidKeyField}>
+                    <!-- empty since keyField wasn't provided -->
+                </template>
+                <template if:true={hasValidKeyField}>
+                <thead class={computedTableHeaderClass}>
+                <tr class="slds-line-height_reset"
+                    onprivateresizestart={handleResizeStart}
+                    onprivateresizeend={handleResizeEnd}>
+                    <template for:each={state.columns} for:item="def" for:index="colIndex">
+                        <th style={def.style}
+                            scope="col"
+                            tabindex={def.tabIndex}
+                            aria-label={def.ariaLabel}
+                            aria-sort={def.sortAriaLabel}
+                            key={def.colKeyValue}>
+
+                            <template if:true={def.fixedWidth}>
+                                <c-primitive-header-factory
+                                    style={def.style}
+                                    def={def}
+                                    dt-context-id={privateDatatableId}
+                                    key={def.colKeyValue}
+                                    row-key-value="HEADER"
+                                    col-key-value={def.colKeyValue}
+                                    has-focus={def.hasFocus}
+                                    column-width={def.columnWidth}
+                                    col-index={colIndex}
+                                    sortable={def.sortable}
+                                    sorted={def.sorted}
+                                    sorted-direction={def.sortedDirection}
+                                    show-checkbox={showSelectAllCheckbox}
+                                    actions={def.actions}>
+                                </c-primitive-header-factory>
+                            </template>
+                            <template if:false={def.fixedWidth}>
+                                <c-primitive-header-factory
+                                    style={def.style}
+                                    def={def}
+                                    dt-context-id={privateDatatableId}
+                                    key={def.colKeyValue}
+                                    row-key-value="HEADER"
+                                    col-key-value={def.colKeyValue}
+                                    col-index={colIndex}
+                                    resizable={hasResizebleColumns}
+                                    sortable={def.sortable}
+                                    sorted={def.sorted}
+                                    sorted-direction={def.sortedDirection}
+                                    has-focus={def.hasFocus}
+                                    column-width={def.columnWidth}
+                                    resizestep={state.resizeStep}
+                                    actions={def.actions}>
+                                </c-primitive-header-factory>
+                            </template>
+                        </th>
+                    </template>
+                </tr>
+                </thead>
+                <tbody style={computedTbodyStyle}>
+                    <template iterator:row={renderedRows}>
+                        <tr class={row.value.classnames}
+                            onkeydown={handleTrRowKeyDown}
+                            key={row.value.key}
+                            data-row-key-value={row.value.key}
+                            aria-selected={row.value.ariaSelected}
+                            aria-level={row.value.level}
+                            aria-expanded={row.value.ariaExpanded}
+                            aria-setsize={row.value.setSize}
+                            aria-posinset={row.value.posInSet}
+                            tabindex={row.value.tabIndex}>
+                            <template for:each={row.value.cells} for:item="cell">
+                                <template if:true={cell.isCheckbox}>
+                                    <td class={cell.class} role="gridcell" tabindex={cell.tabIndex} data-label={cell.dataLabel} key={cell.colKeyValue}>
+                                        <c-primitive-cell-checkbox
+                                            dt-context-id={privateDatatableId}
+                                            has-focus={cell.hasFocus}
+                                            data-label={cell.dataLabel}
+                                            key={cell.key}
+                                            row-key-value={row.value.key}
+                                            col-key-value={cell.colKeyValue}
+                                            row-index={row.index}
+                                            type={row.value.inputType}
+                                            is-selected={row.value.isSelected}
+                                            is-disabled={row.value.isDisabled}>
+                                        </c-primitive-cell-checkbox>
+                                    </td>
+                                </template>
+                                <template if:true={cell.isDataTypeScope}>
+                                    <th class={cell.class}
+                                        style={cell.paddingStyle}
+                                        aria-selected={cell.ariaSelected}
+                                        scope="row"
+                                        tabindex={cell.tabIndex}
+                                        data-label={cell.dataLabel}
+                                        key={cell.colKeyValue}>
+                                        <c-primitive-cell-factory
+                                            types={privateTypes}
+                                            hide-table-header={hideTableHeader}
+                                            aria-selected={cell.ariaSelected}
+                                            data-label={cell.dataLabel}
+                                            alignment={cell.alignment}
+                                            has-error={cell.hasError}
+                                            has-focus={cell.hasFocus}
+                                            column-label={cell.dataLabel}
+                                            column-type={cell.columnType}
+                                            column-sub-type={cell.columnSubType}
+                                            wrap-text={cell.wrapText}
+                                            wrap-text-max-lines={cell.wrapTextMaxLines}
+                                            key={cell.columnType}
+                                            row-key-value={row.value.key}
+                                            col-key-value={cell.colKeyValue}
+                                            value={cell.value}
+                                            icon-name={cell.iconName}
+                                            icon-label={cell.iconLabel}
+                                            icon-position={cell.iconPosition}
+                                            icon-alternative-text={cell.iconAlternativeText}
+                                            editable={cell.editable}
+                                            type-attribute-0={cell.typeAttribute0}
+                                            type-attribute-1={cell.typeAttribute1}
+                                            type-attribute-2={cell.typeAttribute2}
+                                            type-attribute-3={cell.typeAttribute3}
+                                            type-attribute-4={cell.typeAttribute4}
+                                            type-attribute-5={cell.typeAttribute5}
+                                            type-attribute-6={cell.typeAttribute6}
+                                            type-attribute-7={cell.typeAttribute7}
+                                            type-attribute-8={cell.typeAttribute8}
+                                            type-attribute-9={cell.typeAttribute9}
+                                            type-attribute-10={cell.typeAttribute10}
+                                            type-attribute-21={cell.typeAttribute21}
+                                            type-attribute-22={cell.typeAttribute22}
+                                            type-attribute-23={row.value.enableFetch}
+                                            notification-count={cell.hasNotifications}
+                                            notification-records={cell.notificationRecords}>
+                                        </c-primitive-cell-factory>
+                                    </th>
+                                </template>
+                                <template if:true={cell.isDataType}>
+                                    <td
+                                        class={cell.class}
+                                        style={cell.paddingStyle}
+                                        aria-selected={cell.ariaSelected}
+                                        role="gridcell"
+                                        tabindex={cell.tabIndex}
+                                        data-label={cell.dataLabel}
+                                        data-row
+                                        key={cell.colKeyValue}>
+                                        <c-primitive-cell-factory
+                                            types={privateTypes}
+                                            hide-table-header={hideTableHeader}
+                                            aria-selected={cell.ariaSelected}
+                                            role="gridcell"
+                                            data-label={cell.dataLabel}
+                                            alignment={cell.alignment}
+                                            has-focus={cell.hasFocus}
+                                            has-error={cell.hasError}
+                                            column-label={cell.dataLabel}
+                                            column-type={cell.columnType}
+                                            column-sub-type={cell.columnSubType}
+                                            wrap-text={cell.wrapText}
+                                            wrap-text-max-lines={cell.wrapTextMaxLines}
+                                            key={cell.columnType}
+                                            row-key-value={row.value.key}
+                                            col-key-value={cell.colKeyValue}
+                                            value={cell.value}
+                                            icon-name={cell.iconName}
+                                            icon-label={cell.iconLabel}
+                                            icon-position={cell.iconPosition}
+                                            icon-alternative-text={cell.iconAlternativeText}
+                                            editable={cell.editable}
+                                            type-attribute-0={cell.typeAttribute0}
+                                            type-attribute-1={cell.typeAttribute1}
+                                            type-attribute-2={cell.typeAttribute2}
+                                            type-attribute-3={cell.typeAttribute3}
+                                            type-attribute-4={cell.typeAttribute4}
+                                            type-attribute-5={cell.typeAttribute5}
+                                            type-attribute-6={cell.typeAttribute6}
+                                            type-attribute-7={cell.typeAttribute7}
+                                            type-attribute-8={cell.typeAttribute8}
+                                            type-attribute-9={cell.typeAttribute9}
+                                            type-attribute-10={cell.typeAttribute10}
+                                            type-attribute-21={cell.typeAttribute21}
+                                            type-attribute-22={cell.typeAttribute22}
+                                            notification-count={cell.hasNotifications}
+                                            notification-records={cell.notificationRecords}>
+                                        </c-primitive-cell-factory>
+                                    </td>
+                                </template>
+                            </template>
+                        </tr>
+                        <template if:true={row.value.isExpanded}>
+                            <template if:true={row.value.detail}>
+                                <tr key={row.value.detailKey} class="svmx-sub-grid">
+                                    <td class="svmx-sub-grid" style={row.value.detailPadding} colspan={numberOfColumns}>
+                                        <c-x-detail-tree-grid
+                                            columns={detailGridConfig.columns}
+                                            table-data={row.value.detail}
+                                            hide-table-header={detailGridConfig.hideTableHeader}
+                                            expanded-rows={detailGridConfig.expandedRows}
+                                            highlighted-rows={detailGridConfig.highlightedRows}
+                                            hide-checkbox-column={detailGridConfig.hideCheckboxColumn}
+                                            is-loading={detailGridConfig.isLoading}
+                                            key-field={detailGridConfig.keyField}
+                                            max-column-width={detailGridConfig.maxColumnWidth}
+                                            min-column-width={detailGridConfig.minColumnWidth}
+                                            resize-column-disabled={detailGridConfig.resizeColumnDisabled}
+                                            row-number-offset={detailGridConfig.rowNumberOffset}
+                                            selected-rows={detailGridConfig.selectedRows}
+                                            show-row-number-column={detailGridConfig.showRowNumberColumn}
+                                            detail-grid-config={detailGridConfig.detailGridConfig}
+                                            table-class={detailGridConfig.tableClass}
+                                            column-widths-mode={detailGridConfig.columnWidthsMode}
+                                            onheaderaction={detailGridConfig.onheaderaction}
+                                            onrowaction={detailGridConfig.onrowaction}
+                                            lazy-load={lazyLoad}
+                                        >
+                                        </c-x-detail-tree-grid>
+                                    </td>
+                                </tr>   
+                            </template>
+                        </template>
+                    </template>
+                    <template if:true={hasChunksLeft}>
+                        <tr>
+                            <td colspan={numberOfColumns} class="slds-is-relative">
+                                <div class="slds-align_absolute-center">
+                                    <lightning-button onclick={handleNextChunk} variant="brand" label={i18n.loadMore}></lightning-button>
+                                    <lightning-formatted-text class="slds-var-p-left_small" value={displayedCount}></lightning-formatted-text>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                    <template if:true={isLoading}>
+                        <tr>
+                            <td colspan={numberOfColumns} class="slds-is-relative">
+                                <c-primitive-datatable-loading-indicator></c-primitive-datatable-loading-indicator>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+                </template>
+            </table>
+        </div>
+    </div>
+    <template if:true={showStatusBar}>
+        <c-primitive-datatable-status-bar
+            error={tableError}
+            onprivatesave={handleInlineEditSave}
+            onprivatecancel={handleInlineEditCancel}
+        ></c-primitive-datatable-status-bar>
+    </template>
+    </div>
+</template>

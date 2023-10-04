@@ -1,0 +1,54 @@
+<template>
+	<section class="svmx-recordPopover_tooltip slds-popover slds-popover_panel slds-popover_small slds-transition-hide slds-is-fixed"
+		role="dialog"  style="width:100%; background:white">
+		<lightning-button-icon icon-name="utility:close" size="small" alternative-text={i18n.closeAltText}
+		variant="bare" class="slds-float_right slds-popover__close" onclick={handleCloseTooltip}>
+		</lightning-button-icon>
+		<div class="slds-popover__header svmx-recordPopover_tooltip-header" style="width:100%; background:white">
+			<template if:true={isMouseOver}>
+				<template if:true={showRecordPreview}>
+					<div class="svmx-recordPopover_record-preview-container" style="max-height:300px; overflow:auto" onscroll={handleScroll}>
+						<template for:each={recordList} for:item="recordWithTitle">
+							<table key={recordWithTitle.key} class="slds-table">
+								<template if:true={recordWithTitle.title}>
+									<thead>
+										<tr class="slds-line-height_reset">
+										<th class="" scope="col" style='opacity:.75'>
+											<div class="slds-truncate" title="Opportunity Name">{recordWithTitle.title}</div>
+										</th>
+										</tr>
+									</thead>
+								</template>
+								<tbody>
+									<template for:each={recordWithTitle.records} for:item="record">
+										<tr  
+											key={record.recordId} 
+											class="slds-hint-parent"
+											onmouseover={handleMouseOver}
+											onmouseout={handleMouseOut}
+											data-record-id={record.recordId} 
+											data-object-api-name={record.objectAPIName}>
+											<th data-label={record.fullDisplayName} scope="row" style="cursor:pointer" >
+												<div class="slds-truncate" title={record.fullDisplayName} style="color: #0c3f6b">
+													<span class="slds-truncate " title={record.fullDisplayName} style="cursor:pointer">
+														<lightning-icon 
+															icon-name={record.iconName} 
+															size="x-small"  
+															alternative-text={record.fullDisplayName} 
+															title={record.fullDisplayName}></lightning-icon>
+														&nbsp;&nbsp;{record.fullDisplayName}</span>
+												</div>
+											</th>
+										</tr>
+									</template>
+								</tbody>
+							</table>
+						</template>
+					</div>
+				</template>
+			</template>
+		</div>
+	</section>
+	<c-svmx-record-popover class="svmx-at_record-preview"
+    ></c-svmx-record-popover>
+</template>

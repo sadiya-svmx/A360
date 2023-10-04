@@ -1,0 +1,294 @@
+<template>
+
+    <header class="slds-modal__header slds-text-heading_medium">
+        <h2 class="slds-modal__title slds-hyphenate">{title}</h2>
+    </header>
+
+    <template if:true={errorMessage}>
+        <c-alert variant="error">{errorMessage}</c-alert>
+    </template>
+    <c-add-contract-line-assets onrefresh={handleRefresh}></c-add-contract-line-assets>
+    <template if:true={launchMode}>
+        <div class="slds-p-bottom_large slds-p-top_medium slds-p-right_x-large slds-p-left_x-large">
+
+            <template if:false={fromLocation}>
+                    <c-svmx-lookup
+                        class="dataField svmx-createServiceContract__accountId"
+                        advanced-search-config={booleanFalse}
+                        data-field="AccountId"
+                        field-api-name="AccountId"
+                        disabled={booleanFalse}
+                        enable-advanced-search={booleanFalse}
+                        icon-name="standard:account"
+                        label={i18n.account}
+                        target-object-api-name="Account"
+                        target-label-api-name={accountNameField}
+                        read-only={accountId}
+                        value={accountId}
+                        required>
+                    </c-svmx-lookup>
+            </template>
+
+            <template if:true={fromAsset}>
+                    <c-svmx-lookup
+                        class="dataField svmx-createServiceContract__assetId"
+                        advanced-search-config={booleanFalse}
+                        data-field="AssetId"
+                        field-api-name="AssetId"
+                        disabled={booleanFalse}
+                        enable-advanced-search={booleanFalse}
+                        icon-name="standard:asset_object"
+                        label={i18n.asset}
+                        target-object-api-name="Asset"
+                        target-label-api-name={assetNameField}
+                        read-only={recordId}
+                        value={recordId}
+                        required>
+                    </c-svmx-lookup>
+
+                <lightning-input type="checkbox" label={i18n.sconCreateContractForChildAssets} onchange={handleChange}
+                    data-field="evaluateForChildAssets" class="slds-p-vertical_x-small" checked={recordInfo.evaluateForChildAssets}></lightning-input>
+            </template>
+
+            <template if:true={fromLocation}>
+                <c-svmx-lookup
+                    class="dataField"
+                    advanced-search-config={booleanFalse}
+                    data-field="LocationId"
+                    field-api-name="LocationId"
+                    disabled={booleanFalse}
+                    enable-advanced-search={booleanFalse}
+                    icon-name="standard:location"
+                    label={i18n.location}
+                    target-object-api-name="Location"
+                    target-label-api-name={locationNameField}
+                    read-only={recordId}
+                    value={recordId}
+                    required>
+                </c-svmx-lookup>
+
+                <c-svmx-lookup
+                    class="dataField svmx-createServiceContract__accountId"
+                    advanced-search-config={booleanFalse}
+                    data-field="AccountId"
+                    field-api-name="AccountId"
+                    disabled={booleanFalse}
+                    enable-advanced-search={booleanFalse}
+                    icon-name="standard:account"
+                    label={i18n.account}
+                    target-object-api-name="Account"
+                    target-label-api-name={accountNameField}
+                    onlookupselect={handleLookupFieldChange}
+                    read-only={booleanFalse}
+                    value={recordInfo.sourceRecordId}
+                    filters={locationFilter}
+                    required>
+                </c-svmx-lookup>
+            </template>
+
+                <c-svmx-lookup
+                    class="dataField svmx-createServiceContract__contractplanId"
+                    advanced-search-config={booleanFalse}
+                    data-field="serviceContractPlanId"
+                    field-api-name="SVMXA360__ServiceContractPlanId__c"
+                    disabled={booleanFalse}
+                    enable-advanced-search={booleanFalse}
+                    icon-name="standard:service_contract"
+                    label={i18n.sconPlan}
+                    target-object-api-name="SVMXA360__ServiceContractPlan__c"
+                    target-label-api-name={serviceContractPlanNameField}
+                    onlookupselect={handleLookupFieldChange}
+                    read-only={booleanFalse}
+                    value={recordInfo.serviceContractPlanId}
+                    filters={servicePlanFilter}
+                    required>
+                </c-svmx-lookup>
+
+                <lightning-input type="text" label={i18n.sconName} value={recordInfo.serviceContractName}
+                    required="true" onchange={handleChange} data-field="serviceContractName"
+                    class="dataField svmx-createServiceContract__contractname">
+
+                </lightning-input>
+
+                <lightning-textarea label={i18n.sconDescription} value={recordInfo.serviceContractDescription}
+                                    onchange={handleChange} data-field="serviceContractDescription" class="dataField svmx-createServiceContract__desc">
+                </lightning-textarea>
+
+                <div class="slds-grid slds-wrap">
+                    <lightning-input type="date" label={i18n.sconStartDate} value={recordInfo.serviceContractStartDate}
+                        data-field="serviceContractStartDate" required="true" onchange={handleChange} class="dataField svmx-createServiceContract__startdate">
+                    </lightning-input>
+                </div>
+
+        </div>
+    </template>
+
+    <template if:true={showAssetScreen}>
+        <div class="slds-card">
+
+            <div class="slds-page-header">
+                <div class="slds-page-header__row">
+                    <div class="slds-page-header__col-title">
+                        <div class="slds-media">
+                            <div class="slds-media__figure">
+                                <lightning-icon icon-name="standard:maintenance_asset" alternative-text={i18n.manageContractLineAssets} title={i18n.manageContractLineAssets}>
+                                </lightning-icon>
+                            </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                            <div class="slds-page-header__name-title">
+                                <h1>
+                                <span class="slds-page-header__title slds-truncate" title={i18n.manageContractLineAssets}>{i18n.manageContractLineAssets}</span>
+                                </h1>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+
+                    <div class="slds-page-header__col-details slds-size_3-of-8">
+                        <div class="slds-truncate">
+                            <div class="slds-input-has-icon slds-input-has-icon--left">
+                                <lightning-icon icon-name="utility:search" class="slds-input__icon" size="xx-small">
+                                </lightning-icon>
+                                <lightning-input value={searchTerm}
+                                    onchange={handleSearchTermChange}
+                                    variant="label-hidden"
+                                    autocomplete="off"
+                                    placeholder={i18n.labelSearch}
+                                    title={i18n.labelSearch}>
+                                </lightning-input>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="slds-page-header__col-actions">
+                        <div class="slds-page-header__controls">
+                        <div class="slds-page-header__control">
+                            <lightning-button-menu
+                                alternative-text={i18n.showMenuAltText}
+                                label={i18n.actions}
+                                variant="border"
+                                onselect={handleNewAction}>
+                                <template for:each={actionItems} for:item="menuItem">
+                                    <lightning-menu-item
+                                        key={menuItem.id}
+                                        value={menuItem.value}
+                                        label={menuItem.label}
+                                        disabled={menuItem.disabled}
+                                        checked={menuItem.checked}>
+                                    </lightning-menu-item>
+                                </template>
+                            </lightning-button-menu>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div if:false={qualifiedAssetList} class="slds-align_absolute-center no-data">
+                {i18n.noResults}
+            </div>
+
+            <div if:true={qualifiedAssetList} class="slds-p-horizontal_medium">
+                <c-x-paginated-datatable 
+                    key-field="Id"
+                    records={qualifiedAssetList}
+                    columns={assetColumns}
+                    onpaginatedrowselection={handleRowSelection}
+                    onpaginatedrowaction={handleRowAction}
+                    show-info-header="true"
+                    ondynamicfieldchange={handleDynamicFieldChange}
+                    onlookupselect={handleLookupSelectInGrid}
+                    draft-values={draftValues}
+                    suppress-bottom-bar
+                    show-row-number-column
+                    >
+                </c-x-paginated-datatable>
+            </div>
+        </div>
+    </template>
+
+    <template if:true={isBulkCreationMode}>
+        <div class="slds-card">
+            <div class="slds-page-header">
+                <div class="slds-page-header__row">
+                    <div class="slds-page-header__col-title">
+                        <div class="slds-media">
+                            <div class="slds-media__figure">
+                                <lightning-icon icon-name="standard:maintenance_asset" alternative-text={i18n.sconCreationTitle} title={i18n.sconCreationTitle}>
+                                </lightning-icon>
+                            </div>
+                            <div class="slds-media__body">
+                                <div class="slds-page-header__name">
+                                    <div class="slds-page-header__name-title">
+                                        <h1><span class="slds-page-header__title slds-truncate" title={i18n.sconCreationTitle}>{i18n.sconCreationTitle}</span></h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-p-horizontal_medium" style="height: 400px;">
+                <template if:false={showLogDetails}>
+                    <div class="slds-p-top_large slds-align_absolute-center">
+                        {i18n.sconProgress}
+                    </div>            
+                    <div class="slds-p-top_medium slds-p-bottom_medium svmx-create-contract-progress_bar" >
+                        <lightning-progress-bar value={progressCounter} size="large" variant="circular"></lightning-progress-bar>
+                    </div>
+                    <div class="slds-align_absolute-center">
+                        <a data-id={newServiceContractRecord.Id} onclick={handleClickViewSconProgress} class="svmx-create-servicecontract_progresslink slds-truncate" title={i18n.sconServiceContractProgressView}>
+                            <span>{i18n.sconServiceContractProgressView}</span>
+                        </a>
+                    </div>  
+                </template>
+            </div>
+        </div>
+    </template>
+
+    <footer class="slds-modal__footer">
+        <div if:true={showAssetScreen}>
+            <lightning-button variant="brand-outline" label={i18n.cancel} onclick={handleCancel} 
+                              class=" slds-float_left svmx-createServiceContract__cancel" >
+            </lightning-button>
+            <lightning-button variant="brand-outline" label={i18n.buttonPrevious} onclick={handlePrevious} 
+                              class="svmx-createServiceContract__previous" >
+            </lightning-button>
+            <lightning-button variant="brand" label={i18n.createServiceContract} onclick={saveContract}
+                            class="slds-m-left_small svmx-createServiceContract__saveContract" disabled={createButtonDisabled}>
+            </lightning-button>
+        </div>
+        <div if:true={launchMode}>
+            <lightning-button variant="brand-outline" label={i18n.cancel} onclick={handleCancel} 
+                              class="svmx-createServiceContract__cancel" >
+            </lightning-button>
+            <lightning-button variant="brand" label={i18n.buttonNext} onclick={handleNext} 
+                              class="slds-m-left_small svmx-createServiceContract__Next"> </lightning-button>
+        </div>
+    </footer>
+
+    <template if:true={apiInProgress}>
+        <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+    </template>
+
+    <!--Confirm Delete Modal-->
+    <c-modal-dialog title={i18n.removeAssetTitle} is-open={deleteModalDialogOpen} class="svmx-createServiceContract__delete_modal"
+        modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={handleCancelModal} 
+        size="SMALL" relative-to-viewport>
+        <div slot="body">
+            <p>
+                <lightning-formatted-text class="slds-align_absolute-center"
+                    value={removeAssetConfirmMessage}>
+                </lightning-formatted-text>
+            </p>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal}
+                class="slds-p-right_x-small svmx-createServiceContract__delete_modal_cancel"></lightning-button>
+            <lightning-button label={i18n.confirm} title={i18n.confirm} variant="brand"
+                onclick={handleDeleteConfirmModal} class="svmx-createServiceContract__delete_modal_confirm"></lightning-button>
+        </div>
+    </c-modal-dialog>
+</template>

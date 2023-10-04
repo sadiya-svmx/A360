@@ -1,0 +1,46 @@
+<template>        
+    <div class="slds-card full-height">
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <lightning-icon
+                            icon-name={srcIconName}
+                            size={iconSize}
+                            alternative-text={i18n.recentlyViewedList}
+                            title={i18n.recentlyViewedList}
+                            ></lightning-icon>
+                        <div class="slds-media__body">
+                            <div class="slds-p-left_x-small slds-p-top_xx-small slds-text-heading_medium"> 
+                                <b>{i18n.recentlyViewedList}</b>
+                            </div>
+                        </div>          
+                    </div>
+                </div>
+            </div>            
+        </div>
+        <template if:true={error}>
+            <div class="slds-text-color_error svmx-error">{error}</div>
+        </template>
+        <div style={computedDataTableHeight}>
+            <c-x-datatable
+                class="expressionListViewTable"
+                key-field="id"
+                data={filteredListViewData}
+                columns={columns}
+                hide-checkbox-column="true"
+                sorted-by={sortBy} 
+                sorted-direction={sortDirection} 
+                default-sort-direction="asc"
+                onsort={handleColumnSort}
+            >
+            </c-x-datatable>
+            <template if:true={apiInProgress}>
+                <lightning-spinner
+                    variant="brand"
+                    alternative-text={i18n.loading}
+                ></lightning-spinner>
+            </template>
+        </div>            
+    </div>
+</template>

@@ -1,0 +1,163 @@
+<template>
+    <div class="full-height slds-grid slds-grid_vertical">
+        <template if:true={error}>
+            <c-alert
+                variant="error"
+                class="svmx-pricebook-assignment-list-view_custom-alert"
+            >
+                {error}
+            </c-alert>
+        </template>
+        <div class="slds-page-header list-view-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <c-service-max-logo-icon
+                                title-text={i18n.labelEntitlement}
+                                alternative-text={i18n.labelEntitlement}
+                                icon-size="large"
+                            ></c-service-max-logo-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span>
+                                            {i18n.labelEntitlement}
+                                        </span>
+                                        <span
+                                            class="slds-page-header__title slds-truncate" 
+                                            title={i18n.labelPriceBookAssignmentRules}
+                                        >
+                                            {i18n.labelPriceBookAssignmentRules}
+                                        </span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-page-header__col-actions">
+                    <div class="slds-page-header__controls">
+                        <div class="slds-page-header__control">
+                            <lightning-button-group>
+                                <lightning-button
+                                    label={i18n.labelNewRule}
+                                    title={i18n.labelNewRule}
+                                    value={i18n.labelNewRule} 
+                                    onclick={handleNewRule}
+                                    class="svmx-pricebook-assignment-list-view_addnewrule-btn"
+                                ></lightning-button>
+                            </lightning-button-group>
+                            <lightning-button-icon
+                                    icon-name="utility:help"
+                                    variant="bare"
+                                    alternative-text={i18n.help}
+                                    title={i18n.help}
+                                    onclick={handleHelpClick}
+                                    class="svmx-help-link-button slds-m-left_x-small"
+                                ></lightning-button-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slds-p-around_small">
+            <div class="slds-page-header__col-title">
+                <div class="slds-page-header__controls slds-grid_vertical-align-center slds-p-right_xx-small slds-float_right">
+                    <div class="slds-page-header__control slds-p-right_xx-small">
+                        <lightning-input 
+                            type="search"
+                            autocomplete="off"
+                            placeholder={i18n.searchPlaceholder}
+                            variant="label-hidden" 
+                            class="slds-size_medium svmx-pricebook-assignment-list-view_search-input"
+                            onchange={handleSearchKeyChange}>
+                        </lightning-input>
+                    </div>
+                    <div class="slds-page-header__control slds-p-left_small">
+                        <lightning-input
+                            type="toggle"
+                            label={i18n.showInactive}
+                            message-toggle-active="" 
+                            message-toggle-inactive=""
+                            onchange={handleToggleChange}
+                            class="svmx-pricebook-assignment-list-view_show-inactive-input"
+                        ></lightning-input>
+                    </div>
+                    <div class="slds-page-header__control slds-p-left_small">
+                        <lightning-button
+                            variant="base"
+                            label={i18n.reOrderButton}
+                            onclick={handleReorder}
+                            class="svmx-pricebook-assignment-list-view_reorder-btn"
+                        ></lightning-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <lightning-datatable
+                key-field="id"
+                columns={columns}
+                data={listViewData}
+                onrowaction={handleRowAction}
+                hide-checkbox-column
+            ></lightning-datatable>
+            <div
+                if:false={rowCount}
+                class="slds-align_absolute-center no-data"
+            >
+                {i18n.noResults}
+            </div>
+            <template if:true={apiInProgress}>
+                <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+            </template>
+        </div>
+
+        <c-modal-dialog
+            title={i18n.deleteModalTitle}
+            class="svmx-pricebook-assignment-list-view_delete-modal"
+            is-open={deleteModalDialogOpen}
+            modal-content-id="deleteModalContent"
+            modal-header-id="deleteModalHeader"
+            onmodalclosed={handleCancelModal}
+        >
+            <div slot="body">
+                <p>
+                    <lightning-formatted-text value={i18n.deleteModalContent}>
+                    </lightning-formatted-text>
+                </p>
+            </div>
+            <div slot="footer">
+                <lightning-button
+                    label={i18n.cancel}
+                    title={i18n.cancel}
+                    variant="neutral"
+                    onclick={handleCancelModal}
+                    class="slds-p-right_x-small svmx-delete-modal_cancel-btn"
+                ></lightning-button>
+                <lightning-button
+                    class="svmx-delete-modal_confirm-btn"
+                    label={i18n.confirm}
+                    title={i18n.confirm}
+                    variant="brand"
+                    onclick={handleDeleteConfirmModal}
+                ></lightning-button>
+            </div>
+        </c-modal-dialog>
+
+        <c-modal-dialog title={i18n.reorderingTitle} class="reorderModal svmx-pricebook-assignment-list-view_reorder-modal" is-open={reorderModalDialogOpen} modal-content-id="reorderModalContent" modal-header-id="reorderModalHeader" onmodalclosed={handleReorderCancelModal}>
+            <div slot="body">
+                <div class="slds-text-body_regular slds-m-bottom_x-small">{i18n.reorderingHeader}</div>
+                <c-reorder-list-box options={listBoxOptions} ></c-reorder-list-box>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleReorderCancelModal} class="slds-p-right_x-small svmx-reorder-modal_cancel-btn"></lightning-button>
+                <lightning-button class="confirmButton svmx-reorder-modal_confirm-btn" label={i18n.save} title={i18n.save} variant="brand" onclick={handleReorderSaveModal}></lightning-button>
+            </div>
+        </c-modal-dialog>
+    </div>
+    
+</template>

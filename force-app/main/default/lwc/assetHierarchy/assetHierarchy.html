@@ -1,0 +1,1048 @@
+<template>
+    <div if:true={hierarchyConfig.data} class="svmx-ah-treetable">
+        <lightning-card title={label}>
+            <div if:true={regionsIsNotSmall} slot="actions">
+                <div class="slds-grid slds-gutters slds-var-p-right_small">
+                    <template if:true={isDataAvailable}>
+                        <div class="slds-col slds-form-element">
+                            <div class="slds-form-element__control">
+                                <div class="slds-combobox_container">
+                                    <div class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-has-focus" data-searchbox="searchbox" 
+                                    aria-expanded="true" aria-haspopup="listbox" role="combobox">
+                                        <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                                            <div class="slds-p-top_none">
+                                                <lightning-input id="combobox-id-1" class="svmx-asset-hierarchy_text-search" type="search" value={searchKey}
+                                                                    onchange={searchHandler.handleSearchKeyChange} variant="label-hidden" title={i18n.searchPlaceholder} 
+                                                                    autocomplete="off" placeholder={i18n.searchPlaceholder} onblur={searchHandler.handleSearchBlur}
+                                                                    onfocus={searchHandler.handleSearchFocus} aria-autocomplete="list" data-inputbox="search"
+                                                                    aria-controls="listbox-result" role="combobox">
+                                                </lightning-input>
+                                            </div>
+                                        </div>
+                                        <div id="listbox-result" class="slds-dropdown slds-dropdown_fluid" role="listbox" >
+                                            <ul class="slds-listbox slds-listbox_vertical">
+                                                <template if:false={isSearchResultHasInvalidNode}>
+                                                    <li role="presentation"  class="slds-listbox__item">
+                                                        <ul class="svmx-asset-hierarchy_searchresultbox" onscroll={handleSearchResultScroll} role="presentation" >
+                                                            <template for:each={searchResults} for:item="record" if:false={searchHandler.isResultsLoading}>
+                                                                <li class="svmx-asset-hierarchy_searchlistbox" key={record.recordId}
+                                                                    onclick={searchHandler.handleSearchResultSelect} data-id={record.recordId}
+                                                                    role="presentation" title={record.cleanRecordName}>
+                                                                    <template if:true = {record.searchText}>
+                                                                        <span
+                                                                            class='slds-media slds-listbox__option
+                                                                            slds-listbox__option_entity slds-listbox__option_has-meta'
+                                                                            role="option"
+                                                                            data-id={record.recordId}>
+                                                                            <span class="slds-media__figure">
+                                                                                <template if:true={record.isIcon}>
+                                                                                    <lightning-icon icon-name={record.iconName}
+                                                                                        size="small"
+                                                                                        alternative-text="Result item icon">
+                                                                                    </lightning-icon>
+                                                                                </template>
+                                                                                <template if:false={record.isIcon}>
+                                                                                    <template if:true={record.isImage}>
+                                                                                        <lightning-formatted-rich-text
+                                                                                            value={record.iconName}>
+                                                                                        </lightning-formatted-rich-text>
+                                                                                    </template>
+                                                                                </template>
+                                                                            </span>
+                                                                            <span class="slds-media__body" data-selectedid={record.recordId}>
+                                                                                <span class="slds-listbox__option-text_entity">
+                                                                                    <lightning-formatted-rich-text
+                                                                                        value={record.recordName} disable-linkify>
+                                                                                    </lightning-formatted-rich-text>
+                                                                                </span>
+                                                                                <span class="slds-listbox__option-meta slds-truncate">
+                                                                                    <lightning-formatted-rich-text
+                                                                                        value={record.searchText}
+                                                                                        disable-linkify>
+                                                                                    </lightning-formatted-rich-text>
+                                                                                </span>
+                                                                            </span>
+                                                                        </span>
+                                                                    </template>
+                                                                    <template if:false={record.searchText}>
+                                                                        <span class='slds-media slds-listbox__option
+                                                                            slds-listbox__option_entity'
+                                                                            role="option"
+                                                                            data-id={record.recordId}>
+                                                                            <span class="slds-media__figure">
+                                                                                <template if:true={record.isIcon}>
+                                                                                    <lightning-icon icon-name={record.iconName}
+                                                                                        size="small"
+                                                                                        alternative-text="Result item icon">
+                                                                                    </lightning-icon>
+                                                                                </template>
+                                                                                <template if:false={record.isIcon}>
+                                                                                    <template if:true={record.isImage}>
+                                                                                        <lightning-formatted-rich-text
+                                                                                            value={record.iconName}>
+                                                                                        </lightning-formatted-rich-text>
+                                                                                    </template>
+                                                                                </template>
+                                                                            </span>
+                                                                            <span class="slds-media__body"  data-selectedid={record.recordId}>
+                                                                                <span class="slds-listbox__option-text_entity">
+                                                                                    <lightning-formatted-rich-text
+                                                                                        value={record.recordName} disable-linkify>
+                                                                                    </lightning-formatted-rich-text>
+                                                                                </span>
+                                                                            </span>
+                                                                        </span>
+                                                                    </template>
+                                                                </li>
+                                                            </template>
+                                                            <template if:true={searchHandler.isResultsLoading}>
+                                                                <li role="presentation">
+                                                                    <span class="slds-lookup__item-action slds-lookup__item-action--label" role="option">
+                                                                        <lightning-spinner variant="brand" size="small"></lightning-spinner>
+                                                                    </span>
+                                                                </li>
+                                                            </template>
+                                                            <template if:true={searchHandler.noMatchingFoundMessage}>
+                                                                <li role="presentation" title={searchHandler.noMatchingFoundMessage}>
+                                                                    <span class="slds-lookup__item-action slds-lookup__item-action--label" role="option">
+                                                                        {searchHandler.noMatchingFoundMessage}
+                                                                    </span>
+                                                                </li>
+                                                            </template>
+                                                        </ul>
+                                                    </li>
+                                                    <template if:true={isSeverSideSearch}>
+                                                        <li role="presentation"  class="slds-listbox__item slds-p-around_x-small">
+                                                            <div class="spinner slds-p-vertical_x-small slds-p-left_x-small slds-is-relative slds-float_left">
+                                                                <div class="slds-spinner slds-spinner_xx-small">
+                                                                    <div class="slds-spinner__dot-a"></div>
+                                                                    <div class="slds-spinner__dot-b"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div  style="font-size: 9.5px;" class=" slds-p-left_small" role="option">
+                                                                {i18n.serverSideSearchMessage}
+                                                            </div>
+                                                        </li>
+                                                    </template>
+                                                </template>
+                                                <template if:true={isSearchResultHasInvalidNode}>
+                                                    <li role="presentation" onclick={handleErrMsgClick} class="slds-listbox__item slds-p-around_x-small">
+                                                        <div  style="font-size: 9.5px;" class="slds-text-color_error slds-p-left_small" role="option">
+                                                            {i18n.searchedInvalidHierarchyNode}
+                                                        </div>
+                                                    </li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <template if:true={isDataAvailable}>
+                        <lightning-button-icon class="svmx-splitview-switch" icon-name={computedSwitchIcon} onclick={handleSwitch}></lightning-button-icon>
+                    </template>
+                    <lightning-button-icon class="svmx-asset-hierarchy-refresh" icon-name="utility:refresh" onclick={handleRefreshClick}></lightning-button-icon>
+                    <template if:true={isDataAvailable}>
+                        <template if:false={splitMode}>
+                            <lightning-button-menu class="svmx-config-settings" alternative-text={i18n.settings} variant="border-filled" icon-name="utility:settings" menu-alignment="auto">
+                                <template if:true={locationBasedHierarchy}>
+                                    <lightning-menu-item class="svmx-select-fields" value="selectLocationFieldsToDisplay" label={i18n.selectLocationFields} onclick={handleOpenLocationFields}></lightning-menu-item>
+                                </template>
+                                <template if:true={accountBasedHierarchy}>
+                                    <lightning-menu-item class="svmx-select-fields" value="selectAccountFieldsToDisplay" label={i18n.selectAccountFields} onclick={handleOpenAccountFields}></lightning-menu-item>
+                                </template>
+                                <lightning-menu-item class="svmx-select-fields" value="selectAssetFieldsToDisplay" label={i18n.selectAssetFields} onclick={handleOpenAssetFields}></lightning-menu-item>
+                                <lightning-menu-item class="svmx-select-fields" value="resetColumnWidths" label={i18n.resetColumnWidths} onclick={handleResetColumnWidths}></lightning-menu-item>
+                            </lightning-button-menu>
+                        </template>
+                    </template> 
+                    <lightning-button-icon-stateful class="svmx-asset-hierarchy-filterList" selected={filterSelected} icon-name="utility:filterList" onclick={searchFilter.handleFilterList}></lightning-button-icon-stateful>
+                    <template if:true={isDataAvailable}>
+                        <template if:true={showExpandAll}>
+                            <lightning-button-icon class="svmx-expandAll" alternative-text={expandCollapseAltText} icon-name={expandCollapseIcon} onclick={handleExpandCollapseAll}></lightning-button-icon>
+                        </template>
+                    </template>
+                </div>
+            </div>
+            <div if:false={regionsIsNotSmall} class="slds-grid slds-gutters slds-grid_align-end">
+                <template if:true={isDataAvailable}>
+                    <div class="slds-col slds-form-element svmx-ah-searchbox_narrow slds-var-m-left_small slds-p-right_none">
+                        <div class="slds-form-element__control">
+                            <div class="slds-combobox_container">
+                                <div class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-has-focus" data-searchbox="searchbox" 
+                                aria-expanded="true" aria-haspopup="listbox" role="combobox">
+                                    <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                                        <div class="slds-p-top_none">
+                                            <lightning-input class="slds-shrink-none svmx-asset-hierarchy_text-search" type="search" value={searchKey}
+                                                                onchange={searchHandler.handleSearchKeyChange} variant="label-hidden" title={i18n.searchPlaceholder} 
+                                                                autocomplete="off" placeholder={i18n.searchPlaceholder} onblur={searchHandler.handleSearchBlur}
+                                                                onfocus={searchHandler.handleSearchFocus} aria-autocomplete="list"  data-inputbox="search"
+                                                                aria-controls="listbox-result-split" role="combobox">
+                                            </lightning-input>
+                                        </div>
+                                    </div>
+                                    <div id="listbox-result-split" class="slds-dropdown slds-dropdown_fluid" role="listbox" >
+                                        <ul class="slds-listbox slds-listbox_vertical">
+                                            <li role="presentation"  class="slds-listbox__item">
+                                                <ul class="svmx-asset-hierarchy_searchresultbox" onscroll={searchHandler.handleSearchResultScroll} role="presentation" >
+                                                    <template for:each={searchResults} for:item="record" if:false={searchHandler.isResultsLoading}>
+                                                        <li class="svmx-asset-hierarchy_searchlistbox" key={record.recordId}
+                                                            onclick={searchHandler.handleSearchResultSelect} data-id={record.recordId}
+                                                            role="presentation" title={record.cleanRecordName}>
+                                                            <template if:true = {record.searchText}>
+                                                                <span
+                                                                    class='slds-media slds-listbox__option
+                                                                    slds-listbox__option_entity slds-listbox__option_has-meta'
+                                                                    role="option"
+                                                                    data-id={record.recordId}>
+                                                                    <span class="slds-media__figure">
+                                                                        <template if:true={record.isIcon}>
+                                                                            <lightning-icon icon-name={record.iconName}
+                                                                                size="small"
+                                                                                alternative-text="Result item icon">
+                                                                            </lightning-icon>
+                                                                        </template>
+                                                                        <template if:false={record.isIcon}>
+                                                                            <template if:true={record.isImage}>
+                                                                                <lightning-formatted-rich-text
+                                                                                    value={record.iconName}>
+                                                                                </lightning-formatted-rich-text>
+                                                                            </template>
+                                                                        </template>
+                                                                    </span>
+                                                                    <span class="slds-media__body" data-selectedid={record.recordId}>
+                                                                        <span class="slds-listbox__option-text_entity">
+                                                                            <lightning-formatted-rich-text
+                                                                                value={record.recordName} disable-linkify>
+                                                                            </lightning-formatted-rich-text>
+                                                                        </span>
+                                                                        <span class="slds-listbox__option-meta slds-truncate">
+                                                                            <lightning-formatted-rich-text
+                                                                                value={record.searchText}
+                                                                                disable-linkify>
+                                                                            </lightning-formatted-rich-text>
+                                                                        </span>
+                                                                    </span>
+                                                                </span>
+                                                            </template>
+                                                            <template if:false={record.searchText}>
+                                                                <span class='slds-media slds-listbox__option
+                                                                    slds-listbox__option_entity'
+                                                                    role="option"
+                                                                    data-id={record.recordId}>
+                                                                    <span class="slds-media__figure">
+                                                                        <template if:true={record.isIcon}>
+                                                                            <lightning-icon icon-name={record.iconName}
+                                                                                size="small"
+                                                                                alternative-text="Result item icon">
+                                                                            </lightning-icon>
+                                                                        </template>
+                                                                        <template if:false={record.isIcon}>
+                                                                            <template if:true={record.isImage}>
+                                                                                <lightning-formatted-rich-text
+                                                                                    value={record.iconName}>
+                                                                                </lightning-formatted-rich-text>
+                                                                            </template>
+                                                                        </template>
+                                                                    </span>
+                                                                    <span class="slds-media__body" data-selectedid={record.recordId}>
+                                                                        <span class="slds-listbox__option-text_entity">
+                                                                            <lightning-formatted-rich-text
+                                                                                value={record.recordName} disable-linkify>
+                                                                            </lightning-formatted-rich-text>
+                                                                        </span>
+                                                                    </span>
+                                                                </span>
+                                                            </template>
+                                                        </li>
+                                                    </template>
+                                                    <template if:true={searchHandler.isResultsLoading}>
+                                                        <li role="presentation">
+                                                            <span class="slds-lookup__item-action slds-lookup__item-action--label" role="option">
+                                                                <lightning-spinner variant="brand" size="small"></lightning-spinner>
+                                                            </span>
+                                                        </li>
+                                                    </template>
+                                                    <template if:true={searchHandler.noMatchingFoundMessage}>
+                                                        <li role="presentation" title={searchHandler.noMatchingFoundMessage}>
+                                                            <span class="slds-lookup__item-action slds-lookup__item-action--label" role="option">
+                                                                {searchHandler.noMatchingFoundMessage}
+                                                            </span>
+                                                        </li>
+                                                    </template>
+                                                </ul>
+                                            </li>
+                                            <template if:true={isSeverSideSearch}>
+                                                <li role="presentation"  class="slds-listbox__item slds-p-around_x-small">
+                                                    <div class="spinner slds-p-vertical_x-small slds-p-left_x-small slds-is-relative slds-float_left">
+                                                        <div class="slds-spinner slds-spinner_xx-small">
+                                                            <div class="slds-spinner__dot-a"></div>
+                                                            <div class="slds-spinner__dot-b"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div  style="font-size: 9.5px;" class=" slds-p-left_small" role="option">
+                                                        {i18n.serverSideSearchMessage}
+                                                    </div>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <div class="slds-clearfix">
+                    <div class="slds-col slds-grow-none slds-float_right">
+                        <lightning-button-icon icon-name="utility:refresh" onclick={handleRefreshClick}></lightning-button-icon>
+                        <lightning-button-icon-stateful class="svmx-asset-hierarchy-filterList" selected={filterSelected} icon-name="utility:filterList" onclick={searchFilter.handleFilterList}></lightning-button-icon-stateful>
+                        <template if:true={isDataAvailable}>
+                            <template if:true={showExpandAll}>
+                                <lightning-button-icon class="svmx-expandAll" alternative-text={i18n.expandAll} icon-name={expandCollapseIcon} onclick={handleExpandCollapseAll}></lightning-button-icon>
+                            </template>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            <template if:true={isDataAvailable}>
+                <template if:false={showIllustration}>
+                    <template if:true={splitMode}>
+                        <div class="slds-grid slds-template__container" style={maxHeightStyle}>
+                            <div class={computedSplitterClass}>
+                                <lightning-button-icon class={computedSplitterButtonClass} icon-name="utility:left" aria-controls="menu" aria-expanded={computedAriaExpanded} size="x-small" variant="bare" onclick={handleSplitterClick} alternative-text={splitterButtonAltText}></lightning-button-icon>
+                                <div class="slds-split-view slds-grid slds-grid_vertical slds-scrollable_y" onscroll={scrollAssetHierarchy}>
+                                    <c-x-detail-tree-grid
+                                        key-field="id" 
+                                        table-data={viewData}
+                                        columns={columns}
+                                        detail-grid-config={detailGridConfig}
+                                        table-class=''
+                                        hide-table-header={hideTableHeader}
+                                        expanded-rows={defaultExpandedRows}
+                                        highlighted-rows={highlightedRows}
+                                        selected-rows={selectedRows}
+                                        onrowaction={handleRowAction}
+                                        onrowclick={handleRowClick}
+                                        onresize={handleResize}
+                                        onfetchdata={handleFetchData}
+                                        hide-checkbox-column
+                                        lazy-load
+                                    >
+                                    </c-x-detail-tree-grid> 
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_4-of-6 main-content slds-m-left_small">
+                                <template if:true={targetIsAccount}>
+                                    <lightning-record-form
+                                        record-id={targetRecord.id}
+                                        object-api-name={targetRecord.objectApiName}
+                                        layout-type="Full"
+                                        mode="view"
+                                        columns="2"
+                                    >
+                                    </lightning-record-form>
+                                </template>
+                                <template if:true={targetIsLocation}>
+                                    <lightning-record-form
+                                        record-id={targetRecord.id}
+                                        object-api-name={targetRecord.objectApiName}
+                                        layout-type="Full"
+                                        mode="view"
+                                        columns="2"
+                                    >
+                                    </lightning-record-form>
+                                </template>  
+                                <template if:true={targetIsAsset}>
+                                    <lightning-record-form
+                                        record-id={targetRecord.id}
+                                        object-api-name={targetRecord.objectApiName}
+                                        layout-type="Full"
+                                        mode="view"
+                                        columns="2"
+                                    >
+                                    </lightning-record-form>
+                                </template>
+                            </div>
+                        </div>  
+                    </template>
+                </template>
+                <template if:false={splitMode}>
+                    
+                    <div class="slds-scrollable_y" style={maxHeightStyle} if:false={showIllustration} onscroll={scrollAssetHierarchy}>
+                        <c-x-detail-tree-grid
+                            key-field="id" 
+                            table-data={viewData}
+                            columns={columns}
+                            detail-grid-config={detailGridConfig}
+                            table-class=''
+                            hide-table-header={hideTableHeader}
+                            expanded-rows={defaultExpandedRows}
+                            highlighted-rows={highlightedRows}
+                            onrowaction={handleRowAction}
+                            onrowclick={handleRowClick}
+                            onresize={handleResize}
+                            onfetchdata={handleFetchData}
+                            hide-checkbox-column
+                            lazy-load
+                        >
+                        </c-x-detail-tree-grid>
+                    </div>
+                </template>
+            </template>
+            <template if:true={error}>
+                <c-alert variant="error">{error}</c-alert>
+            </template>
+            <template if:true={pageRecordError}>
+                <c-alert variant="error">{pageRecordError}</c-alert>
+            </template>
+            <template if:true={isLoading}>
+                <lightning-spinner variant="brand"></lightning-spinner>
+            </template>
+            <div if:true={showIllustration} class="slds-grid slds-grid_align-center slds-grid_vertical-align-center svmx-asset-hierarchy_illustration-wrapper">
+                <c-svmx-illustrator class="svmx-asset-timeline_illustration" image-name={illustrationImageName} heading={illustrationHeading} message-body={illustrationMessage}></c-svmx-illustrator>
+            </div>
+
+            <div
+                class="svmx-asset-hierarchy_filter-panel slds-float_right slds-panel slds-size_small slds-panel_docked slds-panel_docked-right"
+                aria-hidden="false"
+            >
+                <div class="slds-panel__header svmx-asset-hierarchy_filter-panel-header">
+                    <template if:false={filterValuesChanged}>
+                        <h2 class="slds-panel__header-title slds-text-heading_small slds-truncate" title={i18n.ahfilter}>
+                            {i18n.ahfilter}
+                        </h2>
+                        <button
+                            class="svmx-asset-hierarchy_filter-close-button slds-button slds-button_icon slds-button_icon slds-button_icon-small slds-float_right slds-panel__close"
+                            title={i18n.close}
+                            onclick={searchFilter.handleCancelFilter}
+                        >
+                            <lightning-icon
+                                icon-name="utility:close"
+                                alternative-text={i18n.closeAltText}
+                                size="xx-small"
+                            ></lightning-icon>
+                        </button>
+                    </template>
+
+                    <template if:true={filterValuesChanged}>
+                        <div class="slds-grid" style="width: 100%">
+                            <div>
+                                <lightning-button
+                                    label={i18n.cancelFilter}
+                                    title={i18n.cancelFilter}
+                                    onclick={searchFilter.handleCancelFilter}
+                                ></lightning-button>
+                            </div>
+                            <div class="slds-grid slds-col slds-grid_align-end">
+                                <lightning-button
+                                    variant="brand"
+                                    label={i18n.applyFilter}
+                                    title={i18n.applyFilter}
+                                    onclick={searchFilter.handleApplyFilter}
+                                ></lightning-button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="slds-panel__body svmx-asset-hierarchy_filter-panel-body ">
+                    <template if:true={filterValidationError}>
+                        <ul class="slds-list_dotted">
+                            <template for:each={filterValidationError} for:item="error">
+                                <li key={error}><lightning-formatted-text class="slds-text-color_error" value={error}>
+                                </lightning-formatted-text></li>
+                            </template>
+                        </ul>
+                    </template>
+                    <h3 class="lds-panel__header-title slds-text-heading_small  slds-truncate" title={assetLabel}>
+                        {assetLabel}
+                    </h3>
+                    <template if:true={assetCriteriaExpression}>                  
+                    <div class="slds-box slds-box_x-small slds-m-top_x-small">
+                        <div class="slds-clearfix">
+                            <div class="slds-float_left">
+                                <lightning-input type="checkbox"  label="Active" name={i18n.activeFilter} data-type={assetCriteriaExpression.objectAPIName} onchange={searchFilter.handleAdminFilterActivate} checked={assetAdminfilterEnabled}></lightning-input>
+                            </div>
+                            <div class="slds-float_right">
+                                <lightning-button-icon 
+                                    class="svmx-expression-preview_open-in-new-window slds-var-m-left_xx-small" 
+                                    icon-name="utility:lock"
+                                    size="x-small"
+                                    variant="border" alternative-text={i18n.readonlyFilter}
+                                    title={i18n.readonlyFilter}>
+                                </lightning-button-icon>
+                            </div>
+                        </div>
+                        <div class="slds-grid slds-gutters slds-m-top_small slds-p-left_none">
+                            <div class="slds-col slds-hyphenate slds-line-clamp slds-p-left_none">
+                                <c-expression-builder 
+                                    expression-data={assetCriteriaExpression} 
+                                    edit-mode={editMode} 
+                                    entity-definition={assetEntityDefinition}                                   
+                                    edit-mode-type={editModeType}
+                                    show-as-title-tooltip></c-expression-builder>
+                            </div>
+                        </div>
+                    </div>
+                </template>  
+                    <template for:each={assetClientFilter} for:item="assetFilter">
+                        <div class="slds-box slds-box_x-small slds-m-top_x-small" key={assetFilter.id}> 
+                            <div class="slds-clearfix">
+                                <div class="slds-float_left">
+                                  <lightning-input type="checkbox"  label={i18n.activeFilter} name="Active" data-id={assetFilter.id} 
+                                    data-objecttype={assetFilter.objectAPIName} onchange={searchFilter.handleClientFilterActivate} checked={assetFilter.active}></lightning-input>
+                                </div>
+                                <div class="slds-float_right">
+                                    <lightning-button-icon 
+                                        class="svmx-expression-preview_open-in-new-window slds-var-m-around_x-small" 
+                                        icon-name="utility:edit"
+                                        size="x-small"
+                                        variant="border"  
+                                        data-id={assetFilter.id} 
+                                        data-objecttype={assetFilter.objectAPIName}
+                                        alternative-text={i18n.editFilter} 
+                                        title={i18n.editFilter}
+                                        onclick={searchFilter.handleEditFilter}>
+                                    </lightning-button-icon>
+                                    <lightning-button-icon 
+                                        class="svmx-expression-preview_open-in-new-window slds-var-m-left_xx-small" 
+                                        icon-name="utility:delete"
+                                        size="x-small"
+                                        variant="border"  
+                                        data-id={assetFilter.id} 
+                                        data-objecttype={assetFilter.objectAPIName}
+                                        alternative-text={i18n.removeFilter} 
+                                        title={i18n.removeFilter}
+                                        onclick={searchFilter.handleDeleteFilter}>
+                                    </lightning-button-icon>
+                                </div>
+                            </div>
+                            <div class="slds-grid slds-gutters slds-m-top_small slds-p-left_none">
+                                <div class="slds-col slds-hyphenate slds-line-clamp slds-p-left_none">
+                                    <c-expression-builder 
+                                        expression-data={assetFilter} 
+                                        edit-mode={editMode} 
+                                        entity-definition={assetEntityDefinition}                                   
+                                        edit-mode-type={editModeType}
+                                        show-as-title-tooltip></c-expression-builder>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <div class="slds-grid" style="width: 100%">
+                        <div>
+                            <lightning-button
+                                label={i18n.addFilter}
+                                title={i18n.addFilter}
+                                onclick={searchFilter.handleAssetAddFilter}
+                                variant="base"
+                                disabled={disableAssetAddFilter}
+                            ></lightning-button>
+                        </div>
+                        <div class="slds-grid slds-col slds-grid_align-end">
+                            <lightning-button
+                                variant="base"
+                                label={i18n.removeAllFilter}
+                                title={i18n.removeAllFilter}
+                                onclick={searchFilter.handleClearAssetFilter}
+                                disabled={disableAssetRemoveFilter}
+                            ></lightning-button>
+                        </div>
+                    </div>
+                    <!--location filter-->
+                    <template if:true={showLocationFilter}>
+                        <h3 class="slds-panel__header-title slds-text-heading_small slds-m-top_medium slds-truncate" title={locationLabel}>
+                            {locationLabel}
+                        </h3>
+                        <template if:true={locationCriteriaExpression}>
+                        <div class="slds-box slds-box_x-small slds-m-top_x-small">
+                            <div class="slds-clearfix">
+                                <div class="slds-float_left">
+                                    <lightning-input type="checkbox"  label={i18n.activeFilter} name={i18n.activeFilter}  data-type={locationCriteriaExpression.objectAPIName} onchange={searchFilter.handleAdminFilterActivate} checked={locationAdminfilterEnabled}></lightning-input>
+                                </div>
+                                <div class="slds-float_right">
+                                    <lightning-button-icon 
+                                        class="svmx-expression-preview_open-in-new-window slds-var-m-left_xx-small" 
+                                        icon-name="utility:lock"
+                                        size="x-small"
+                                        variant="border" alternative-text={i18n.readonlyFilter}
+                                        title={i18n.readonlyFilter}>
+                                    </lightning-button-icon>
+                                </div>
+                            </div>
+                            <div class="slds-grid slds-gutters slds-m-top_small slds-p-left_none">
+                                <div class="slds-col slds-size_11-of-12 slds-hyphenate slds-line-clamp slds-p-left_none">
+                                    <c-expression-builder 
+                                    expression-data={locationCriteriaExpression} 
+                                    edit-mode={editMode} 
+                                    entity-definition={locationEntityDefinition}                                   
+                                    edit-mode-type={editModeType}
+                                    show-as-title-tooltip></c-expression-builder>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                        <template for:each={locationClientFilter} for:item="locationFilter">
+                            <div class="slds-box slds-box_x-small slds-m-top_x-small" key={locationFilter.id}> 
+                                <div class="slds-clearfix">
+                                    <div class="slds-float_left">
+                                            <lightning-input type="checkbox"  label="Active" name="Active" 
+                                            data-id={locationFilter.id} 
+                                            data-objecttype={locationFilter.objectAPIName} onchange={searchFilter.handleClientFilterActivate} 
+                                            checked={locationFilter.active}></lightning-input>
+                                    </div>
+                                    <div class="slds-float_right">
+                                        <lightning-button-icon 
+                                            class="svmx-expression-preview_open-in-new-window slds-var-m-around_x-small" 
+                                            icon-name="utility:edit"
+                                            size="x-small"
+                                            data-id={locationFilter.id} 
+                                            data-objecttype={locationFilter.objectAPIName}
+                                            variant="border" alternative-text={i18n.editFilter} 
+                                            title={i18n.editFilter}
+                                            onclick={searchFilter.handleEditFilter}>
+                                        </lightning-button-icon>
+                                        <lightning-button-icon 
+                                            class="svmx-expression-preview_open-in-new-window slds-var-m-left_xx-small" 
+                                            icon-name="utility:delete"
+                                            size="x-small"
+                                            data-id={locationFilter.id} 
+                                            data-objecttype={locationFilter.objectAPIName}
+                                            variant="border" alternative-text={i18n.removeFilter} 
+                                            title={i18n.removeFilter}
+                                            onclick={searchFilter.handleDeleteFilter}>
+                                        </lightning-button-icon>
+                                    </div>
+                                </div>
+                                <div class="slds-grid slds-gutters slds-m-top_small slds-p-left_none">
+                                    <div class="slds-col slds-size_12-of-12 slds-hyphenate slds-line-clamp slds-p-left_none">
+                                        <c-expression-builder 
+                                            expression-data={locationFilter} 
+                                            edit-mode={editMode} 
+                                            entity-definition={locationEntityDefinition}                                   
+                                            edit-mode-type={editModeType}
+                                            show-as-title-tooltip></c-expression-builder>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        <div class="slds-grid" style="width: 100%">
+                            <div>
+                                <lightning-button
+                                    label={i18n.addFilter}
+                                    title={i18n.addFilter}
+                                    onclick={searchFilter.handleLocationAddFilter}
+                                    variant="base"
+                                    disabled={disableLocationAddFilter}
+                                ></lightning-button>
+                            </div>
+                            <div class="slds-grid slds-col slds-grid_align-end">
+                                <lightning-button
+                                    variant="base"
+                                    label={i18n.removeAllFilter}
+                                    title={i18n.removeAllFilter}
+                                    onclick={searchFilter.handleClearLocationFilter}
+                                    disabled={disableLocationRemoveFilter}
+                                ></lightning-button>
+                            </div>
+                        </div>
+                    </template>
+                     <!--Account filter-->
+                     <template if:true={showAccountFilter}>
+                        <h3 class="lds-panel__header-title slds-text-heading_small slds-m-top_medium slds-truncate" title={accountLabel}>
+                            {accountLabel}
+                        </h3>
+                        <template if:true={accountCriteriaExpression}>
+                        <div class="slds-box slds-box_x-small slds-m-top_x-small">
+                            <div class="slds-clearfix">
+                                <div class="slds-float_left">
+                                    <lightning-input type="checkbox"  label={i18n.activeFilter}  name={i18n.activeFilter}  data-type={accountCriteriaExpression.objectAPIName} onchange={searchFilter.handleAdminFilterActivate} checked={accountAdminfilterEnabled}></lightning-input>    
+                                </div>
+                                <div class="slds-float_right">
+                                    <lightning-button-icon 
+                                        class="svmx-expression-preview_open-in-new-window slds-var-m-left_xx-small" 
+                                        icon-name="utility:lock"
+                                        size="x-small"
+                                        variant="border" alternative-text={i18n.readonlyFilter} 
+                                        title={i18n.readonlyFilter} >
+                                    </lightning-button-icon>
+                                </div>
+                            </div>
+                            <div class="slds-grid slds-gutters slds-m-top_small slds-p-left_none">
+                                <div class="slds-col slds-hyphenate slds-line-clamp slds-p-left_none">
+                                    <c-expression-builder 
+                                    expression-data={accountCriteriaExpression} 
+                                    edit-mode={editMode} 
+                                    entity-definition={accountEntityDefinition}                                   
+                                    edit-mode-type={editModeType}
+                                    show-as-title-tooltip></c-expression-builder>
+                                </div>
+                            </div>
+                        </div>
+                        </template>
+                        <template for:each={accountClientFilter} for:item="accountFilter">
+                            <div class="slds-box slds-box_x-small slds-m-top_x-small" key={accountFilter.id}> 
+                                <div class="slds-clearfix">
+                                    <div class="slds-float_left">
+                                        <lightning-input type="checkbox"  label={i18n.activeFilter} name="Active"
+                                        data-id={accountFilter.id} 
+                                        data-objecttype={accountFilter.objectAPIName} onchange={searchFilter.handleClientFilterActivate} 
+                                            checked={accountFilter.active}></lightning-input>
+                                    </div>
+                                    <div class="slds-float_right">
+                                        <lightning-button-icon 
+                                            class="svmx-expression-preview_open-in-new-window slds-var-m-around_x-small" 
+                                            icon-name="utility:edit"
+                                            size="x-small"
+                                            data-id={accountFilter.id} 
+                                            data-objecttype={accountFilter.objectAPIName}
+                                            variant="border" 
+                                            alternative-text={i18n.editFilter} 
+                                            title={i18n.editFilter}
+                                            onclick={searchFilter.handleEditFilter}>
+                                        </lightning-button-icon>
+                                        <lightning-button-icon 
+                                            class="svmx-expression-preview_open-in-new-window slds-var-m-left_xx-small" 
+                                            icon-name="utility:delete"
+                                            size="x-small"
+                                            data-id={accountFilter.id} 
+                                            data-objecttype={accountFilter.objectAPIName}
+                                            variant="border" 
+                                            alternative-text={i18n.removeFilter} 
+                                            title={i18n.removeFilter}
+                                            onclick={searchFilter.handleDeleteFilter}>
+                                        </lightning-button-icon>
+                                    </div>
+                                </div>
+                                <div class="slds-grid slds-gutters slds-m-top_small slds-p-left_none">
+                                    <div class="slds-col slds-hyphenate slds-line-clamp slds-p-left_none">
+                                        <c-expression-builder 
+                                            expression-data={accountFilter} 
+                                            edit-mode={editMode} 
+                                            entity-definition={accountEntityDefinition}                                   
+                                            edit-mode-type={editModeType}
+                                            show-as-title-tooltip></c-expression-builder>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        <div class="slds-grid" style="width: 100%">
+                            <div>
+                                <lightning-button
+                                    label={i18n.addFilter}
+                                    title={i18n.addFilter}
+                                    onclick={searchFilter.handleAccountAddFilter}
+                                    variant="base"
+                                    disabled={disableAccountAddFilter}
+                                ></lightning-button>
+                            </div>
+                            <div class="slds-grid slds-col slds-grid_align-end">
+                                <lightning-button
+                                    variant="base"
+                                    label={i18n.removeAllFilter}
+                                    title={i18n.removeAllFilter}
+                                    onclick={searchFilter.handleClearAccountFilter}
+                                    disabled={disableAccountRemoveFilter}
+                                ></lightning-button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </lightning-card>
+    </div>
+    <div class="slds-align_absolute-center" if:false={hierarchyConfig.data}>
+        <div class="spinner slds-p-vertical_x-small slds-p-left_x-small slds-is-relative slds-float_left">
+            <div class="slds-spinner slds-spinner_large">
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </div>
+    <c-modal-dialog title={editActionTitle} is-open={showEditRecordModal}
+        modal-content-id="wizardModalContent" modal-header-id="wizardModalHeader" onmodalclosed={handleCancelRecordModal}>
+         <div slot="body">
+            <lightning-record-form 
+                record-id={editRecordId} 
+                object-api-name={editRecordObjectApiName} 
+                layout-type="Full"
+                columns="2"
+                onsuccess={handleSaveRecordModal}
+                oncancel={handleCancelRecordModal}
+                mode="edit" >
+            </lightning-record-form>
+        </div>
+    </c-modal-dialog>
+
+    <c-modal-dialog 
+        is-open={showChildAssetModal} 
+        size="LARGE" 
+        no-footer
+        relative-to-viewport
+        modal-content-id="manageChildAssetContent"
+        modal-header-id="manageChildAssetHeader"
+        class="manageChildAssetModal" 
+        onmodalclosed={handleCancelChildAssetModal}>
+        <div slot="body">
+            <c-svmx-manage-child-assets 
+            child-asset-title={childAssetTitle}
+            child-asset-record-id={childAssetRecordId}
+            initiated-time={initiatedTime}
+            column-cache-name={assetColumnsCacheName}
+            onmodalclosed={handleCancelChildAssetModal}></c-svmx-manage-child-assets>
+        </div>
+    </c-modal-dialog>
+    <c-modal-dialog title={filterModalTitleVal} is-open={showAddFilterModal} size="MEDIUM"
+    modal-content-id="addFilterModalContent" modal-header-id="wizardModalHeader" onmodalclosed={searchFilter.handleLocationCloseFilter}>
+     <div slot="body">
+        <c-expression-builder 
+        class="svmx-asset-hierarchy-add-filter"
+        expression-data={newObjectTypeExpression} 
+        edit-mode 
+        entity-definition={newFilterEntityDefinition}                                   
+        edit-mode-type='edit'
+        show-as-title-tooltip></c-expression-builder>
+        
+    </div>
+    <div slot="footer">
+        <lightning-input type="checkbox"  class="slds-float_left svmx-asset-hierarchy-active-filter" label="Active" checked={newObjectTypeExpression.active} name="Active"></lightning-input>
+        <lightning-button
+            label={i18n.cancel}
+            title={i18n.cancel}
+            variant="neutral"
+            onclick={searchFilter.handleLocationCloseFilter}
+            class="slds-p-right_x-small svmx-cancel"
+        ></lightning-button>
+        <lightning-button
+            class="saveLocationFieldsButton"
+            label={i18n.save}
+            title={i18n.save}
+            data-object="location"
+            variant="brand"
+            onclick={searchFilter.handleSaveFilter}
+        ></lightning-button>
+    </div>
+    </c-modal-dialog>
+       
+    <c-modal-dialog title={editActionTitle} is-open={showCloneRecordModal}
+        modal-content-id="cloneWizardModalContent" modal-header-id="cloneWizardModalHeader" onmodalclosed={handleCloneCancelRecordModal}>
+         <div slot="body">
+            <template if:true={cloneError}>
+                <c-alert variant="error">{cloneError}</c-alert>
+            </template>    
+            <lightning-record-form 
+                class="clonemodel"
+                data-id="clone"
+                record-id={editRecordId} 
+                object-api-name={editRecordObjectApiName} 
+                layout-type="Full"
+                columns="2"
+                onsubmit={handleCloneSubmitModal}
+                oncancel={handleCloneCancelRecordModal}
+                mode="edit" >
+            </lightning-record-form>
+            <template if:true={isCloning}>
+                <lightning-spinner variant="brand"></lightning-spinner>
+            </template>
+        </div>
+    </c-modal-dialog>
+
+    <c-modal-dialog
+        title={actionModalTitle}
+        class="cancelModal"
+        is-open={wizardModalDialogOpen}
+        modal-content-id="wizardModalContent"
+        modal-header-id="wizardModalHeader"
+        onmodalclosed={handleCancelModal}
+    >
+        <div slot="body">
+            <c-svmx-service-flow-wizard record-id={targetRecord.id} object-api-name={targetRecord.objectApiName}
+                    show-icons={displayIcon} onlaunchaction={handleLaunchAction}
+                    is-in-community>
+            </c-svmx-service-flow-wizard>
+        </div>
+    </c-modal-dialog>
+    <c-modal-dialog
+        title={i18n.selectLocationFields}
+        class="cancelModal"
+        is-open={locationFieldsDialogOpen}
+        modal-content-id="locationFieldsContent"
+        modal-header-id="locationFieldsHeader"
+        onmodalclosed={handleCancelModal}
+    >
+        <div slot="body">
+            <template if:true={fieldSelectError}>
+                <c-alert variant="error">{fieldSelectError}</c-alert>
+            </template>
+            <div class="slds-form__row">
+                <div class="slds-form__item" role="listitem">
+                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                        <lightning-dual-listbox
+                            name="locationDisplayFields"
+                            source-label={i18n.availableFields}
+                            selected-label={i18n.fieldstoDisplay}
+                            data-object="location"
+                            options={availableLocationFields}
+                            value={selectedFields.location}
+                            class="svmx-hierarchy-config_input-field"
+                            max=15
+                            message-when-range-overflow={i18n.fieldsLimit}
+                            onchange={handleChange}>
+                        </lightning-dual-listbox>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div slot="footer">
+            <lightning-button
+                label={i18n.restoreDefaults}
+                title={i18n.restoreDefaults}
+                variant="neutral"
+                data-object="location"
+                onclick={handleRestoreDefaultsModal}
+                class="slds-float_left"
+            ></lightning-button>
+            <lightning-button
+                label={i18n.cancel}
+                title={i18n.cancel}
+                variant="neutral"
+                onclick={handleCancelModal}
+                class="slds-p-right_x-small svmx-cancel"
+            ></lightning-button>
+            <lightning-button
+                class="saveLocationFieldsButton"
+                label={i18n.save}
+                title={i18n.save}
+                data-object="location"
+                variant="brand"
+                onclick={handleSaveFields}
+            ></lightning-button>
+        </div>
+    </c-modal-dialog>
+
+    <c-modal-dialog
+        title={i18n.selectAccountFields}
+        class="accountFieldModal"
+        is-open={accountFieldsDialogOpen}
+        modal-content-id="accountFieldsContent"
+        modal-header-id="accountFieldsHeader"
+        onmodalclosed={handleCancelModal}
+    >
+        <div slot="body">
+            <template if:true={fieldSelectError}>
+                <c-alert variant="error">{fieldSelectError}</c-alert>
+            </template>
+            <div class="slds-form__row">
+                <div class="slds-form__item" role="listitem">
+                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                        <lightning-dual-listbox
+                            name="accountDisplayFields"
+                            source-label={i18n.availableFields}
+                            selected-label={i18n.fieldstoDisplay}
+                            data-object="account"
+                            options={availableAccountFields}
+                            value={selectedFields.account}
+                            class="svmx-hierarchy-config_input-field"
+                            max=15
+                            message-when-range-overflow={i18n.fieldsLimit}
+                            onchange={handleChange}>
+                        </lightning-dual-listbox>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div slot="footer">
+            <lightning-button
+                label={i18n.restoreDefaults}
+                title={i18n.restoreDefaults}
+                variant="neutral"
+                data-object="account"
+                onclick={handleRestoreDefaultsModal}
+                class="slds-float_left"
+            ></lightning-button>
+            <lightning-button
+                label={i18n.cancel}
+                title={i18n.cancel}
+                variant="neutral"
+                onclick={handleCancelModal}
+                class="slds-p-right_x-small svmx-cancel"
+            ></lightning-button>
+            <lightning-button
+                class="saveAccountFieldsButton"
+                label={i18n.save}
+                title={i18n.save}
+                data-object="account"
+                variant="brand"
+                onclick={handleSaveFields}
+            ></lightning-button>
+        </div>
+    </c-modal-dialog>
+
+    <c-modal-dialog
+        title={i18n.selectAssetFields}
+        class="cancelModal"
+        is-open={assetFieldsDialogOpen}
+        modal-content-id="assetFieldsContent"
+        modal-header-id="assetFieldsHeader"
+        onmodalclosed={handleCancelModal}
+    >
+        <div slot="body">
+            <template if:true={fieldSelectError}>
+                <c-alert variant="error">{fieldSelectError}</c-alert>
+            </template>
+            <div class="slds-form__row">
+                <div class="slds-form__item" role="listitem">
+                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                        <lightning-dual-listbox
+                            name="assetDisplayFields"
+                            source-label={i18n.availableFields}
+                            selected-label={i18n.fieldstoDisplay}
+                            data-object="asset"
+                            options={availableAssetFields}
+                            value={selectedFields.asset}
+                            max=15
+                            message-when-range-overflow={i18n.fieldsLimit}
+                            onchange={handleChange}
+                            class="svmx-hierarchy-config_input-field">
+                        </lightning-dual-listbox>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div slot="footer">
+            <lightning-button
+                label={i18n.restoreDefaults}
+                title={i18n.restoreDefaults}
+                variant="neutral"
+                data-object="asset"
+                onclick={handleRestoreDefaultsModal}
+                class="slds-float_left"
+            ></lightning-button>
+            <lightning-button
+                label={i18n.cancel}
+                title={i18n.cancel}
+                variant="neutral"
+                onclick={handleCancelModal}
+                class="slds-p-right_x-small svmx-cancel"
+            ></lightning-button>
+            <lightning-button
+                class="saveAssetFieldsButton"
+                label={i18n.save}
+                title={i18n.save}
+                data-object="asset"
+                variant="brand"
+                onclick={handleSaveFields}
+            ></lightning-button>
+        </div>
+    </c-modal-dialog>
+    <c-modal-dialog title={i18n.deleteModalTitle} class="deleteModal" is-open={deleteModalDialogOpen} modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={handleCancelModal}>
+        <div slot="body">
+            <p><lightning-formatted-text value={i18n.deleteModalContent}></lightning-formatted-text></p>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal} class="slds-p-right_x-small svmx-delete-hirearchy-cancel"></lightning-button>
+            <lightning-button class="confirmButton svmx-delete-hirearchy-confirm" label={i18n.confirm} title={i18n.confirm} variant="brand" onclick={handleDeleteConfirmModal}></lightning-button>
+        </div>
+    </c-modal-dialog>
+</template>

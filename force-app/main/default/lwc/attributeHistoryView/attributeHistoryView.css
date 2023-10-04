@@ -1,0 +1,9 @@
+.svmx-ta-attribute-value {
+    background: var(--lwc-colorBackground,rgb(243, 243, 243));
+}
+.svmx-ta-history-table {
+    min-height: 45vh;
+}
+.svmx-new-value-section {
+    min-height: 20vh;
+}

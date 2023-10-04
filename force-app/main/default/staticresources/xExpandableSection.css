@@ -1,0 +1,3 @@
+.slds-section__title-action-icon .slds-icon {
+    fill: var(--lwc-colorTextDefault, rgb(8, 7, 7));
+}

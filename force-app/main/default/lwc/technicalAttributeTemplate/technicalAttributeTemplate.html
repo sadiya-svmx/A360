@@ -1,0 +1,153 @@
+<template>
+
+    <template if:true={showTemplateSection}>
+        <div class="slds-card svmx-technical-attribute-template">
+
+            <div class="slds-page-header">
+                <div class="slds-page-header__row">
+                    <div class="slds-page-header__col-title slds-align_absolute-center">
+                        <div class="slds-media">
+                            <div class="slds-media__body">
+                                <div class="slds-page-header__name">
+                                    <div class="slds-page-header__name-title">
+                                        <h1>
+                                            <span class="slds-page-header__title slds-truncate slds-align_absolute-center " 
+                                                  title="Template">{i18n.techAttrTemplate}
+                                            </span>
+                                        </h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slds-card__body slds-card__body_inner">
+                <template if:true={error}>
+                    <c-alert variant="error">{error}</c-alert>
+                </template>
+                <template if:true={apiInProgress}>
+                    <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+                </template>
+                <div class="slds-form" role="list">
+                    <div class="slds-grid slds-wrap slds-gutters_xx-large">
+                        <div class="slds-col">
+                            <div class="slds-form__row">
+                                <div class="slds-form__item" role="listitem">
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <lightning-input
+                                            class="svmx-template-detail_name"
+                                            label={i18n.name}
+                                            required
+                                            message-when-value-missing={i18n.fieldRequired}
+                                            value={templateRecord.name}
+                                            max-length="80"
+                                            onchange={handleTemplateNameChanged}
+                                            onblur={handleTemplateNameBlur}
+                                        ></lightning-input>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-form__row">
+                                <div class="slds-form__item" role="listitem">
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <template if:true={developerNameEditable}>
+                                            <lightning-input
+                                                class="svmx-template-detail_developerName"
+                                                label={i18n.developerName}
+                                                pattern=".*\S.*"
+                                                message-when-pattern-mismatch={i18n.developerNameMissing}
+                                                message-when-value-missing={i18n.developerNameMissing}
+                                                required
+                                                value={templateRecord.developerName}
+                                                max-length="80"
+                                                onchange={handleDeveloperNameChanged}
+                                            ></lightning-input>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-form__row">
+                                <div class="slds-form__item" role="listitem">
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <lightning-textarea
+                                            placeholder={i18n.enterDescription}
+                                            label={i18n.description}
+                                            value={templateRecord.description}
+                                            max-length="1000"
+                                            onchange={handleDescriptionChanged}
+                                            class="svmx-template-description"
+                                        ></lightning-textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-form__row">
+                                <div class="slds-form__item" role="listitem">
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <span class="slds-form-element__label slds-var-p-bottom_x-small">
+                                            {i18n.status}
+                                        </span>
+                                        <lightning-input 
+                                            type="toggle" 
+                                            class="mappingToggle" 
+                                            checked={statusToggle}
+                                            disabled>
+                                        </lightning-input>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div slot="footer" class="slds-align_absolute-center slds-var-p-around_medium">
+                <lightning-button
+                    label={i18n.cancel}
+                    title={i18n.cancel}
+                    variant="neutral"
+                    onclick={handleCancel}
+                    class="slds-var-p-right_x-small svmx-technical-template-cancelbtn"
+                ></lightning-button>
+                <lightning-button
+                    label={i18n.next}
+                    title={i18n.next}
+                    variant="brand"
+                    onclick={handleSaveTemplate}
+                    disabled={disableSave}
+                    class="svmx-technical-template-nextbtn"
+                ></lightning-button>
+            </div>
+
+        </div>
+    </template>
+
+    <template if:false={showTemplateSection}>
+        <c-technical-attribute-temp-related-items 
+            record-id={templateRecord.id}
+            action-type={cloneAction}
+            view-update-mode={viewUpdateModeVal}
+            onshowtemplatesection={handleShowTemplateSection}>
+        </c-technical-attribute-temp-related-items>
+    </template>
+
+    <c-modal-dialog title={i18n.deleteTechnicalAttributeTemplate} class="deleteAttrTemplateModal" is-open={deleteTemplateDialog} 
+                        modal-content-id="deleteBodyAttrTemplate" modal-header-id="deleteModalAttrTemplateHeader" 
+                        onmodalclosed={handleTemplateDeleteCancelModal}>
+        <div slot="body">
+            <p><lightning-formatted-text value={i18n.templateDeleteMessage}></lightning-formatted-text></p>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" 
+                              onclick={handleTemplateDeleteCancelModal} 
+                              class="slds-var-p-right_x-small svmx-deleteAttrTemplateCancel">
+            </lightning-button>
+            <lightning-button class="confirmButton svmx-deleteAttrTemplateModalConfirm" 
+                              label={i18n.confirm} 
+                              title={i18n.confirm} variant="brand" onclick={confirmDeleteTemplate}>
+            </lightning-button>             
+        </div>
+    </c-modal-dialog>
+    
+</template>

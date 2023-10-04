@@ -1,0 +1,95 @@
+<aura:component implements="lightning:hasPageReference,force:appHostable,lightning:isUrlAddressable"
+    controller="ADM_ProcessWizardLightningService">
+    <lightning:workspaceAPI aura:id="workspace" />
+    <lightning:navigation aura:id="navService" />
+    <lightning:messageChannel type="SVMXA360__RecordSelection__c"
+            aura:id="refreshMessageChannel"/>
+    <aura:attribute name="maxHeight" type="String" />
+    <aura:attribute name="currTabId" type="String" />
+    <aura:attribute name="actionName" type="String" />
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="OpenAsModal" type="String" />
+    <aura:attribute name="stepName" type="String" />
+    <aura:attribute name="stepIcon" type="String" />
+    <aura:attribute name="mapping" type="String" />
+    <aura:attribute name="actionType" type="String" />
+    <aura:attribute name="uid" type="String" />
+    <aura:attribute name="stepId" type="String" />
+    <aura:attribute name="objectApiName" type="String" />
+    <aura:attribute name="isRecordAction" type="Boolean" default="false" />
+    <aura:attribute name="isStaticAction" type="Boolean" default="false" />
+    <aura:attribute name="noRedirect" type="Boolean" default="false" />
+    <aura:attribute name="showProgress" type="Boolean" default="false" />
+    <aura:attribute name="showIcons" type="Boolean" />
+    <aura:attribute name="showClose" type="Boolean" default="false" />
+    <aura:attribute name="computedClassName" type="String" default="" />
+    <aura:attribute name="computedContainerClassName" type="String" default="" />
+    <aura:attribute name="domainName" type="String" default="" />
+    <aura:attribute name="stepComplete" type="Boolean" default="false" />
+    <aura:attribute name="stepCompletionEnabled" type="Boolean" default="false" />
+    <aura:attribute name="urlPath" type="String" default="" />
+    <aura:attribute name="computedContainerContentClassName" type="String" default="" />
+    <aura:attribute name="erroredCustomLabelList" type="String[]" default="[]" />
+    <aura:attribute name="uniqueStepGuid" type="String"/>
+    <aura:attribute name="isTrackingOn" type="Boolean"/>
+    <aura:handler name="flowStatusEvent" event="c:SvmxFlowStatusEvent" action="{!c.handleStatusChange}" />
+    <aura:handler event="lightning:tabFocused" action="{!c.onTabFocused }" />
+    <aura:method name="launchActioninModal" action="{!c.launchActioninModal}">
+        <aura:attribute name="eventMsg" type="Object" />
+    </aura:method>
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.init}" />
+    <aura:handler name="change" value="{!v.domainName}" action="{!c.launchURL}" />
+    <aura:attribute name="isOpen" type="boolean" default="false" />
+    <c:utils aura:id="utils" />
+    <div class="{!$Browser.formFactor == 'DESKTOP' ? 'slds-var-m-around_xx-small' : ''}">
+        <aura:if isTrue="{!v.isOpen}">
+            <section role="dialog" tabindex="-1" aria-modal="true" class="{!v.computedClassName}">
+                <div class="{!v.computedContainerClassName}">
+                    <aura:if isTrue="{!v.OpenAsModal}">
+                        <header class="modal-header slds-modal__header slds-modal__header--empty">
+                            <lightning:buttonIcon iconName="utility:close" onclick="{! c.closeModel }"
+                                alternativeText="close" variant="bare-inverse" class="slds-modal__close" />
+                        </header>
+                    </aura:if>
+                    <aura:if isTrue="{!v.showClose}">
+                        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning"
+                            role="alert">
+                            <span class="slds-icon_container slds-icon-utility-warning slds-var-m-right_x-small">
+                                <lightning:icon iconName="utility:warning" size="x-small" />
+                            </span>
+                            <h2>{!$Label.c.Message_SPMWizardFlowError}
+                                <a href="#" onclick="{!c.closeModel}">{!$Label.c.Link_Close}</a>
+                            </h2>
+                        </div>
+                    </aura:if>
+                    <div class="{!v.computedContainerContentClassName}">
+                        <aura:if isTrue="{!v.isStaticAction}">
+                            <aura:if isTrue="{!v.showProgress}">
+                                <div class="spinner">
+                                    <div role="status" class="slds-spinner slds-spinner_medium">
+                                        <div class="slds-spinner__dot-a"></div>
+                                        <div class="slds-spinner__dot-b"></div>
+                                    </div>
+                                </div>
+                            </aura:if>
+                            <aura:set attribute="else">
+                                <c:SvmxFlowComponent aura:id="flowcmp" objRecordId="{!v.recordId}"
+                                    actionName="{!v.actionName}" actionType="{!v.actionType}"
+                                    isInModal="{!v.OpenAsModal}" mapping="{!v.mapping}" stepIcon="{!v.stepIcon}"
+                                    stepName="{!v.stepName}" uid="{!v.uid}" stepId ="{!v.stepId}" uniqueStepGuid = "{!v.uniqueStepGuid}"
+                                    objectApiName = "{!v.objectApiName}" isTrackingOn = "{!v.isTrackingOn}"
+                                    stepComplete="{!v.stepComplete}" stepCompletionEnabled="{!v.stepCompletionEnabled}"
+                                ></c:SvmxFlowComponent>
+                            </aura:set>
+                        </aura:if>
+
+                    </div>
+                </div>
+            </section>
+            <aura:if isTrue="{!v.OpenAsModal}">
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </aura:if>
+        </aura:if>
+    </div>
+</aura:component>

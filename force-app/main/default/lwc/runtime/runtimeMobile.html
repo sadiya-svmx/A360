@@ -1,0 +1,43 @@
+<template>
+    <c-x-scrollable-container>
+        <c-provider oninit={handleStoreInit} store={store}>
+            <c-runtime-engine-provider engine={engine}>
+                <div onerror={handleError} class="slds-grid slds-grid_vertical">
+                    <template if:false={loading}>
+                        <div class="svmx-app-header">
+                            <c-svmx-form-footer
+                                is-sticky
+                                with-action-bar={showActionBar}
+                                errors={popoverErrorMessages}
+                                is-flow-context={isFlowContext}
+                                alignment={footerButtonAlignment}
+                                has-error={showFormErrorsIcon}
+                                title={pageTitle}
+                                sub-title={subTitle}
+                                show-previous={showPrevious}
+                                should-save-disabled={shouldSaveDisabled}
+                                onsave={handleSave}
+                                oncancel={handleCancel}
+                                onnext={handleNext}
+                                onprevious={handlePrevious}
+                                show-mark-as-complete={showMarkAsComplete}
+                                mark-as-complete={stepComplete}
+                                onstepcomplete={handleStepComplete}
+                            ></c-svmx-form-footer>
+                            <template if:true={hasError}>
+                                <c-alert variant="error" error-message={error}>{error}</c-alert>
+                            </template>
+                        </div>
+                        <c-runtime-mobile></c-runtime-mobile>
+                    </template>
+                    <template if:true={showSpinner}>
+                        <lightning-spinner
+                            variant="brand"
+                            alternative-text={i18n.loading}
+                        ></lightning-spinner>
+                    </template>
+                </div>
+            </c-runtime-engine-provider>
+        </c-provider>
+    </c-x-scrollable-container>
+</template>

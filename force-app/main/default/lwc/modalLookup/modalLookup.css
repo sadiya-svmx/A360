@@ -1,0 +1,22 @@
+.line-height-unset {
+    line-height: unset;
+}
+
+.combobox-entity-icon,
+.combobox-entity-icon .slds-icon {
+    width: var(--lwc-squareIconMediumContent,1rem);
+    height: var(--lwc-squareIconMediumContent,1rem);
+    position: absolute;
+    top: 50%;
+    left: var(--lwc-spacingXSmall,0.5rem);
+    transform: translateY(-50%);
+    z-index: 2;
+}
+
+.slds-combobox_container.slds-has-selection .slds-combobox__input-value {
+    padding-left: var(--lwc-spacingLarge, 1.5rem);
+}
+lightning-button-icon.pointer-events-unset {
+    margin-top: -9px;
+    pointer-events: auto;
+}

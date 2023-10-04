@@ -1,0 +1,28 @@
+.expression-row-legend {
+  font-weight: var(--lwc-fontWeightBold, 700);
+}
+
+.flexOverflowContain {
+  min-width: 0px;
+}
+
+.disabled {
+  border:solid 1px var(--lwc-colorBorderInputDisabled,rgb(201, 199, 197));
+  background-color: rgb(250 250 249);
+  color: #303030;
+  padding-left: 0.5rem;
+}
+
+.svmx-expression_tooltip {
+  position: absolute;
+  left: 0%;
+  min-width: 10rem;
+  bottom: 40px;
+}
+
+.value-truncate {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre; 
+}

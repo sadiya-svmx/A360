@@ -1,0 +1,471 @@
+<template>
+    <c-admin-layout>
+        <div class="svmx-pricebook-assignment_view-container">
+            <lightning-layout>
+                <lightning-layout-item
+                    flexibility="grow"
+                    padding="horizontal-small"
+                >
+                    <div class="slds-card">
+                        <div class="slds-page-header list-view-header">
+                            <div class="slds-page-header__row">
+                                <div class="slds-page-header__col-title">
+                                    <div class="slds-media">
+                                        <div class="slds-media__figure">
+                                            <c-service-max-logo-icon
+                                                title-text={i18n.labelPriceBookAssignmentRules}
+                                                alternative-text={i18n.labelPriceBookAssignmentRules}
+                                                icon-size="large"
+                                            ></c-service-max-logo-icon>
+                                        </div>
+                                        <div class="slds-media__body">
+                                            <div class="slds-page-header__name">
+                                                <div class="slds-page-header__name-title">
+                                                    <h1>
+                                                        <span>
+                                                            {i18n.labelPriceBookAssignmentRules}
+                                                        </span>
+                                                        <span
+                                                            class="slds-page-header__title slds-truncate" 
+                                                            title={rule.name}
+                                                        >
+                                                            {rule.name}
+                                                        </span>
+                                                    </h1>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="slds-page-header__col-actions">
+                                    <div class="slds-page-header__controls">
+                                        <div class="slds-page-header__control">
+                                            <lightning-button-group>
+                                                <template if:false={editMode}>
+                                                    <lightning-button
+                                                        label={i18n.btnBackToList}
+                                                        class="svmx-pricebook-assignment_back-to-list-btn"
+                                                        title={i18n.btnBackToList}
+                                                        value={i18n.btnBackToList} 
+                                                        onclick={handleBackToList}
+                                                    ></lightning-button>
+                                                    <lightning-button
+                                                        variant="Edit"
+                                                        class="svmx-pricebook-assignment_edit-btn"
+                                                        label={i18n.btnEdit}
+                                                        title={i18n.btnEdit}
+                                                        onclick={handleEdit}
+                                                    ></lightning-button>
+                                                </template>
+                                                <template if:true={editMode}>
+                                                    <lightning-button
+                                                        class="svmx-pricebook-assignment_cancel-btn"
+                                                        label={i18n.cancel}
+                                                        title={i18n.cancel}
+                                                        value={i18n.cancel}
+                                                        onclick={handleCancel}
+                                                    ></lightning-button>
+                                                    <lightning-button
+                                                        variant="brand"
+                                                        class="svmx-pricebook-assignment_save-btn"
+                                                        label={i18n.save}
+                                                        title={i18n.save}
+                                                        onclick={handleSave}
+                                                    ></lightning-button>
+                                                </template>
+                                            </lightning-button-group>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <lightning-card class="slds-grid slds-grid_vertical slds-scrollable_y">
+                            <div class="slds-card__body slds-card__body_inner">
+                                <template if:true={error}>
+                                    <c-alert variant="error">
+                                        {error}
+                                    </c-alert>
+                                </template>
+
+                                <c-x-expandable-section title={i18n.generalInfoSection}>
+                                    <div class="slds-form__row">
+                                        <div
+                                            class="slds-pricebook-assignment_form-item"
+                                            role="listitem"
+                                        >
+                                            <template if:false={editMode}>
+                                                <div class="slds-form-element slds-form-element_stacked svmx-pricebook-assignment_is-view">
+                                                    <span class="slds-form-element__label">
+                                                        {i18n.pricebookAssignmentRuleName}
+                                                    </span>
+                                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                                        <span class="slds-pricebook-assignment_form-element-static slds-grow word-break-ie11">
+                                                            <div class="slds-pricebook-assignment_form-element-static">
+                                                                {rule.name}
+                                                            </div>
+                                                        </span>
+                                                        <lightning-button-icon 
+                                                            icon-name="utility:edit"
+                                                            variant="bare"
+                                                            alternative-text={i18n.edit}
+                                                            title={i18n.edit} 
+                                                            onclick={handleEdit}
+                                                            class="slds-col_bump-left slds-button__icon_hint"
+                                                        ></lightning-button-icon>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                            <template if:true={editMode}>
+                                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                    <lightning-input
+                                                        class="svmx-pricebook-assignment_input-field svmx-pricebook-assignment_name-input"
+                                                        type="text"
+                                                        data-field="name"
+                                                        label={i18n.pricebookAssignmentRuleName}
+                                                        value={rule.name}
+                                                        onchange={handleFormInputChange}
+                                                        max-length="80" 
+                                                        oncommit={handleNameCommit}
+                                                        required
+                                                    ></lightning-input>
+                                                </div>
+                                            </template>
+                                        </div>
+
+                                        <div
+                                            class="slds-pricebook-assignment_form-item"
+                                            role="listitem"
+                                        >
+                                            <template if:false={editMode}>
+                                                <div class="slds-form-element slds-form-element_stacked svmx-pricebook-assignment_is-view">
+                                                    <span class="slds-form-element__label">
+                                                        {i18n.object}
+                                                    </span>
+                                                    <div class="slds-form-element__control slds-grid">
+                                                        <span class="slds-pricebook-assignment_form-element-static slds-grow word-break-ie11">
+                                                            <div class="slds-pricebook-assignment_form-element-static">
+                                                                {rule.objectLabel}
+                                                            </div>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                            <template if:true={editMode}>
+                                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                    <c-combobox
+                                                        required
+                                                        filterable
+                                                        disabled
+                                                        class="svmx-pricebook-assignment_input-field svmx-pricebook-assignment_object-name-input"
+                                                        variant="label-stacked"
+                                                        placeholder={i18n.selectAnObject}
+                                                        data-field="objectAPIName"
+                                                        label={i18n.object}
+                                                        message-when-value-missing={i18n.selectAnObject}
+                                                        value={rule.objectAPIName}
+                                                        items={entityOptions}
+                                                        onchange={handleObjectChange}
+                                                    ></c-combobox>    
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <div class="slds-form__row">
+                                        <div
+                                            class="slds-pricebook-assignment_form-item"
+                                            role="listitem"
+                                        >
+                                            <template if:false={editMode}>
+                                                <div class="slds-form-element slds-form-element_stacked svmx-pricebook-assignment_is-view">
+                                                    <span class="slds-form-element__label">
+                                                        {i18n.developerName}
+                                                    </span>
+                                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                                        <span class="slds-pricebook-assignment_form-element-static slds-grow word-break-ie11">
+                                                            <div class="slds-pricebook-assignment_form-element-static">
+                                                                {rule.developerName}
+                                                            </div>
+                                                        </span>
+                                                        <template if:false={rule.id}>
+                                                            <lightning-button-icon
+                                                                icon-name="utility:edit"
+                                                                variant="bare"
+                                                                alternative-text={i18n.edit}
+                                                                title={i18n.edit}
+                                                                onclick={handleEdit}
+                                                                class="slds-col_bump-left"
+                                                            ></lightning-button-icon>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                            <template if:true={editMode}>
+                                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                    <lightning-input
+                                                        class="svmx-pricebook-assignment_input-field svmx-pricebook-assignment_developer-name-input"
+                                                        type="text" 
+                                                        name="developerName"
+                                                        data-field="developerName"
+                                                        label={i18n.developerName}
+                                                        value={rule.developerName}
+                                                        max-length="40"
+                                                        onchange={handleFormInputChange}
+                                                        disabled={rule.id}
+                                                        required
+                                                    ></lightning-input>
+                                                </div>
+                                            </template>
+                                        </div>
+                                        <div
+                                            class="slds-pricebook-assignment_form-item"
+                                            role="listitem"
+                                        >
+                                            <template if:false={editMode}>
+                                                <div class="slds-form-element slds-form-element_stacked svmx-pricebook-assignment_is-view">
+                                                    <span class="slds-form-element__label">
+                                                        {i18n.ruleActive}
+                                                    </span>
+                                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                                        <span class="slds-pricebook-assignment_form-element-static slds-grow word-break-ie11">
+                                                            <div class="slds-pricebook-assignment_form-element-static">
+                                                                <lightning-input
+                                                                    type="checkbox" 
+                                                                    name="ruleActive"
+                                                                    disabled 
+                                                                    class="svmx-pricebook-assignment_rule-active-output"
+                                                                    checked={rule.isRuleActive}
+                                                                ></lightning-input>
+                                                            </div>
+                                                        </span>
+                                                        <lightning-button-icon 
+                                                            icon-name="utility:edit"
+                                                            variant="bare" 
+                                                            alternative-text={i18n.edit}
+                                                            title={i18n.edit} 
+                                                            onclick={handleEdit}
+                                                            class="slds-col_bump-left"
+                                                        ></lightning-button-icon>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                            <template if:true={editMode}>
+                                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                    <lightning-input 
+                                                        type="checkbox"
+                                                        label={i18n.ruleActive} 
+                                                        data-field="ruleActive" 
+                                                        class="svmx-pricebook-assignment_input-field svmx-pricebook-assignment_rule-active-input"
+                                                        checked={rule.isRuleActive}
+                                                        onchange={handleRuleActiveChange}
+                                                        variant="label-stacked"
+                                                    ></lightning-input>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <div class="slds-form__row">
+                                        <div
+                                            class="slds-pricebook-assignment_form-item"
+                                            role="listitem"
+                                        >
+                                            <template if:false={editMode}>
+                                                <div class="slds-form-element slds-form-element_stacked svmx-pricebook-assignment_is-view">
+                                                    <span class="slds-form-element__label">
+                                                        {i18n.description}
+                                                    </span>
+                                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                                        <span class="slds-pricebook-assignment_form-element-static slds-grow word-break-ie11">
+                                                            <div class="slds-pricebook-assignment_form-element-static">
+                                                                {rule.description}
+                                                            </div>
+                                                        </span>
+                                                        <lightning-button-icon 
+                                                            icon-name="utility:edit"
+                                                            variant="bare" 
+                                                            alternative-text={i18n.edit}
+                                                            title={i18n.edit} 
+                                                            onclick={handleEdit}
+                                                            class="slds-col_bump-left"
+                                                        ></lightning-button-icon>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                            <template if:true={editMode}>
+                                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                    <lightning-textarea 
+                                                        label={i18n.description}
+                                                        data-field="description" 
+                                                        value={rule.description}
+                                                        onchange={handleFormInputChange}
+                                                        class="svmx-pricebook-assignment_input-field svmx-pricebook-assignment_description-input"
+                                                    ></lightning-textarea>
+                                                </div>
+                                            </template>
+                                        </div>
+                                        <div
+                                            class="slds-pricebook-assignment_form-item"
+                                            role="listitem"
+                                        ></div>
+                                    </div>
+                                </c-x-expandable-section>
+
+                                <c-x-expandable-section title={i18n.qualifyingCriteria}>
+                                    <div class="slds-card__body">
+                                        <c-expression-builder
+                                            class="svmx-expression-builder svmx-pricebook-assignment_expression-input"
+                                            entity-definition={_objectDefinition}
+                                            expression-data={rule.qualifyingCriteria}
+                                            edit-mode={editMode}
+                                            ontoggleedit={toggleEdit}
+                                        ></c-expression-builder>
+                                    </div>
+                                </c-x-expandable-section>
+
+                                <c-x-expandable-section title={i18n.assignment}>
+                                    <div class="slds-form__row">
+                                        <div
+                                            class="slds-pricebook-assignment_form-item"
+                                            role="listitem"
+                                        >
+                                            <template if:false={editMode}>
+                                                <div class="slds-form-element slds-form-element_stacked svmx-pricebook-assignment_is-view">
+                                                    <span class="slds-form-element__label">
+                                                        {i18n.pricebook}
+                                                        <lightning-helptext
+                                                            content={i18n.pricebookAssignmentHelpText}
+                                                            class="svmx-pricebook-assignment_help-icon"
+                                                        ></lightning-helptext>
+                                                    </span>
+                                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                                        <span class="slds-pricebook-assignment_form-element-static slds-grow word-break-ie11">
+                                                            <div class="slds-pricebook-assignment_form-element-static">
+                                                                {rule.pricebook.name}
+                                                            </div>
+                                                        </span>
+                                                        <lightning-button-icon 
+                                                            icon-name="utility:edit"
+                                                            variant="bare" 
+                                                            alternative-text={i18n.edit}
+                                                            title={i18n.edit} 
+                                                            onclick={handleEdit}
+                                                            class="slds-col_bump-left"
+                                                        ></lightning-button-icon>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                            <template if:true={editMode}>
+                                                <div class="slds-form-element slds-form-element_stacked svmx-pricebook-assignment_padding-bottom">
+                                                    <c-svmx-lookup
+                                                        class="svmx-pricebook-assignment_input-field svmx-pricebook-assignment_pricebook-input"
+                                                        advanced-search-config={booleanFalse}
+                                                        data-field="pricebook"
+                                                        field-api-name="pricebook"
+                                                        disabled={booleanFalse}
+                                                        enable-advanced-search={booleanFalse}
+                                                        field-level-help={i18n.pricebookAssignmentHelpText}
+                                                        icon-name="standard:pricebook"
+                                                        label={i18n.pricebook}
+                                                        target-object-api-name="Pricebook2"
+                                                        target-label-api-name={pricebookNameField}
+                                                        onlookupselect={handlePricebookChange}
+                                                        read-only={booleanFalse}
+                                                        value={rule.pricebook.id}
+                                                        required
+                                                    ></c-svmx-lookup>
+                                                </div>
+                                            </template>
+                                        </div>
+                                        <div
+                                            class="slds-pricebook-assignment_form-item"
+                                            role="listitem"
+                                        ></div>
+                                    </div>
+                                </c-x-expandable-section>                
+                            </div>
+
+                            <template if:true={apiInProgress}>
+                                <lightning-spinner
+                                    variant="brand"
+                                    alternative-text={i18n.loading}
+                                ></lightning-spinner>
+                            </template>
+
+                        </lightning-card>
+
+                        <c-modal-dialog
+                            title={i18n.continueConfirmation}
+                            class="svmx-pricebook-assignment_object-change-modal"
+                            close-button-style="slds-hidden"
+                            is-open={changeObjectModalDialogOpen}
+                            modal-content-id="changeObjectModalContent"
+                            modal-header-id="changeObjectModalHeader"
+                        >
+                            <div slot="body">
+                                <span slot="body">
+                                    <p>
+                                        <lightning-formatted-text
+                                            value={i18n.cancelModalContent}
+                                        ></lightning-formatted-text>
+                                    </p>
+                                </span>
+                            </div>
+                            <div slot="footer">
+                                <lightning-button
+                                    label={i18n.goBack}
+                                    title={i18n.goBack}
+                                    variant="neutral"
+                                    onclick={handleChangeObjectCancelModal}
+                                    class="svmx-object-change-modal_cancel-btn slds-p-right_x-small"
+                                ></lightning-button>
+                                <lightning-button
+                                    class="svmx-object-change-modal_confirm-btn confirmButton"
+                                    label={i18n.continue}
+                                    title={i18n.continue}
+                                    variant="brand"
+                                    onclick={handleChangeObjectConfirmModal}
+                                ></lightning-button>
+                            </div>
+                        </c-modal-dialog>
+
+                        <c-modal-dialog 
+                            title={i18n.cancelModalTitle}
+                            class="svmx-pricebook-assignment_cancel-modal"
+                            is-open={cancelModalDialogOpen}
+                            modal-content-id="cancelModalContent"
+                            modal-header-id="cancelModalHeader"
+                            onmodalclosed={handleCancelModal}
+                        >
+                            <div slot="body">
+                                <span slot="body">
+                                    <p>
+                                        <lightning-formatted-text 
+                                            value={i18n.cancelModalContent}
+                                        ></lightning-formatted-text>
+                                    </p>
+                                </span>
+                            </div>
+                            <div slot="footer">
+                                <lightning-button
+                                    label={i18n.goBack}
+                                    title={i18n.goBack}
+                                    variant="neutral"
+                                    onclick={handleCancelModal}
+                                    class="slds-p-right_x-small svmx-cancel-modal_cancel-btn"
+                                ></lightning-button>
+                                <lightning-button
+                                    class="confirmButton svmx-cancel-modal_confirm-btn"
+                                    label={i18n.continue}
+                                    title={i18n.continue}
+                                    variant="brand"
+                                    onclick={handleCancelConfirmModal}
+                                ></lightning-button>
+                            </div>
+                        </c-modal-dialog>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+    </c-admin-layout>
+</template>

@@ -1,0 +1,889 @@
+<template>      
+    <!-- create,edit and clone form-->
+    <div class="svmx-technical-attribute-details-modal">
+        <c-modal-dialog title={detailModalTitle} class="svmx-technical-attribute-detail_modal" size="MEDIUM_FIXED"
+            is-open={attributeModalOpen} modal-content-id="newModalContent" modal-header-id="newModalHeader"
+            onmodalclosed={handleTechnicalAttributeCancel}>
+            <div slot="body">    
+                <template if:true={error}>
+                    <div class="slds-box slds-theme_error slds-p-left_medium slds-p-right_medium" role="alert">
+                        <p>{i18n.reviewError}</p>
+                    </div>
+                    <div
+                        class="slds-text-color_error slds-p-left_large slds-p-top_xx-small svmx-technical-attribute-detail_error">
+                        {error}
+                    </div>
+                </template>
+                <div class="slds-grid slds-wrap">
+                    <template if:false={isPicklistType}>
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.name}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {recordInfo.name}
+                                            </div>
+                                        </span>
+                                        <lightning-button-icon 
+                                            icon-name="utility:edit"
+                                            variant="bare"
+                                            alternative-text={i18n.edit}
+                                            title={i18n.edit}
+                                            onclick={handleEdit}
+                                            class="slds-col_bump-left slds-button__icon_hint"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>                        
+                            <template if:false={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked">
+                                    <lightning-input
+                                        class="svmx-technical-attribute-detail_name svmx-technical-attribute-detail_input-field"
+                                        label={i18n.name}
+                                        type="text" 
+                                        variant="label-stacked"
+                                        value={recordInfo.name}                              
+                                        data-field="name"
+                                        message-when-value-missing={i18n.valueMissing}
+                                        message-when-too-long={tooLongMessage}
+                                        onchange={handleChange}
+                                        max-length='80'
+                                        required>
+                                    </lightning-input>
+                                </div>
+                            </template> 
+                        </div>
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.units}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {unitLabel}
+                                            </div>
+                                        </span>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked">
+                                    <c-combobox
+                                        variant="label-stacked"
+                                        label={i18n.units}
+                                        data-field="unit"
+                                        value={recordInfo.unit}
+                                        items={unitOptions}
+                                        onchange={handleChange}
+                                        disabled={developerNameDisabled}
+                                        class="svmx-technical-attribute-detail_unit svmx-technical-attribute-detail_input-field"
+                                        filterable
+                                    ></c-combobox>
+                                </div>
+                            </template>
+                        </div>
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.type}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {dataTypeLabel}
+                                            </div>
+                                        </span>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked">
+                                    <lightning-combobox
+                                        class="svmx-datatype svmx-technical-attribute-detail_input-field"
+                                        data-field="dataType"
+                                        label={i18n.type}
+                                        value={recordInfo.dataType}
+                                        options={dataTypeOptions}
+                                        onchange={handleTypeChange}
+                                        onblur={handleOnBlur}
+                                        message-when-value-missing={i18n.valueMissing}
+                                        disabled={developerNameDisabled}
+                                        required>
+                                    </lightning-combobox>
+                                </div>
+                            </template>
+                        </div>
+                        <template if:false={isNumberType}>
+                            <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                                <template if:true={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                        <span class="slds-form-element__label">
+                                            {i18n.defaultValue}
+                                        </span>
+                                        <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                <div class="slds-form-element__static">
+                                                    <template if:true={isDateType}>
+                                                        <lightning-formatted-date-time
+                                                            value={recordInfo.defaultValue}
+                                                            year="numeric"
+                                                            month="numeric"
+                                                            day="numeric"
+                                                            time-zone="UTC">
+                                                        </lightning-formatted-date-time>
+                                                    </template>
+                                                    <template if:true={isDateTimeType}>
+                                                        <lightning-formatted-date-time
+                                                            value={recordInfo.defaultValue}
+                                                            year="numeric"
+                                                            month="numeric"
+                                                            day="numeric"
+                                                            hour="2-digit"
+                                                            minute="2-digit"
+                                                            time-zone-name="short"
+                                                            time-zone={i18n.timeZone}>
+                                                        </lightning-formatted-date-time>
+                                                    </template>
+                                                    <template if:true={isBooleanType}>
+                                                        <lightning-input
+                                                                type="checkbox"
+                                                                class="svmx-technical-attribute-detail_default-value svmx-technical-attribute-detail_input-field"
+                                                                label={i18n.defaultValue}
+                                                                data-field="defaultValue"
+                                                                checked={recordInfo.defaultValue}
+                                                                read-only="true"
+                                                                disabled="true"
+                                                                name="defaultValue"
+                                                                variant="label-hidden">
+                                                            </lightning-input>
+                                                    </template>
+                                                    <template if:true={isTextType}>
+                                                        {recordInfo.defaultValue}
+                                                    </template>
+                                                </div>
+                                            </span>
+                                            <lightning-button-icon 
+                                                icon-name="utility:edit"
+                                                variant="bare"
+                                                alternative-text={i18n.edit}
+                                                title={i18n.edit}
+                                                onclick={handleEdit}
+                                                class="slds-col_bump-left slds-button__icon_hint"
+                                            ></lightning-button-icon>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template if:false={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <template if:true={isDateType}>
+                                            <lightning-input                                
+                                                class="svmx-technical-attribute-detail_default-value svmx-technical-attribute-detail_input-field"
+                                                label={i18n.defaultValue}
+                                                type="date"
+                                                data-field="defaultValue"
+                                                variant="label-stacked"
+                                                value={recordInfo.defaultValue}
+                                                message-when-value-missing={i18n.valueMissing}
+                                                message-when-bad-input={badInputMessage}
+                                                date-style="short"
+                                                autocomplete="false"
+                                                onchange={handleChange}                                
+                                            ></lightning-input>
+                                        </template>
+                                        <template if:true={isDateTimeType}>
+                                            <lightning-input
+                                                class="svmx-technical-attribute-detail_default-value svmx-technical-attribute-detail_input-field"
+                                                label={i18n.defaultValue}
+                                                type="datetime"
+                                                data-field="defaultValue"
+                                                variant="label-stacked"
+                                                value={recordInfo.defaultValue}
+                                                message-when-value-missing={i18n.valueMissing}
+                                                message-when-bad-input={badInputMessage}
+                                                date-style="short"
+                                                autocomplete="false"
+                                                onchange={handleChange}
+                                                timezone={timezone}
+                                            ></lightning-input>
+                                        </template>
+                                        <template if:true={isBooleanType}>
+                                            <div class="slds-form-element slds-form-element_stacked">
+                                                <span class="slds-form-element__label">
+                                                    {i18n.defaultValue}
+                                                </span>
+                                                <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                                    <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                        <div class="slds-form-element__static">
+                                                            <lightning-input
+                                                                type="checkbox"
+                                                                class="svmx-technical-attribute-detail_default-value svmx-technical-attribute-detail_input-field"
+                                                                label={i18n.defaultValue}
+                                                                data-field="defaultValue"
+                                                                checked={recordInfo.defaultValue}
+                                                                name="defaultValue"
+                                                                variant="label-hidden"
+                                                                onchange={handleChange}>
+                                                            </lightning-input>
+                                                        </div>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </template>
+                                        <template if:true={isTextType}>
+                                            <lightning-input
+                                                class="svmx-technical-attribute-detail_default-value svmx-technical-attribute-detail_input-field"
+                                                label={i18n.defaultValue}
+                                                type="text" 
+                                                variant="label-stacked"
+                                                value={recordInfo.defaultValue}                              
+                                                data-field="defaultValue"
+                                                message-when-value-missing={i18n.valueMissing}
+                                                message-when-too-long={tooLongMessage}
+                                                onchange={handleChange}
+                                                max-length='255'>
+                                            </lightning-input>
+                                        </template>
+                                    </div>
+                                </template> 
+                            </div>
+                        </template>
+                        <template if:true={isNumberType}>
+                            <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                                <template if:true={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                        <span class="slds-form-element__label">
+                                            {i18n.minimumValue}
+                                        </span>
+                                        <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                <div class="slds-form-element__static">
+                                                    {recordInfo.minimumValue}
+                                                </div>
+                                            </span>
+                                            <lightning-button-icon 
+                                                icon-name="utility:edit"
+                                                variant="bare"
+                                                alternative-text={i18n.edit}
+                                                title={i18n.edit}
+                                                onclick={handleEdit}
+                                                class="slds-col_bump-left slds-button__icon_hint" >
+                                            </lightning-button-icon>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template if:false={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <lightning-input
+                                            class="svmx-technical-attribute-detail_minimumValue svmx-technical-attribute-detail_input-field"
+                                            label={i18n.minimumValue}
+                                            type="number"
+                                            formatter="decimal"
+                                            step="0.0001"
+                                            message-when-step-mismatch={stepMismatchMessage}
+                                            autocomplete="off"
+                                            variant="label-stacked"
+                                            value={recordInfo.minimumValue}                              
+                                            data-field="minimumValue"
+                                            message-when-value-missing={i18n.valueMissing}
+                                            onchange={handleChange}>
+                                        </lightning-input>
+                                    </div>
+                                </template> 
+                            </div>
+                        </template>
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.developerName}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {recordInfo.developerName}
+                                            </div>
+                                        </span>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked">
+                                    <lightning-input
+                                        class="svmx-technical-attribute-detail_developerName svmx-technical-attribute-detail_input-field"
+                                        label={i18n.developerName}
+                                        type="text" 
+                                        variant="label-stacked"
+                                        value={recordInfo.developerName}                              
+                                        data-field="developerName"
+                                        message-when-value-missing={i18n.valueMissing}
+                                        message-when-too-long={tooLongMessage}
+                                        onchange={handleChange}
+                                        max-length='80'
+                                        placeholder={i18n.developerNamePlaceholder}
+                                        disabled={developerNameDisabled}
+                                        required>
+                                    </lightning-input>
+                                </div>
+                            </template>
+                        </div>
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={isNumberType}>
+                                <template if:true={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                        <span class="slds-form-element__label">
+                                            {i18n.maximumValue}
+                                        </span>
+                                        <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                <div class="slds-form-element__static">
+                                                    {recordInfo.maximumValue}
+                                                </div>
+                                            </span>
+                                            <lightning-button-icon 
+                                                icon-name="utility:edit"
+                                                variant="bare"
+                                                alternative-text={i18n.edit}
+                                                title={i18n.edit}
+                                                onclick={handleEdit}
+                                                class="slds-col_bump-left slds-button__icon_hint"
+                                            ></lightning-button-icon>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template if:false={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <lightning-input
+                                            class="svmx-technical-attribute-detail_maximumValue svmx-technical-attribute-detail_input-field"
+                                            label={i18n.maximumValue}
+                                            type="number"
+                                            autocomplete="off"
+                                            data-field="maximumValue"
+                                            formatter="decimal"
+                                            step="0.0001"
+                                            message-when-step-mismatch={stepMismatchMessage}
+                                            variant="label-stacked"
+                                            value={recordInfo.maximumValue}
+                                            message-when-value-missing={i18n.valueMissing}
+                                            onchange={handleChange}>
+                                        </lightning-input>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.description}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {recordInfo.description}
+                                            </div>
+                                        </span>
+                                        <lightning-button-icon 
+                                            icon-name="utility:edit"
+                                            variant="bare"
+                                            alternative-text={i18n.edit}
+                                            title={i18n.edit}
+                                            onclick={handleEdit}
+                                            class="slds-col_bump-left slds-button__icon_hint"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked">
+                                    <lightning-textarea
+                                        label={i18n.description}
+                                        value={recordInfo.description}
+                                        onchange={handleChange}
+                                        data-field="description"
+                                        class="svmx-technical-attribute-detail__desc svmx-technical-attribute-detail_input-field">
+                                    </lightning-textarea>
+                                </div>
+                            </template>
+                        </div>
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={isNumberType}>
+                                <template if:true={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                        <span class="slds-form-element__label">
+                                            {i18n.defaultValue}
+                                        </span>
+                                        <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                <div class="slds-form-element__static">
+                                                    {recordInfo.defaultValue}
+                                                </div>
+                                            </span>
+                                            <lightning-button-icon 
+                                                icon-name="utility:edit"
+                                                variant="bare"
+                                                alternative-text={i18n.edit}
+                                                title={i18n.edit}
+                                                onclick={handleEdit}
+                                                class="slds-col_bump-left slds-button__icon_hint"
+                                            ></lightning-button-icon>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template if:false={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <lightning-input
+                                            class="svmx-technical-attribute-detail_default-value svmx-technical-attribute-detail_input-field"
+                                            label={i18n.defaultValue}
+                                            type="number"
+                                            formatter="decimal"
+                                            step="0.0001"
+                                            message-when-step-mismatch={stepMismatchMessage}
+                                            autocomplete="off"
+                                            variant="label-stacked"
+                                            value={recordInfo.defaultValue}                              
+                                            data-field="defaultValue"
+                                            message-when-value-missing={i18n.valueMissing}
+                                            onchange={handleChange}>
+                                        </lightning-input>
+                                    </div>
+                                </template> 
+                            </template>
+                        </div>
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.helpText}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {recordInfo.helptext}
+                                            </div>
+                                        </span>
+                                        <lightning-button-icon 
+                                            icon-name="utility:edit"
+                                            variant="bare"
+                                            alternative-text={i18n.edit}
+                                            title={i18n.edit}
+                                            onclick={handleEdit}
+                                            class="slds-col_bump-left slds-button__icon_hint"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked">
+                                    <lightning-textarea
+                                        label={i18n.helpText}
+                                        value={recordInfo.helptext}
+                                        onchange={handleChange}
+                                        data-field="helptext"
+                                        class="svmx-technical-attribute-detail_helpText svmx-technical-attribute-detail_input-field">
+                                    </lightning-textarea>
+                                </div>
+                            </template>
+                        </div>
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={isNumberType}>
+                                <template if:true={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                        <span class="slds-form-element__label">
+                                            {i18n.warningText}
+                                        </span>
+                                        <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                <div class="slds-form-element__static">
+                                                    {recordInfo.message}
+                                                </div>
+                                            </span>
+                                            <lightning-button-icon 
+                                                icon-name="utility:edit"
+                                                variant="bare"
+                                                alternative-text={i18n.edit}
+                                                title={i18n.edit}
+                                                onclick={handleEdit}
+                                                class="slds-col_bump-left slds-button__icon_hint"
+                                            ></lightning-button-icon>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template if:false={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <lightning-input
+                                            class="svmx-technical-attribute-detail_message svmx-technical-attribute-detail_input-field"
+                                            label={i18n.warningText}
+                                            type="text" 
+                                            variant="label-stacked"
+                                            value={recordInfo.message}                              
+                                            data-field="message"
+                                            message-when-value-missing={i18n.valueMissing}
+                                            message-when-too-long={tooLongMessage}
+                                            onchange={handleChange}
+                                            max-length='255'>
+                                        </lightning-input>
+                                    </div>
+                                </template> 
+                            </template>
+                        </div>
+
+                    </template>
+
+                    <template if:true={isPicklistType}>
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.name}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {recordInfo.name}
+                                            </div>
+                                        </span>
+                                        <lightning-button-icon
+                                            icon-name="utility:edit"
+                                            variant="bare"
+                                            alternative-text={i18n.edit}
+                                            title={i18n.edit}
+                                            onclick={handleEdit}
+                                            class="slds-col_bump-left slds-button__icon_hint"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked">
+                                    <lightning-input
+                                        class="svmx-technical-attribute-detail_name svmx-technical-attribute-detail_input-field"
+                                        label={i18n.name}
+                                        type="text" 
+                                        variant="label-stacked"
+                                        value={recordInfo.name}                              
+                                        data-field="name"
+                                        message-when-value-missing={i18n.valueMissing}
+                                        message-when-too-long={tooLongMessage}
+                                        onchange={handleChange}
+                                        max-length='80'
+                                        required>
+                                    </lightning-input>
+                                </div>
+                            </template> 
+                        </div>
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.units}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {unitLabel}
+                                            </div>
+                                        </span>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked">
+                                    <c-combobox
+                                        variant="label-stacked"
+                                        label={i18n.units}
+                                        data-field="unit"
+                                        value={recordInfo.unit}
+                                        items={unitOptions}
+                                        onchange={handleChange}
+                                        disabled={developerNameDisabled}
+                                        class="svmx-technical-attribute-detail_unit svmx-technical-attribute-detail_input-field"
+                                        filterable
+                                    ></c-combobox>
+                                </div>
+                            </template>
+                        </div>
+                        
+                        <div class="slds-col slds-size_6-of-12">
+                            <div class="slds-col slds-size_12-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                                <template if:true={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                        <span class="slds-form-element__label">
+                                            {i18n.type}
+                                        </span>
+                                        <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                <div class="slds-form-element__static">
+                                                    {dataTypeLabel}
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template if:false={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <lightning-combobox
+                                            class="svmx-datatype svmx-technical-attribute-detail_input-field"
+                                            data-field="dataType"
+                                            label={i18n.type}
+                                            value={recordInfo.dataType}
+                                            options={dataTypeOptions}
+                                            onchange={handleTypeChange}
+                                            onblur={handleOnBlur}
+                                            message-when-value-missing={i18n.valueMissing}
+                                            disabled={developerNameDisabled}
+                                            required>
+                                        </lightning-combobox>                                
+                                    </div>
+                                </template>
+                            </div>
+                            <div class="slds-col slds-size_12-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                                <template if:true={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                        <span class="slds-form-element__label">
+                                            {i18n.developerName}
+                                        </span>
+                                        <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                <div class="slds-form-element__static">
+                                                    {recordInfo.developerName}
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template if:false={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <lightning-input
+                                            class="svmx-technical-attribute-detail_developerName svmx-technical-attribute-detail_input-field"
+                                            label={i18n.developerName}
+                                            type="text" 
+                                            variant="label-stacked"
+                                            value={recordInfo.developerName}                              
+                                            data-field="developerName"
+                                            message-when-value-missing={i18n.valueMissing}
+                                            message-when-too-long={tooLongMessage}
+                                            onchange={handleChange}
+                                            max-length='80'
+                                            placeholder={i18n.developerNamePlaceholder}
+                                            disabled={developerNameDisabled}
+                                            required>
+                                        </lightning-input>
+                                    </div>
+                                </template>
+                            </div>
+                            <div class="slds-col slds-size_12-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                                <template if:true={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                        <span class="slds-form-element__label">
+                                            {i18n.description}
+                                        </span>
+                                        <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                <div class="slds-form-element__static">
+                                                    {recordInfo.description}
+                                                </div>
+                                            </span>
+                                            <lightning-button-icon 
+                                                icon-name="utility:edit"
+                                                variant="bare"
+                                                alternative-text={i18n.edit}
+                                                title={i18n.edit}
+                                                onclick={handleEdit}
+                                                class="slds-col_bump-left slds-button__icon_hint"
+                                            ></lightning-button-icon>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template if:false={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <lightning-textarea
+                                            label={i18n.description}
+                                            value={recordInfo.description}
+                                            onchange={handleChange}
+                                            data-field="description"
+                                            class="svmx-technical-attribute-detail__desc svmx-technical-attribute-detail_input-field">
+                                        </lightning-textarea>
+                                    </div>
+                                </template>
+                            </div>
+                            <div class="slds-col slds-size_12-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                                <template if:true={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                        <span class="slds-form-element__label">
+                                            {i18n.helpText}
+                                        </span>
+                                        <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                <div class="slds-form-element__static">
+                                                    {recordInfo.helptext}
+                                                </div>
+                                            </span>
+                                            <lightning-button-icon 
+                                                icon-name="utility:edit"
+                                                variant="bare"
+                                                alternative-text={i18n.edit}
+                                                title={i18n.edit}
+                                                onclick={handleEdit}
+                                                class="slds-col_bump-left slds-button__icon_hint"
+                                            ></lightning-button-icon>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template if:false={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <lightning-textarea
+                                            label={i18n.helpText}
+                                            value={recordInfo.helptext}
+                                            onchange={handleChange}
+                                            data-field="helptext"
+                                            class="svmx-technical-attribute-helpText svmx-technical-attribute-detail_input-field">
+                                        </lightning-textarea>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div class="slds-col slds-size_6-of-12">
+                            <div class="slds-col slds-size_12-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                                <div class="slds-section slds-is-open">
+                                    <h3 class="slds-truncate slds-text-title_bold" title={i18n.picklistValues}>{i18n.picklistValues}</h3>
+                                    <template if:true={viewMode}>
+                                        <div style="height:200px" class="slds-box my-card slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view slds-scrollable">
+                                            
+                                            <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end svmx-technical-attribute-detail_is-view">
+                                                <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                    <template for:each={picklistValeusAsPills} for:item="pill" for:index="index">                                                    
+                                                        <div key={pill.name} class="slds-form-element__static">
+                                                            <ul class="slds-p-top_xx-small">
+                                                                <li class="slds-hyphenate slds-grow word-break-ie11" title={pill.name}>
+                                                                    {pill.name}
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </template>
+                                                </span>
+                                                
+                                                <lightning-button-icon 
+                                                    icon-name="utility:edit"
+                                                    variant="bare"
+                                                    alternative-text={i18n.edit}
+                                                    title={i18n.edit}
+                                                    onclick={handleEdit}
+                                                    class="slds-col_bump-left slds-button__icon_hint"
+                                                ></lightning-button-icon>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <template if:false={viewMode}>
+                                        <div style="height:280px" class="slds-box my-card slds-form-element slds-form-element_stacked">
+                                            <div style="height:220px" class="slds-scrollable">
+                                                <template for:each={picklistValeusAsPills} for:item="pill" for:index="index">
+                                                    <div 
+                                                        key={pill.name}
+                                                        draggable="true"
+                                                        ondragstart={handleDragStart}
+                                                        ondragover={handleDragOver}
+                                                        ondrop={handleDrop}
+                                                        title={pill.label}
+                                                        data-seq={index}
+                                                        class="svmx-drag-container pill_container slds-p-top_xx-small slds-p-bottom_xx-small pills-view">
+                                                        <lightning-layout multiple-rows="true">
+                                                            <lightning-layout-item data-seq={index} title={pill.label} class="slds-p-top_xx-small" size="6">
+                                                                <lightning-pill class="slds-p-around_small" data-seq={index} title={pill.label} label={pill.label} name={pill.name} onremove={handlePillRemove}>
+                                                                </lightning-pill>
+                                                            </lightning-layout-item>
+                                                            <lightning-layout-item data-seq={index} title={pill.label} class="slds-p-top_xx-small" size="6">
+                                                                <lightning-icon class="slds-float_right" data-seq={index} title={pill.label} size="x-small" icon-name="utility:move" alternative-text="utility:move">
+                                                                </lightning-icon>
+                                                            </lightning-layout-item>
+                                                        </lightning-layout>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                            <lightning-layout multiple-rows="true">
+                                                <lightning-layout-item class="slds-p-top_small" size="6">
+                                                    <lightning-input title={i18n.addValue} placeholder={i18n.addValue} variant="label-hidden" type="text"
+                                                        max-length='80' value={picklistValue} class="svmx-picklist-value addValueInput svmx-technical-attribute-detail_input-field" oncommit={handleCommitPicklist}>
+                                                    </lightning-input>
+                                                </lightning-layout-item>
+                                            </lightning-layout>
+                                        </div>
+                                    </template>                                    
+                                </div>                                
+                            </div>
+                            <div class="slds-col slds-size_12-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                                <template if:true={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked svmx-technical-attribute-detail_is-view">
+                                        <span class="slds-form-element__label">
+                                            {i18n.defaultValue}
+                                        </span>
+                                        <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                <div class="slds-form-element__static">
+                                                    {recordInfo.defaultValue}
+                                                </div>
+                                            </span>
+                                            <lightning-button-icon 
+                                                icon-name="utility:edit"
+                                                variant="bare"
+                                                alternative-text={i18n.edit}
+                                                title={i18n.edit}
+                                                onclick={handleEdit}
+                                                class="slds-col_bump-left slds-button__icon_hint"
+                                            ></lightning-button-icon>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template if:false={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <c-combobox
+                                            variant="label-stacked"
+                                            label={i18n.defaultValue}
+                                            data-field="defaultValue"
+                                            value={recordInfo.defaultValue}
+                                            items={picklistOptions}
+                                            onchange={handleChange}
+                                            class="svmx-technical-attribute-detail_default-value svmx-technical-attribute-detail_input-field"
+                                            filterable
+                                        ></c-combobox>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            <div slot="footer">
+                <template if:true={viewMode}>
+                    <lightning-button label={i18n.delete} title={i18n.delete} variant="destructive-text"
+                        onclick={handleDelete} class="slds-float_left svmx-technical-attribute-detail_deletebtn">
+                    </lightning-button>
+                </template>
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                    onclick={handleTechnicalAttributeCancel} class="slds-p-right_x-small svmx-technical-attribute-detail_cancelbtn">
+                </lightning-button>
+                <template if:true={viewMode}>
+                    <lightning-button label={i18n.clone} title={i18n.clone} variant="neutral"
+                        onclick={handleClone} class="slds-p-right_x-small svmx-technical-attribute-detail_clonebtn">
+                    </lightning-button>
+                    <lightning-button class="svmx-technical-attribute-detail_editbtn" label={i18n.edit} title={i18n.edit} variant="brand" onclick={handleEdit}>
+                    </lightning-button>
+                </template>
+                <template if:false={viewMode}>
+                    <lightning-button class="slds-p-right_x-small svmx-technical-attribute-detail_saveandnewbtn" data-name="saveAndNew" label={i18n.saveAndNew} title={i18n.saveAndNew} variant="neutral" onclick={handleSave}>
+                    </lightning-button>
+                    <lightning-button class="svmx-technical-attribute-detail_confirmbtn" data-name="save" label={i18n.save} title={i18n.save} variant="brand" onclick={handleSave}>
+                    </lightning-button>
+                </template>
+            </div>
+        </c-modal-dialog>
+    </div>
+
+</template>

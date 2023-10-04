@@ -1,0 +1,14 @@
+<template>
+    <div class={computedCssClass}>
+        <c-illustration-image
+            if:false={textOnly}
+            image-name={imageName}
+        ></c-illustration-image>
+        <div class="slds-text-longform svmx-illustrator_text-wrapper">
+          <h3 class="slds-text-heading_medium svmx-illustrator_heading">{heading}</h3>
+          <slot name="messageBody">
+            <p if:true={hasMessageBody} class="slds-text-body_regular svmx-illustrator_message-body-text">{messageBody}</p>
+          </slot>
+        </div>
+      </div>
+</template>

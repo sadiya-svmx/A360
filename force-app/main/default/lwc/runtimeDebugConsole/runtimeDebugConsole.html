@@ -1,0 +1,49 @@
+<!-- sldsValidatorIgnore -->
+<template>
+    <div class="svmx-debug-console_container slds-var-m-top_small">
+        <h3 class="slds-clearfix slds-var-p-around_x-small">
+            <div class="slds-float_left">{i18n.labelDebugConsole}</div>
+            <lightning-button-icon
+                class="slds-section__title-action-icon slds-float_right"
+                icon-name="utility:close"
+                icon-class="slds-icon-text-light"
+                variant="bare"
+                alternative-text={i18n.altTextClose}
+                title={i18n.altTextClose}
+                onclick={handleHideConsole}
+            ></lightning-button-icon>
+        </h3>
+        <div class="slds-box svmx-box_override slds-p-around_none slds-var-m-bottom_x-small svmx-debug-console_content-container">
+
+            <div class="slds-var-p-around_x-small">
+                <div class="slds-var-m-bottom_xx-small slds-text-heading_small">{pageTitle}</div>
+                <div class="slds-var-m-bottom_xx-small"><span class="svmx-field_label">{i18n.labelDeveloperName}:</span> {_developerName}</div>
+                <div class="slds-var-m-bottom_xx-small"><span class="svmx-field_label">{i18n.labelObject}:</span> {headerObjectLabel}</div>
+            </div>
+
+            <h3 class="slds-var-p-around_x-small slds-var-m-bottom_x-small">
+                <lightning-input
+                    class="svmx-checkbox_onload"
+                    type="checkbox"
+                    checked={_evaluateOnLoad}
+                    onchange={handleCheckboxOnLoad}
+                    label={i18n.labelOnLoad}
+                    style="display: inline-block;"
+                ></lightning-input>
+                <lightning-input
+                    class="svmx-checkbox_onfieldchange"
+                    type="checkbox"
+                    checked={_evaluateOnFieldChange}
+                    onchange={handleCheckboxOnChange}
+                    label={i18n.labelOnChange}
+                    style="display: inline-block;"
+                ></lightning-input>
+            </h3>
+            <!-- all card(s) -->
+            <c-runtime-debug-console-card
+                is-source-to-target={_isSourceToTarget}
+                cards={cards}
+            ></c-runtime-debug-console-card>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,8 @@
+<template>
+    <template if:true={hasLabel}>
+        <c-svmx-lookup-value icon={iconName} label={label} is-cell editable={editable}></c-svmx-lookup-value>
+    </template>
+    <template if:true={hasError}>
+        <span class="slds-pill__error">{i18n.noResults}</span>
+    </template>
+</template>

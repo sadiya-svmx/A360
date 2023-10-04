@@ -1,0 +1,333 @@
+<template>
+    <template if:true={error}>
+        <c-alert variant="error">{error}</c-alert>
+    </template>
+    <!--PriceBook selection  modal-->
+    <div class="svmx-cli-detail-priceBook-selection">
+        <c-modal-dialog title={i18n.choosePriceBookTitle} class="svmx-cli-detail-priceBook-selection_modal"
+            size="SMALL" is-open={priceBookSelectionModalOpen} modal-content-id="priceBookModalContent"
+            modal-header-id="priceBookModalHeader" onmodalclosed={clearValues}>
+            <div slot="body">
+                <div class="slds-p-around--medium">
+                    {i18n.choosePriceBookOnSC}
+                    <lightning-combobox
+                        class="svmx-cli-detail-priceBook-selection_combobox"
+                        name={i18n.priceBook}
+                        label={i18n.priceBook}
+                        value={selectedPBId}
+                        options={pbOptions}
+                        onchange={handlePBChange}>
+                    </lightning-combobox>
+                </div>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                    onclick={clearValues} class="slds-p-right_x-small svmx-cli-detail-save-priceBook-modal-cancel_btn">
+                </lightning-button>
+                <lightning-button class="svmx-cli-detail-save-priceBook-modal-save_btn" label={i18n.save}
+                    title={i18n.save} variant="brand" onclick={handleSavePB}>
+                </lightning-button>
+            </div>
+        </c-modal-dialog>
+    </div>
+    <!--Products selection  modal-->
+    <div class="svmx-cli-detail-products-selection">
+        <c-modal-dialog title={i18n.title} class="svmx-cli-detail-products-selection_modal"
+            size="LARGE" is-open={contractLineProductModalOpen} modal-content-id="productModalContent"
+            modal-header-id="productModalHeader" onmodalclosed={clearValues}>
+            <div slot="body">
+                <template if:true={error}>
+                    <div class="slds-box slds-theme_error slds-p-left_medium slds-p-right_medium" role="alert">
+                        <p>{i18n.reviewError}</p>
+                    </div>
+                    <div
+                        class="slds-text-color_error slds-p-left_large slds-p-top_xx-small svmx-cli-detail-products-modal_error">
+                        {error}
+                    </div>
+                </template> 
+                <lightning-input type="search" autocomplete="off" placeholder={i18n.placeholder}
+                    variant="label-hidden" title={i18n.placeholder}
+                    class="svmx-cli-detail-text_search"
+                    onchange={handleSearchKeyChange}>
+                </lightning-input>
+                <template if:true={showPills}>
+                    <div class="slds-p-top_xxx-small">
+                        <lightning-pill-container items={selectedPills} onitemremove={handlePillRemove} ></lightning-pill-container>
+                    </div>
+                </template>
+                <div class="slds-p-top_large">
+                    {selectedProductCountInfo}
+                </div>
+                <div class="slds-p-top_x-large" style="height: 400px;">
+                    <table class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered slds-table_fixed-layout svmx-cli-detail-products_table" role="grid">
+                        <thead>
+                            <tr class="slds-line-height_reset">
+                                <th class="slds-text-align_right" scope="col" width="10%">
+                                    <div class="slds-truncate slds-assistive-text" title={i18n.chooseRow}></div>
+                                </th>
+                                <th role="gridcell" scope="col" width="20%">
+                                    <div class="slds-truncate" title={i18n.product}>{i18n.product}</div>
+                                </th>
+                                <th role="gridcell" scope="col" width="10%">
+                                    <div class="slds-truncate" title={i18n.productCode}>{i18n.productCode}</div>
+                                </th>
+                                <th role="gridcell" scope="col" width="15%">
+                                    <div class="slds-truncate" title={i18n.listPrice}>{i18n.listPrice}</div>
+                                </th>
+                                <th role="gridcell" scope="col" width="30%">
+                                    <div class="slds-truncate" title={i18n.productDescription}>{i18n.productDescription}</div>
+                                </th>
+                                <th role="gridcell" scope="col" width="15%">
+                                    <div class="slds-truncate" title={i18n.productFamily}>{i18n.productFamily}</div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template if:true={pBEList}>
+                                <template for:each={pBEList} for:item="priceBookEntry" for:index="indexVar">
+                                    <tr key={priceBookEntry.Id}>
+                                        <th role="gridcell" class="slds-truncate" scope="col">
+                                            <div>
+                                                <lightning-input
+                                                    type="checkbox-button"
+                                                    onchange={handleSelectProduct}
+                                                    checked={priceBookEntry.isSelected}
+                                                    value={priceBookEntry.Id}
+                                                    data-name={priceBookEntry.Name}
+                                                    data-product-id={priceBookEntry.ProductId}
+                                                    data-unit-price={priceBookEntry.UnitPrice}
+                                                    class="svmx-cli-detail-checkbox_select">
+                                                </lightning-input>
+                                            </div>
+                                        </th>
+                                        <th role="gridcell" class="slds-truncate" scope="col" >
+                                            <div>{priceBookEntry.Name}</div>
+                                        </th>
+                                        <th role="gridcell" class="slds-truncate" scope="col" >
+                                            <div>{priceBookEntry.ProductCode}</div>
+                                        </th>
+                                        <th role="gridcell" class="slds-truncate" scope="col" >
+                                            <div>
+                                                <lightning-formatted-number value={priceBookEntry.UnitPrice} format-style="currency" currency-code={currencyCode}></lightning-formatted-number>
+                                            </div>
+                                        </th>
+                                        <th role="gridcell" class="slds-truncate slds-cell-wrap" scope="col" >
+                                            <div class="slds-line-clamp">
+                                                <lightning-formatted-text title={priceBookEntry.Description} value={priceBookEntry.Description}></lightning-formatted-text>
+                                            </div>
+                                        </th>
+                                        <th role="gridcell" class="slds-truncate" scope="col" >
+                                            <div>{priceBookEntry.Family}</div>
+                                        </th>
+                                    </tr>
+                                </template>
+                            </template>
+                        </tbody>
+                    </table>
+                    <div if:true={apiInProgress} class="slds-is-relative">
+                        <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium">
+                        </lightning-spinner>
+                    </div>
+                    <template if:true={noRecordsFound}>
+                        <lightning-formatted-text class="slds-align_absolute-center slds-p-top_x-large no-data" value={i18n.noResults}>
+                        </lightning-formatted-text>
+                    </template>
+                </div>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                    onclick={clearValues} class="slds-p-right_x-small svmx-cli-detail-priceBookEntry-modal-cancel_btn">
+                </lightning-button>
+                <lightning-button class="svmx-cli-detail-priceBookEntry-modal-next_btn" label={i18n.next}
+                    title={i18n.next} variant="brand" onclick={handleNextProductSelection} disabled={showNextProductSelection}>
+                </lightning-button>
+            </div>
+        </c-modal-dialog>
+    </div>
+
+    <!--CLI Plan Record create or edit modal-->
+    <div class="svmx-cli-detail">
+        <c-modal-dialog title={i18n.editTitle} class="svmx-cli-detail_modal"
+            size="LARGE" is-open={contractLineModalOpen} modal-content-id="cliModalContent"
+            modal-header-id="cliModalHeader" onmodalclosed={clearValues}>
+            <div slot="body">
+                <template if:true={error}>
+                    <div class="slds-box slds-theme_error slds-p-left_medium slds-p-right_medium" role="alert">
+                        <p>{i18n.reviewError}</p>
+                    </div>
+                    <div
+                        class="slds-text-color_error slds-p-left_large slds-p-top_xx-small svmx-cli-edit_error">
+                        {error}
+                    </div>
+                </template>
+                <div class="slds-p-around_x-small" style="height: 400px;">
+                    <table class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered slds-table_fixed-layout svmx-cli-edit_table">
+                        <thead>
+                            <tr class="slds-line-height_reset">
+                                <th class="slds-size_1-of-16" scope="col" style="width:4.25rem;height:2.3rem">
+                                    <div class="slds-truncate slds-assistive-text" title={i18n.serialNumber}></div>
+                                </th>
+                                <th class="slds-size_2-of-16" scope="col">
+                                    <div class="slds-truncate" title={i18n.product}>{i18n.product}</div>
+                                </th>
+                                <th class="slds-size_2-of-16" scope="col">
+                                    <div class="slds-truncate" title={i18n.assetName}>{i18n.assetName}</div>
+                                </th>
+                                <th class="slds-size_1-of-16" scope="col">
+                                    <div class="slds-truncate" title={i18n.listPrice}>{i18n.listPrice}</div>
+                                </th>
+                                <th class="slds-size_2-of-16" scope="col">
+                                    <div class="slds-truncate" title={i18n.startDate}>{i18n.startDate}</div>
+                                </th>
+                                <th class="slds-size_2-of-16" scope="col">
+                                    <div class="slds-truncate" title={i18n.endDate}>{i18n.endDate}</div>
+                                </th>
+                                <th class="slds-size_2-of-16" scope="col">
+                                    <div class="slds-truncate" title={i18n.salesPrice}><abbr class="slds-required" title="required">* </abbr>{i18n.salesPrice}</div>
+                                </th>
+                                <th class="slds-size_2-of-16" scope="col">
+                                    <div class="slds-truncate" title={i18n.quantity}><abbr class="slds-required" title="required">* </abbr>{i18n.quantity}</div>
+                                </th>
+                                <th class="slds-size_2-of-16" scope="col">
+                                    <div class="slds-truncate" title={i18n.discount}>{i18n.discount}</div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={cliRecords} for:item="cli" for:index="indexVar">
+                                <tr key={cli.sNo} class="slds-hint-parent">
+                                    <td class="slds-size_1-of-16">
+                                        <div  title={cli.sNo}>{cli.sNo}</div>
+                                    </td>
+                                    <td class="slds-size_2-of-16">
+                                        <div  title={cli.item.productName}>{cli.item.productName}</div>
+                                    </td>
+                                    <td class="slds-size_2-of-16">
+                                        <c-svmx-lookup
+                                            data-field="assetId"
+                                            data-id={cli.item.priceBookEntryId}
+                                            icon-name="standard:asset_object"
+                                            target-object-api-name="Asset"
+                                            target-label-api-name={assetNameField}
+                                            onlookupselect={handleChange}
+                                            value={cli.item.assetId}
+                                            filters={cli.filterString}
+                                            class="svmx-cli-detail_assetId">
+                                        </c-svmx-lookup>
+                                    </td>
+                                    <td class="slds-size_1-of-16">
+                                        <div>
+                                            <lightning-formatted-number value={cli.item.listPrice} format-style="currency" currency-code={currencyCode}></lightning-formatted-number>
+                                        </div>
+                                    </td>
+                                    <td class="slds-size_2-of-16">
+                                        <lightning-input
+                                            data-field="startDate"
+                                            type="date"
+                                            autocomplete="off"
+                                            data-id={cli.item.priceBookEntryId}
+                                            value={cli.item.startDate}
+                                            onchange={handleChange}
+                                            variant="label-hidden"
+                                            message-when-bad-input={badInputMessage}
+                                            date-style="short"
+                                            class="svmx-cli-detail_startDate required-input"
+                                            min={scStartDate} max={scEndDate}
+                                        ></lightning-input>
+                                    </td>
+                                    <td class="slds-size_2-of-16">
+                                        <lightning-input
+                                            data-field="endDate"
+                                            type="date"
+                                            autocomplete="off"
+                                            data-id={cli.item.priceBookEntryId}
+                                            value={cli.item.endDate}
+                                            onchange={handleChange}
+                                            variant="label-hidden"
+                                            message-when-bad-input={badInputMessage}
+                                            date-style="short"
+                                            class="svmx-cli-detail_endDate required-input"
+                                            min={scStartDate} max={scEndDate}
+                                        ></lightning-input>
+                                    </td>
+                                    <td class="slds-size_2-of-16">
+                                        <div>
+                                            <lightning-input 
+                                                data-field="unitPrice" 
+                                                type="number"
+                                                autocomplete="off"
+                                                data-id={cli.item.priceBookEntryId}
+                                                name={i18n.salesPrice}
+                                                value={cli.item.unitPrice}
+                                                variant="label-hidden"
+                                                onchange={handleChange}
+                                                formatter={formatterType}
+                                                step="0.01"
+                                                required
+                                                message-when-step-mismatch={currencyStepMismatchMessage} 
+                                                max={currencyMaxValue}
+                                                message-when-range-overflow={currencyStepMismatchMessage} 
+                                                message-when-value-missing={i18n.valueMissing}
+                                                class="svmx-cli-detail_salesPrice required-input">
+                                            </lightning-input>
+                                        </div>
+                                    </td>
+                                    <td class="slds-size_2-of-16">
+                                        <div  title={cli.item.quantity}>
+                                            <lightning-input
+                                                data-field="quantity"
+                                                type="number"
+                                                autocomplete="off"
+                                                data-id={cli.item.priceBookEntryId}
+                                                name={i18n.quantity}
+                                                value={cli.item.quantity}
+                                                onchange={handleChange}
+                                                variant="label-hidden"
+                                                step="1"
+                                                required
+                                                min="0"
+                                                class="svmx-cli-detail_quantity required-input">
+                                            </lightning-input>
+                                        </div>
+                                    </td>
+                                    <td class="slds-size_2-of-16">
+                                        <div  title={cli.item.discount}>
+                                            <lightning-input
+                                                data-field="discount"
+                                                type="number"
+                                                autocomplete="off"
+                                                data-id={cli.item.priceBookEntryId}
+                                                value={cli.item.discount}
+                                                variant="label-hidden"
+                                                onchange={handleChange}
+                                                formatter="percent-fixed"
+                                                step="0.01"
+                                                min="0"
+                                                max="100"
+                                                message-when-step-mismatch={percentStepMismatchMessage} 
+                                                message-when-range-overflow={i18n.discountError}
+                                                message-when-range-underflow={i18n.discountError}
+                                                class="svmx-cli-detail_discount required-input">
+                                            </lightning-input>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.back} title={i18n.back} variant="neutral"
+                    onclick={handleBackCLI} class="slds-float_left svmx-cli-edit_modal-back_btn">
+                </lightning-button>
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                    onclick={clearValues} class="slds-p-right_x-small svmx-cli-edit_modal-cancel_btn">
+                </lightning-button>
+                <lightning-button class="svmx-cli-edit_modal-confirm_btn" label={i18n.save}
+                    title={i18n.save} variant="brand" onclick={handleSave}>
+                </lightning-button>
+            </div>
+        </c-modal-dialog>
+    </div>
+</template>

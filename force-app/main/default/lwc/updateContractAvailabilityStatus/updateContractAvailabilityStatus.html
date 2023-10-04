@@ -1,0 +1,63 @@
+<template>
+    <template if:true={openModal}>
+        
+        <header class="slds-modal__header">
+            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                title={i18n.lnkClose} onclick={handleCancel}>
+                <lightning-icon icon-name="utility:close" size="small" variant="bare"
+                    alternative-text={i18n.lnkClose} title={i18n.lnkClose}></lightning-icon>
+            </button> 
+            <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">
+                {i18n.updateContractStatus}
+            </h2> 
+        </header>
+        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+            <div class="slds-grid slds-wrap">
+                <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                    <lightning-combobox data-field="statusValues"
+                        class="svmx-contract-status-values"
+                        label={statusLabel} value={contractInfo.authoringStatus} options={contractStatusOptions}
+                        onchange={handleStatusChange}>
+                    </lightning-combobox>
+                </div>
+                
+                <template if:true={isContractCanceled}>
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                        <lightning-input 
+                            type="date" 
+                            name="canceledOn" 
+                            label={canceledOnLabel} 
+                            value={contractInfo.canceledOn} 
+                            onchange={handleDateChange}
+                            required="true"
+                            max={canceledOnMax}
+                            message-when-range-overflow={i18n.errorCanceledOn}
+                            class="svmx-canceled-on-date">
+                        </lightning-input>
+                    </div>
+                </template>
+                <div class="slds-col slds-size_12-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                    <lightning-textarea
+                        class="svmx-status-notes-input"
+                        name="statusNotes"
+                        label={statusNotesLabel}
+                        value={contractInfo.statusNotes}
+                        data-field="statusNotes"
+                        onchange={handleFieldChange}
+                    ></lightning-textarea>
+                </div>
+                
+            </div>
+        </div>
+        
+        <footer class="slds-modal__footer">
+            <button type="button" class="slds-button slds-button_neutral slds-p-right_x-small" onclick={handleCancel}>{i18n.cancel}</button>
+            <button type="button" class="slds-button slds-button_brand slds-p-right_x-small" onclick={handleSave} disabled={disableSave}>{i18n.save}</button>
+        </footer>
+                
+            
+        <template if:true={apiInProgress}>
+            <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+        </template> 
+    </template>  
+</template>

@@ -1,0 +1,31 @@
+.svmx-pricebook-assignment_is-view {
+    border-bottom: var(--lwc-borderWidthThin,1px) solid var(--lwc-colorBorder,rgb(221, 219, 218));
+}
+
+.svmx-pricebook-assignment_view-container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.slds-pricebook-assignment_form-item {
+    padding-left: var(--lwc-spacingSmall,0.75rem);
+    padding-right: var(--lwc-spacingSmall,0.75rem);
+    width: 50%;
+}
+
+.slds-pricebook-assignment_form-element-static {
+    width: auto;
+}
+
+.svmx-pricebook-assignment_padding-bottom {
+    padding-bottom: 50px;
+}
+
+.svmx-pricebook-assignment_help-icon {
+    /* Reason for negative margin-top - Bydefault, 0.25rem top padding gets added to the help icon due to which icon is not aligned with the text.*/
+    margin-top: -4px;
+    margin-left: 2px;
+    position: absolute;
+}

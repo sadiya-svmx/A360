@@ -1,0 +1,43 @@
+<template>
+  <template if:true={error}>
+    <c-alert variant="error">{error}</c-alert>
+  </template>
+  <c-svmx-page-header 
+    title={i18n.autoConfig}
+    icon-name={srcIconName}  
+    sub-title={i18n.appConfig}
+    icon-title={i18n.autoConfig} 
+    icon-size={iconSize}
+    is-object-home = "Object"
+  >
+    <lightning-button-icon
+      icon-name="utility:question"
+      variant="bare"
+      alternative-text={i18n.help}
+      class="svmx-help-link-button slds-m-left_x-small"
+      title={i18n.help}
+      slot="actions"
+      onclick={handleHelpClick}
+    >
+    </lightning-button-icon>
+  </c-svmx-page-header>
+  <template if:true={apiInProgress}>
+		<lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+	</template>
+  <lightning-card>
+      <div class="slds-text-heading_small slds-p-horizontal_medium">
+        <p class="slds-p-bottom_medium">{i18n.autoConfigText1}</p>
+        <p class="slds-p-bottom_medium" >{i18n.autoConfigText2}</p>
+        <p class="slds-p-bottom_medium" >{i18n.autoConfigText3}</p>
+        <p >
+          <lightning-button
+            data-id="autoConfigButton"
+            variant="base"
+            label={i18n.autoConfigurationButton}
+            onclick={handleClick}
+          >
+          </lightning-button>
+        </p>
+      </div>
+  </lightning-card>
+</template>

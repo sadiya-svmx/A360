@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>A360 - SPM Screen</masterLabel>
+    <description>Configurable SPM Screen Template</description>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <!-- Configuring the design attributes -->
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen" configurationEditor="svmxa360-template-generic--header-editor">
+            <!-- layout name to retrive -->
+            <property name="developerName" type="String" role="inputOnly" label="Developer Name" />
+
+            <!-- Header Record Data  -->
+            <propertyType name="H" extends="SObject" label="Object for Source Records (Input)" />
+            <property name="headerRecordData" type="{H[]}" label="Source Record Collection" />
+
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

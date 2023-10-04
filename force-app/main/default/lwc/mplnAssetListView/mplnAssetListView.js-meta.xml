@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>A360 - Manage Maintenance Assets</masterLabel>
+    <targets>
+        <target>lightning__FlowScreen</target>
+        <target>lightning__RecordPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="recordId" type="String" label="Source Record Id" required="true" role="inputOnly"/>
+            <property name="templateId" type="String" label="Maintenance Plan Template record Id" required="true" role="inputOnly"/>
+            <property name="selectedExpressionId" type="String" label="Asset Qualification Criteria" required="false" role="inputOnly"/>
+            <property name="maintenanceAssetRecords" type="@salesforce/schema/SVMXA360__SM_MaintenancePlanAsset__c[]" label="Maintenance Asset Records" role="outputOnly"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

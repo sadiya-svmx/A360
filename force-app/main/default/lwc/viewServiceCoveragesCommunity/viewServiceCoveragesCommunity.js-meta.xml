@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>A360 – View Service Coverages for Community</masterLabel>
+    <description>Lightning Component to view Service Coverage details in Community</description>
+    <targets>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="recordId" default="{!recordId}" type="String" label="Record ID" description="Asset Parent ID should be set to {!recordId}"/>
+            <property name="objectApiName" type="String" label="Object API Name" description="Should be set to the API name of the object."/>
+            <property name="assetField" label="Asset Field API Name" type="String" description="Enter the asset field API Name. Service Coverages for this asset will be displayed." />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

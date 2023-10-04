@@ -1,0 +1,23 @@
+.container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.svmx-is-view {
+    border-bottom: var(--lwc-borderWidthThin,1px) solid var(--lwc-colorBorder,rgb(221, 219, 218));
+}
+
+.slds-form__item {
+    padding-left: slds-p-horizontal_small;
+    padding-right: slds-p-horizontal_small;
+}
+
+.slds-form-element__static {
+    width: auto;
+}
+
+.rule-accordion-section {
+    display: inherit;
+}

@@ -1,0 +1,33 @@
+.listbox-container {
+    display: block;
+    min-width: 12rem; 
+    max-width: 100%;
+    max-height: calc((1.5rem + 1rem) * 10);  
+    width: 100%; 
+}
+
+:host.combo-has-error [role=combobox] div.slds-combobox__form-element input.combo-input {
+    background-color:var(--lwc-colorBackgroundAlt,rgb(255, 255, 255)); 
+    border-color:var(--lwc-colorBorderError,rgb(194, 57, 52)); 
+    box-shadow:var(--lwc-colorBorderError,rgb(194, 57, 52)) 0 0 0 var(--lwc-borderWidthThin,1px) inset; 
+    background-clip:padding-box;
+}
+
+:host.combo-has-error .slds-form-element__help {
+    color: var(--lwc-colorTextError, rgb(194, 57, 52));
+}
+
+:host.slds-form-element_stacked:not(.slds-is-editing) {
+    padding: 0;
+}
+
+.selection-group {
+    position: inherit;
+    padding: 0;
+    overflow: auto;
+    height: auto;
+}
+
+.svmx-combobox__dropdown {
+    width: 100%;
+}

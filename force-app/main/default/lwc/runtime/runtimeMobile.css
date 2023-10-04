@@ -1,0 +1,25 @@
+.svmx-app-header {
+    border-width: var(
+        --slds-c-card-sizing-border,
+        var(--sds-c-card-sizing-border, 1px)
+    );
+
+    border-style: solid;
+
+    border-color: var(
+        --slds-c-card-color-border,
+        var(--sds-c-card-color-border, rgb(201, 201, 201))
+    );
+
+    border-top-left-radius: var(
+        --slds-c-card-radius-border,
+        var(--sds-c-card-radius-border, 0.25rem)
+    );
+
+    border-top-right-radius: var(
+        --slds-c-card-radius-border,
+        var(--sds-c-card-radius-border, 0.25rem)
+    );
+
+    border-bottom: none;
+}

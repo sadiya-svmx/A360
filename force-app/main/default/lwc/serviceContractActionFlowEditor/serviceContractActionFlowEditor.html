@@ -1,0 +1,72 @@
+<template>
+    <lightning-card title={i18n.title}
+        class="slds-grid slds-grid_vertical slds-scrollable_y">
+        <div class="slds-card__body slds-card__body_inner">
+            <div class="slds-m-left_xx-small slds-p-top_small slds-p-horizontal_xx-large">
+                <div class="slds-media slds-m-bottom_medium">
+                    <lightning-radio-group
+                        required
+                        label={i18n.actionType}
+                        name="radioButtonGroup"
+                        class="svmx-action-property-editor"
+                        onchange={handleToggleChange}
+                        options={actionTypeOptions}
+                        value={operationTypeValue}
+                        type="radio">
+                    </lightning-radio-group>
+                </div>
+                <template if:true={operationTypeValue}>
+                    <template for:each={actionProperties} for:item="obj">
+                        <div key={obj.field.propertyName} class="slds-media slds-m-bottom_medium">
+                            <template if:false={obj.field.customType}>
+                                <c-combobox
+                                    filterable
+                                    required={obj.field.required}
+                                    class="svmx-action-property-editor"
+                                    variant="label-stacked"
+                                    placeholder={i18n.searchResources}
+                                    label={obj.field.label}
+                                    data-field={obj.field.propertyName}
+                                    message-when-value-missing={i18n.requiredFieldMsg}
+                                    value={obj.value}
+                                    field-level-help={obj.field.helpText}
+                                    items={obj.options}
+                                    onchange={handleChange}>
+                                </c-combobox>
+                            </template>
+                        </div>
+                        <div key={obj.field.propertyName}>
+                            <template if:true={obj.field.customType}>
+                                <div class="svmx-action-property_form slds-form-element slds-form-element_horizontal">
+                                    <label class="slds-form-element__label">
+                                        <span class="svmx-property-name" title={obj.field.label}>
+                                            <template if:true={obj.field.required}>
+                                                <abbr class="slds-required" title="required">*</abbr>
+                                            </template>
+                                            {obj.field.label}
+                                        </span>
+                                    </label>
+                                    <div class="slds-form-element__control">
+                                        <lightning-input
+                                            type="toggle"
+                                            label={obj.field.label}
+                                            variant="label-hidden"
+                                            class="svmx-cliplan-toggle"
+                                            data-field={obj.field.propertyName}
+                                            message-toggle-active="true" 
+                                            message-toggle-inactive="false"
+                                            onchange={handleCLIPlanProductToggle}
+                                            checked={isLookUpOnCLIPlanProduct}
+                                            required={obj.field.required}
+                                            field-level-help={obj.field.helpText}>
+                                        </lightning-input>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </template>                
+            </div>
+        </div>
+    </lightning-card>
+</template>

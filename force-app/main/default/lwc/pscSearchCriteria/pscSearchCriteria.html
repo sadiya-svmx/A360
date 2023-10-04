@@ -1,0 +1,237 @@
+<template>
+    
+    <div class="psc-search_container">
+            <lightning-card>
+                <div class="psc-search-card_header slds-p-around_medium">
+                    <template if:true={error}>
+                        <c-alert variant="error">{error}</c-alert>
+                    </template>
+                <div class="slds-page-header__row">
+                    <div class="slds-page-header__col-title">
+                        <div class="slds-media">
+                            <div class="slds-media__figure">
+                                <lightning-icon icon-name="standard:search"
+                                    alternative-text={i18n.searchCardTitle} title={i18n.searchCardTitle}>
+                                </lightning-icon>
+                            </div>
+                            <div class="slds-media__body">
+                                <div class="slds-page-header__name">
+                                    <div class="slds-page-header__name-title">
+                                        <span class="slds-page-header__title slds-truncate" title={i18n.searchCardTitle}>{i18n.searchCardTitle}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-page-header__col-actions">
+                        <div class="slds-page-header__controls">
+                            <div class="slds-page-header__control">
+                                <lightning-button class="review_edit_btn" disabled={isEditDisabled}
+                                    variant="base" label={reviewEditButtonLabel} onclick={onModalOpenHandler}></lightning-button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div if:false={isCriteriaDefined} class="slds-p-top_small slds-p-horizontal_large">
+                    <div class="slds-text-align_center missing_criteria">
+                        {i18n.searchCriteriaNotDefinedMessage_A}
+                        <span class="slds-m-horizontal_x-small"><b>{i18n.edit}</b></span>
+                        {i18n.searchCriteriaNotDefinedMessage_B}
+                    </div>
+                </div>
+                <div if:true={isCriteriaDefined} class="fixed_height_expression_list">
+                    <template for:each={expressionDetailList} for:item="item">
+                        <div key={item.index} class="slds-border_bottom">
+                            <span class="exp_index">{item.index}</span>
+                            <span class="exp_fieldName">{item.fieldAPIName}</span>
+                            <span class="exp_operator">{item.operator}</span>
+                            <span class="exp_operand">{item.operand}</span>
+                        </div>
+                    </template>
+                </div>
+                <div if:true={isCriteriaDefined} class="psc-search-criteria_adv-expression">
+                    <h3>{i18n.advanceExpTitle}</h3>
+                    <div class="adv_expr_txt">{advanceExpression}</div>
+                </div>
+                <div if:true={showSearchProgressBar} class="search_progress">
+                    
+                            <div class="content">
+                                <h3>{i18n.searchInProgress}</h3>
+                                <lightning-progress-bar value={progressCounter} size="large"></lightning-progress-bar>
+                            </div>
+                        
+                </div>
+                <div slot="footer" class="card_footer">
+                    <lightning-button if:true={isCriteriaDefined} variant="brand" onclick={showSearchModal}
+                        disabled={disableSearch}
+                        title={i18n.runSearchButton} 
+                        label={i18n.runSearchButton}  class="slds-m-left_x-small"></lightning-button>
+                </div>
+                
+            </lightning-card>
+        
+    </div>
+
+    <c-modal-dialog 
+        title={i18n.editExpressionModalTitle} 
+        is-open={modalOpen} 
+        onmodalclosed={onModalCloseHandler}
+        size="MEDIUM_FIXED"
+    >
+        <div slot="body">
+            <template if:true={error}>
+                <c-alert variant="error">{error}</c-alert>
+            </template>
+            <div class="criteria_dialog">
+                <lightning-layout vertical-align="center">
+                    <lightning-layout-item  padding="around-small">
+                        <div class="center_align">{i18n.searchForLabel}</div>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="around-small">
+                        <lightning-radio-group 
+                            name="radioGroup"
+                            options={options}
+                            value={radioOptionValue}
+                            onchange={handleRadioChange}
+                            disabled={isExpressionBlockedForEditing}
+                            type="button">
+                        </lightning-radio-group>
+                    </lightning-layout-item>
+                    <lightning-layout-item  class="slds-m-top_x-small"
+                        flexibility="auto" padding="around-small">
+                        <c-svmx-lookup
+                            target-object-api-name={lookupObjectApiName}
+                            value={latestProductIdForPSC}
+                            disabled={isLookupDisabled}
+                            icon-name={lookupIcon}
+                            onlookupselect={onLookupChange}
+                            target-label-api-name={referenceNameFields}
+                            advanced-search-config={advancedSearchConfig}
+                        ></c-svmx-lookup>
+                    </lightning-layout-item>
+                    <lightning-layout-item if:true={isExpressionBlockedForEditing} padding="around-small">
+                        <div class="hoverButton">
+                            <lightning-button 
+                                variant="brand-outline"
+                                name="EditSearch" 
+                                label={i18n.editSearchButton}
+                                title={i18n.editSearchButton}
+                                onclick={handleEditSearchCriteria}
+                                class="slds-m-left_x-small edit_search_btn">
+                            </lightning-button>
+                            <div class="hoverMessage">
+                                <div>{i18n.editSearchHoverMessage_A}</div>
+                                <div>{i18n.editSearchHoverMessage_B}</div>
+                                <lightning-icon  icon-name="utility:play" class="right_arrow"></lightning-icon>
+                            </div>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </div>
+           
+           <div class="scrollable">
+               <div class="slds-card__body slds-card__body_inner">
+                   <div if:false={isEditable} class="disable_screen"></div>
+                   <c-expression-builder 
+                       class="svmx-expression-builder"
+                       expression-data={expressionData}
+                       entity-definition={entityDefinition} 
+                       edit-mode
+                       ontoggleedit={toggleEdit}
+                   ></c-expression-builder>
+               </div>
+           </div>
+           <h3 if:true={isEditable} class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate slds-p-horizontal_small">
+             {i18n.resultsPreview}</span>
+           </h3>
+           <div if:true={isEditable} class="preview_section">
+            <template if:true={isServerCallInProgress}>
+                <lightning-spinner variant="brand" size="large" class="serverCallProgress"></lightning-spinner>
+            </template>
+            <template if:true={isMaxSearchRecordLimitReached}>
+                <c-alert variant="warning">{warningMessageLabel}</c-alert>
+            </template>
+            <lightning-layout horizontal-align="spread">
+                <lightning-layout-item padding="around-small">
+                    <div class="results_obtained">
+                        <h3 class="slds-page-header__title">
+                            {previewItemsCount}
+                        </h3>
+                        <div class="center_align">
+                            {i18n.estimatedItems}
+                        </div>
+                        <div class="center_align">
+                            <lightning-button-stateful
+                            title={i18n.showPreviewButton}
+                            label-when-off={i18n.showPreviewButton}
+                            label-when-on={i18n.reloadLabel}
+                            icon-name-when-off="utility:preview"
+                            icon-name-when-on="utility:refresh"
+                            selected={resultsPreviewSelected}
+                            onclick={handlePreviewClick}>
+                            </lightning-button-stateful>
+                        </div>
+                       
+                    </div>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small">
+                    <div>
+                        <lightning-datatable
+                            key-field="id"
+                            hide-checkbox-column
+                            data={tableData}
+                            columns={columns}>
+                       </lightning-datatable>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+           </div>
+        </div>
+        <div slot="footer">
+            <lightning-button 
+                label={i18n.cancelExpressionButton}
+                name="CancelExpression"
+                onclick={onModalCloseHandler}
+                class="slds-m-left_x-small cancel_expression_modal">
+            </lightning-button>
+            <lightning-button 
+                variant="brand"
+                label={i18n.saveExpressionButton}
+                disabled={isExpressionBlockedForEditing}
+                name="SaveExpression"
+                onclick={onPopupSave} 
+                class="slds-m-left_x-small save_expression_modal">
+            </lightning-button>
+        </div>
+    </c-modal-dialog>
+
+    <c-modal-dialog 
+        title={i18n.confirmSearchTitle} 
+        is-open={confirmSearchModalOpen} 
+        onmodalclosed={onSearchModalCloseHandler}
+    >
+    <div slot="body">
+        <div class="confirm_dialog">
+           {i18n.resultLineNotification}
+        </div>
+    </div>
+       <div slot="footer">
+        <lightning-button 
+            label={i18n.cancelRunSearch}
+            name="Cancel"
+            onclick={onSearchModalCloseHandler}
+            class="slds-m-left_x-small cancel_search">
+        </lightning-button>
+        <lightning-button 
+            variant="brand"
+            label={i18n.confirmSearchButton}
+            title={i18n.confirmSearchButton} 
+            name="Run Search"
+            onclick={onRunSearch}
+            class="slds-m-left_x-small">
+        </lightning-button>
+    </div>
+</c-modal-dialog>
+</template>

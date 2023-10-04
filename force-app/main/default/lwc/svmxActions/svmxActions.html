@@ -1,0 +1,47 @@
+<template>
+    <template if:false={loading}>
+        <template if:true={hasActions}>
+            <lightning-button-group
+                class={computedInputClass}
+            >
+                <!-- Visible Actions -->
+                <template
+                    for:each={_visibleActions}
+                    for:item="action"
+                >
+                    <lightning-button
+                        key={action.name}
+                        data-action-name={action.name}
+                        label={action.label}
+                        icon-name={action.icon}
+                        onclick={_handleActionClick}
+                        class="svmx-actions_button"
+                    ></lightning-button>
+                </template>
+        
+                <!-- Hidden Actions Section -->
+                <template if:true={_hasHiddenActions}>
+                    <lightning-button-menu
+                        alternative-text={_i18n.viewHiddenActions}
+                        class="svmx-actions_button-menu"
+                        menu-alignment="auto"
+                    >
+                        <template
+                            for:each={_hiddenActions}
+                            for:item="action"
+                        >
+                            <lightning-menu-item
+                                key={action.name}
+                                data-action-name={action.name}
+                                label={action.label}
+                                icon-name={action.icon}
+                                onclick={_handleActionClick}
+                                class="svmx-actions_menu-item"
+                            ></lightning-menu-item>
+                        </template>
+                    </lightning-button-menu>
+                </template>
+            </lightning-button-group>
+        </template>
+    </template>
+</template>

@@ -1,0 +1,22 @@
+@import 'c/xMobileStyle';
+
+.svmx-lookup_multiple {
+    display: inline-block;
+}
+
+.svmx-lookup_help-icon {
+    /* Reason for negative margin-top - Bydefault, 0.25rem top padding gets added to the help icon due to which icon is not aligned with the text.*/
+    margin-top: -4px;
+    margin-left: 2px;
+    position: absolute;
+}
+
+.slds-input-has-icon .slds-input__icon:not(button) {
+    pointer-events: auto;
+}
+
+.svmx-fab.slds-button {
+	background-color: #33bce7;
+	border-radius: 50%;
+	box-shadow: 0px 4px 4px 0px #00000040;
+}

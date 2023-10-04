@@ -1,0 +1,56 @@
+<template>
+    <lightning-card title={i18n.title} icon-name="standard:contract_line_item">
+        <template if:true={error}>
+            <c-alert variant="error">{error}</c-alert>
+        </template>
+        
+        <c-contract-price-line-item-plan-detail onrefresh={handleRefresh}></c-contract-price-line-item-plan-detail>
+        
+        <div slot="actions" class="slds-grid slds-wrap">
+            <lightning-input type="search" autocomplete="off" placeholder={i18n.placeholderCPLIPlan}
+                variant="label-hidden" title={i18n.placeholderCPLIPlan}
+                class="slds-col svmx-contract-price-line-item-plans-list-view_text-search"
+                onchange={handleSearchKeyChange}>
+            </lightning-input>
+            <lightning-button icon-name="utility:add" label={i18n.newPlan} title={i18n.newPlan} variant="neutral"
+                onclick={handleNewRecord}
+                class="slds-col slds-m-left_x-small svmx-contract-price-line-item-plans-list-view_button-new">
+            </lightning-button>
+        </div>
+        <div class="slds-m-around_medium">
+            <div if:true={listViewRecords} class="slds-text-align_left">
+                {recordCountInfo}
+            </div>
+            <div style={computedDataTableHeight}>
+                <div if:true={apiInProgress} class="slds-is-relative">
+                    <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium">
+                    </lightning-spinner>
+                </div>
+                <div if:true={noRecordsFound} class="slds-align_absolute-center no-data">
+                    {i18n.noResults}
+                </div>
+                <template if:true={listViewRecords}>
+                    <lightning-datatable class="svmx-contract-price-line-item-plans-list-view_table" key-field="id"
+                        data={listViewRecords} columns={columns} onrowaction={handleRowAction} hide-checkbox-column>
+                    </lightning-datatable>
+                </template>
+            </div>
+        </div>
+        <c-modal-dialog title={i18n.deletePriceLineItemPlan}
+            class="svmx-contract-price-line-item-plan-list-view_delete-modal" is-open={deleteModalDialogOpen}
+            modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={handleCancelModal}>
+            <div slot="body">
+                <p>
+                    <lightning-formatted-text class="slds-align_absolute-center" value={i18n.deleteConfirmMessage}>
+                    </lightning-formatted-text>
+                </p>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal}
+                    class="slds-p-right_x-small svmx-delete-modal_cancel-btn"></lightning-button>
+                <lightning-button class="svmx-delete-modal_confirm-btn" label={i18n.confirm} title={i18n.confirm}
+                    variant="brand" onclick={handleDeleteConfirmModal}></lightning-button>
+            </div>
+        </c-modal-dialog>
+    </lightning-card>
+</template>

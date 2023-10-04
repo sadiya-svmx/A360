@@ -1,0 +1,129 @@
+<template>
+    <c-modal-dialog
+        is-open= {_dropdownVisible}
+        modal-content-id="comboboxContentId"
+        modal-header-id="comboxboxHeaderId"
+        section-class="svmx-modal-content_min-height slds-p-around_none"
+        size="X_SMALL"
+        onmodalclosed={closeDropdown}
+        relative-to-viewport
+        head-less
+        >
+            <div slot="header">
+                <button class="svmx-modal__close" onclick={closeDropdown}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path 
+                        fill-rule="evenodd" 
+                        clip-rule="evenodd" 
+                        d="M21.0343 5.59099C21.6201 5.00521 21.6201 4.05546 21.0343 3.46967C20.4485 2.88389 19.4988 2.88389 18.913 3.46967L12.2519 10.1308L5.5908 3.46968C5.00501 2.88389 4.05526 2.88389 3.46947 3.46967C2.88369 4.05546 2.88369 5.00521 3.46948 5.591L10.1306 12.2521L3.46947 18.9132C2.88369 19.499 2.88369 20.4487 3.46947 21.0345C4.05526 21.6203 5.00501 21.6203 5.59079 21.0345L12.2519 14.3734L18.913 21.0345C19.4988 21.6203 20.4485 21.6203 21.0343 21.0345C21.6201 20.4487 21.6201 19.499 21.0343 18.9132L14.3732 12.2521L21.0343 5.59099Z"
+                        fill="#FAFAF9"> </path>
+                    </svg>
+                </button>
+            </div>
+            <div slot="body">
+                <div class={computedListBoxClass}>
+                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                        <template for:each={filteredItems} for:item="item">
+                            <li role="presentation" key={item.value} class="slds-listbox__item">
+                                <div aria-checked="true" 
+                                    id={item.value} 
+                                    data-value={item.value} 
+                                    onclick={handleOptionClick} 
+                                    class={item.containerCss} 
+                                    role="option">
+                                    <span class="slds-media__figure slds-listbox__option-icon">
+                                        <template if:true={item.highlight}>
+                                            <div>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M12.3965 1.3467L5.91628 11.6257L1.00024 8.05041" stroke="#0070D2" stroke-width="2" stroke-linecap="round"> 
+                                                    </path>
+                                                </svg>
+                                            </div>
+                                        </template>
+                                    </span>
+                                    <template if:true={item.iconName}>
+                                        <span class="slds-media__figure">
+                                            <lightning-icon size="x-small" icon-name={item.iconName}></lightning-icon>
+                                        </span>
+                                    </template>
+                                    <span class="svmx-picklist_item_label slds-media__body slds-border_bottom">
+                                        <span class="slds-listbox__option-text slds-listbox__option-text_entity">{item.label}</span>
+                                        <template if:true={item.secondary}>
+                                            <span class="slds-listbox__option-meta slds-listbox__option-meta_entity slds-text-color_inverse-weak">{item.secondary}</span>                                        
+                                        </template>
+                                    </span>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
+                    <template if:true={showDropdownActivityIndicator}>
+                        <div role="presentation" class="slds-listbox__item">
+                            <div class="slds-align_absolute-center slds-p-top_medium">
+                                <div role="status" class="slds-spinner slds-spinner_x-small slds-spinner_inline">
+                                    <span class="slds-assistive-text">{i18n.loadingText}</span>
+                                    <div class="slds-spinner__dot-a"></div>
+                                    <div class="slds-spinner__dot-b"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>                        
+                </div>
+            </div>
+    </c-modal-dialog>
+    <div class={computedComboboxClass}>
+        <label class={computedLabelClass} for="input">
+            <template if:true={required}>
+                <abbr class="slds-required" title={i18n.required}>*</abbr>
+            </template>
+            {label}
+        </label>    
+        
+        <lightning-helptext if:true={_fieldLevelHelp} content={_fieldLevelHelp}></lightning-helptext>
+        
+        <div class="svmx-combobox__dropdown slds-form-element__control">
+            <template if:true={readOnly}>
+                <div class="slds-form-element__static">{computedInputValue}</div>
+            </template>
+            <template if:false={readOnly}>
+                <div class="slds-combobox_container">
+                    <div class={computedDropdownTriggerClass} aria-expanded={computedAriaExpanded} aria-haspopup="listbox" role="combobox" onclick={handleTriggerClick}>
+                    <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                        <input type="text" 
+                            class={computedInputClass} 
+                            id="input" 
+                            aria-controls="listbox-id-7" 
+                            autocomplete="off" 
+                            aria-autocomplete="none"
+                            role="textbox" 
+                            disabled={disabled} 
+                            placeholder={placeholder} 
+                            readonly 
+                            value={computedInputValue}
+                            onfocus={handleFocus}
+                            onselect={handleInputSelect}
+                            />
+                        <lightning-icon icon-name="utility:down" size="xx-small" class="slds-input__icon slds-input__icon_right"></lightning-icon>
+                    </div>
+                    <div id="dropdown-element"
+                        data-dropdown-element
+                        class="slds-dropdown slds-dropdown_length-7 slds-dropdown_fluid"
+                        role="listbox"
+                        onscroll={handleListboxScroll}
+                        onmousedown={handleDropdownMouseDown}
+                        onmouseleave={handleDropdownMouseLeave}
+                        onclick={handleDropdownClick}>
+                    </div>
+                    </div>
+                </div>
+            </template>
+            <template if:true={showPills}>
+                <div class="slds-listbox_selection-group selection-group">
+                    <lightning-pill-container items={selectedPills} variant="bare" onitemremove={handlePillRemove}></lightning-pill-container>
+                </div>
+            </template>
+        </div>
+        <template if:true={_helpMessage}>
+            <div id="help-text" data-help-text class="slds-form-element__help" aria-live="assertive">{_helpMessage}</div>
+        </template>
+    </div>
+</template>

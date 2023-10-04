@@ -1,0 +1,11 @@
+.svmx-fab_container {
+	position: fixed;
+	bottom: 0px;
+	right: 1%;
+	text-align: right;
+}
+
+.svmx-fab_container.svmx-fab_container_flow {
+	right: 10vw;
+	bottom: 3vh;
+}

@@ -1,0 +1,48 @@
+<template>
+    <fieldset class="slds-form-element slds-form-element_compound slds-m-bottom_medium">
+        <div class="slds-form-element__control"> 
+            <div class="slds-form-element__row">
+                <div class="slds-size_2-of-6">
+                    <div class="slds-form-element">
+                        <div class="slds-form-element__control">
+                            <lightning-combobox name="filter" value={filterExpression}
+                                options={options} onchange={handleFilterChange}
+                                variant="label-hidden">
+                            </lightning-combobox>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-size_2-of-6">
+                    <div class="slds-form-element">
+                        <div class="slds-form-element__control">
+                            <div class="slds-input-has-icon slds-input-has-icon--right">
+                                <lightning-input value={searchTerm}
+                                    onchange={handleSearchTermChange}
+                                    variant="label-hidden" autocomplete="off"
+                                    placeholder={i18n.labelSearch}
+                                    class="svmx-search-input"
+                                ></lightning-input>
+                                <lightning-icon icon-name="utility:search"
+                                    class="slds-input__icon" size="xx-small">
+                                </lightning-icon>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-size_2-of-6 slds-grid slds-grid_vertical-align-center">
+                    <div class="slds-form-element">
+                        <div class="slds-form-element__control">
+                            <template if:true={hasContextFilter}>
+                                <lightning-input type="checkbox"
+                                    label={fullContextLabel} checked={applyContextFilter}
+                                    onchange={handleContextFilterCheckbox}
+                                    disabled={isOverrideContextDisable} class="slds-cell-wrap">
+                                </lightning-input>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</template>

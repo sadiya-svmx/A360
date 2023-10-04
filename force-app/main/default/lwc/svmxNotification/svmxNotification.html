@@ -1,0 +1,67 @@
+<template>
+  <!-- notification -->
+  <div class="slds-dropdown-trigger slds-dropdown-trigger_click">
+    <button
+      class="svmx-notification-button slds-button slds-button_icon slds-button_icon slds-button_icon-container slds-button_icon-small slds-global-actions__notifications slds-global-actions__item-action slds-incoming-notification"
+      aria-live="assertive"
+      aria-atomic="true"
+      onclick={handlePositionNotificationPreview}
+    >
+    <slot name="bodyIcon"></slot>
+    </button>
+    <span
+      aria-hidden="true"
+      class="slds-notification-badge slds-incoming-notification slds-show-notification svmx-notification-count svmx-notification-badge-color"
+      if:true={notificationCount}
+      >{notificationCount}</span
+    >
+  </div>
+
+  <section class="svmx-recordNotification_tooltip slds-hide svmx-tab-label" role="dialog" onclick={handleNotificationPopup}>
+
+    <div class="slds-grid slds-wrap slds-m-around_small">
+      <div class="slds-size_10-of-12">
+        <header class="">
+          <div class="slds-grid slds-wrap">
+              <div class="slds-size_1-of-12">
+                <span class="slds-icon_container slds-icon-standard-coaching svmx-svg-notification-area">
+                    <svg
+                    class="slds-button__icon svmx-svg-notification-value slds-icon slds-icon_x-small"
+                    aria-hidden="true"
+                  >
+                    <use
+                      xlink:href="/_slds//icons/utility-sprite/svg/symbols.svg#notification"
+                    ></use>
+                  </svg>
+                </span>
+              </div>
+              <div class="slds-size_11-of-12 slds-p-left_xx-small">
+                <h2 class="slds-text-heading_small slds-p-top_xx-small slds-p-left_xx-small svmx-header-bold slds-line-clamp_x-small">{headerValue}</h2>
+              </div>
+          </div>
+          
+        </header>
+      </div>
+      <div class="slds-size_2-of-12">
+        <button class="svmx-recordNotification_tooltipclose slds-button slds-button_icon slds-button_icon-small slds-float_right slds-popover__close" title="Close dialog" onclick={closePositionNotificationPreview}>
+          <svg class="slds-button__icon" aria-hidden="true">
+            <use xlink:href="/_slds//icons/utility-sprite/svg/symbols.svg#close"></use>
+          </svg>
+          <span class="slds-assistive-text">{i18n.closeAltText}</span>
+        </button>
+      </div>
+    </div>
+    <div class="slds-popover__body slds-p-around_none">
+        <div class="slds-tabs_default">
+          <ul class="slds-tabs_default__nav" role="tablist">
+            <li class="slds-tabs_default__item slds-is-active" role="presentation">
+              <span class="slds-tabs_default__link svmx-tab-label"  role="tab" tabindex="0" aria-selected="true">{tabOneHeader}</span>
+            </li>
+          </ul>
+          <div class="slds-tabs_default__content slds-show" role="tabpanel">
+            <slot name="bodyTabOne"></slot>
+          </div>
+        </div>
+    </div>
+  </section>
+</template>

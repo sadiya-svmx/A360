@@ -1,0 +1,10 @@
+<template>
+    
+    <template if:true={isIconImageUrl}>
+        <lightning-formatted-rich-text class="slds-p-left_small" value={iconName}>
+        </lightning-formatted-rich-text>
+    </template>
+    <template if:true={isSldsIconImage}>
+        <lightning-icon icon-name={iconName} size="x-small" alternative-text={iconAlternativeText}></lightning-icon>
+    </template>
+</template>

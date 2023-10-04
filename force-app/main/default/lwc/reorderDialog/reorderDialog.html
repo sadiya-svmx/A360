@@ -1,0 +1,10 @@
+<template>
+    <c-modal-dialog title={dialogTitle} is-open={modalOpen} size="small" modal-content-id="reorderContent" modal-header-id="reorderHeader" onmodalclosed={handleCancelModal}>
+        <div slot="body">
+            <c-reorder-list-box variant="label-hidden" options={options} onchange={handleChange}></c-reorder-list-box>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.ok} title={i18n.ok} variant="brand" class="slds-align_absolute-center svmx-ok" onclick={handleOk}></lightning-button>
+        </div>
+    </c-modal-dialog>    
+</template>

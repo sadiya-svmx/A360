@@ -1,0 +1,11 @@
+<template>
+    <template if:true={hasError}>
+        <p class="slds-m-top_x-small">
+            <lightning-formatted-text value={error}> </lightning-formatted-text>
+        </p>
+    </template>
+    <c-ever-interactive-entitlement is-open={isDataLoaded} no-modal account-info={accountInfo} asset-info={assetInfo}
+        selected-record-id={selectedRecordId} source-record-id={recordId} source-object-name={objectApiName}
+        entitlement-notes={notes} app-navigation-type={appNavigationType} billing-type={billingType}>
+    </c-ever-interactive-entitlement>
+</template>

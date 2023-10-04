@@ -1,0 +1,10 @@
+<template>
+    <template if:true={wrapText}>
+        <c-x-time value={value} class="slds-truncate">
+        </c-x-time >
+    </template>
+    <template if:false={wrapText}>
+        <c-x-time value={value}>
+        </c-x-time>
+    </template>
+</template>

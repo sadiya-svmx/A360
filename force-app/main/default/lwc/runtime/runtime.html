@@ -1,0 +1,111 @@
+<template>
+    <c-provider oninit={handleStoreInit} store={store}>
+        <c-runtime-engine-provider engine={engine}>
+            <div onerror={handleError}>
+                <!-- header spanning runtime & debug console -->
+                <template if:false={loading}>
+                    <template if:true={showPageHeader}>
+                        <c-svmx-page-header
+                            title={pageTitle}
+                            icon-name={iconName}
+                            is-in-modal={isInModal}
+                        >
+                            <c-svmx-actions
+                                slot="actions"
+                                report-validity={reportValidity}
+                                onshowconsole={handleShowConsole}
+                            ></c-svmx-actions>
+                        </c-svmx-page-header>
+                    </template>
+                    <template if:true={hasError}>
+                        <c-alert variant="error">{error}</c-alert>
+                    </template>
+                    <template if:true={showActionsInline}>
+                        <div class="slds-text-align_right slds-var-m-top_x-small slds-var-m-right_medium">
+                            <c-svmx-actions
+                                slot="actions"
+                                report-validity={reportValidity}
+                                onshowconsole={handleShowConsole}
+                            ></c-svmx-actions>
+                        </div>
+                    </template>
+                    <!-- two column runtime & debug console -->
+                    <div class="slds-grid slds-wrap">
+                        <div class={computedLayoutClass}>
+                            <div class="svmx-runtime-gutters">
+                                <template if:false={showChildOnly}>
+                                    <c-runtime-header
+                                    ></c-runtime-header>
+                                </template>
+                                <template if:false={showHeaderOnly}>
+                                    <c-runtime-grid
+                                        class={runtimeGridClasses}
+                                    ></c-runtime-grid>
+                                </template>
+                            </div>
+                            <c-svmx-form-footer
+                                is-sticky
+                                errors={popoverErrorMessages}
+                                is-in-modal={isInModal}
+                                alignment={footerButtonAlignment}
+                                has-error={showFormErrorsIcon}
+                                show-mark-as-complete={showMarkAsComplete}
+                                mark-as-complete={stepComplete}
+                                onstepcomplete={handleStepComplete}
+                            >
+                                <template if:false={isFlowContext}>
+                                    <lightning-button
+                                        variant="neutral"
+                                        disabled={shouldSaveDisabled}
+                                        label={i18n.cancel}
+                                        title={i18n.cancel}
+                                        onclick={handleCancel}
+                                        class="svmx-button-cancel slds-m-left_xx-small slds-m-right_xx-small"
+                                    ></lightning-button>
+                                    <lightning-button
+                                        variant="brand"
+                                        disabled={shouldSaveDisabled}
+                                        label={i18n.save}
+                                        title={confirmLabel}
+                                        onclick={handleSave}
+                                        class="svmx-button-save slds-m-left_xx-small slds-m-right_xx-small"
+                                    ></lightning-button>
+                                </template>
+                                <template if:true={isFlowContext}>
+                                    <template if:true={showPrevious}>
+                                        <lightning-button
+                                            variant="neutral"
+                                            label={i18n.previous}
+                                            title={i18n.previous}
+                                            onclick={handlePrevious}
+                                            class="svmx-button-previous slds-m-left_xx-small slds-m-right_xx-small"
+                                        ></lightning-button>
+                                    </template>
+                                    <lightning-button
+                                        variant="brand"
+                                        label={i18n.next}
+                                        title={confirmLabel}
+                                        onclick={handleNext}
+                                        class="svmx-button-next slds-m-left_xx-small slds-m-right_xx-small"
+                                    ></lightning-button>
+                                </template>
+                            </c-svmx-form-footer>
+                        </div>
+                        <template if:true={_showConsole}>
+                            <div class="slds-col slds-size_1-of-1 slds-large-size_4-of-12 svmx-runtime_debug-console">
+                                <c-runtime-debug-console page-title={pageTitle} onhideconsole={handleHideConsole}></c-runtime-debug-console>
+                            </div>
+                        </template>
+                      </div>
+                </template>
+                <template if:true={showSpinner}>
+                    <lightning-spinner
+                        variant="brand"
+                        alternative-text={i18n.loading}
+                    ></lightning-spinner>
+                </template>
+            </div>
+        </c-runtime-engine-provider>
+    </c-provider>
+   
+</template>

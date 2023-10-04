@@ -1,0 +1,22 @@
+<template>
+    <span class={cellClassnames}>
+        <template if:true={hasIcon}>
+            <span class="slds-pill__icon_container">
+                <lightning-icon icon-name={icon} alternative-text={icon}>
+                </lightning-icon>
+            </span>
+            <span class="slds-truncate slds-pill__label" 
+                title={label}>{label}</span>
+        </template>
+        <template if:false={hasIcon}>
+            <div class="svmx-truncate slds-truncate"
+                title={label}>
+                {label}
+            </div>
+        </template>
+        <!-- Provide the edit icon to trigger opening the Modal -->
+        <template if:true={editable}>
+            <c-svmx-cell-edit-icon onclick={handleClick}></c-svmx-cell-edit-icon>
+        </template>
+    </span>
+</template>

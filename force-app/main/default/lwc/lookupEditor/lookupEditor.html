@@ -1,0 +1,237 @@
+<template>
+    <div class="full-height slds-grid slds-grid_vertical">
+        <div class="slds-page-header list-view-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <c-service-max-logo-icon
+                                title-text={i18n.pageHeader}
+                                alternative-text={i18n.pageHeader}
+                                icon-size="large"
+                            ></c-service-max-logo-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span>{i18n.pageHeader}</span>
+                                        <span class="slds-page-header__title slds-truncate" title={lookupRecord.lookupName}>{lookupRecord.lookupName}</span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-page-header__col-actions">
+                    <div class="slds-page-header__controls">
+                        <div class="slds-page-header__control">
+                            <lightning-button-group>
+                                <lightning-button label={i18n.cancel} title={i18n.cancel} value={i18n.cancel} onclick={handleCancel} class="svmx-lookup-editor_cancel-btn"></lightning-button>
+                                <lightning-button variant="brand" label={i18n.save} title={i18n.save} onclick={checkWhereUsedForUpdate} class="svmx-lookup-editor_save-btn"></lightning-button>
+                                <lightning-button-menu alternative-text={i18n.showMenuAltText} menu-alignment="right">
+                                    <lightning-menu-item label={i18n.delete} value={i18n.delete} onclick={checkWhereUsedForDelete} class="svmx-lookup-editor_delete-btn" disabled={hasEmptyId}></lightning-menu-item>
+                                    <lightning-menu-item label={i18n.saveAs} value={i18n.saveAs} onclick={handleSaveAs} class="svmx-lookup-editor_saveas-btn" disabled={hasEmptyId}></lightning-menu-item>
+                                </lightning-button-menu>
+                                
+                                <lightning-button-icon icon-name="utility:help" variant="border-filled" alternative-text={i18n.help} 
+                                    title={i18n.help} onclick={handleHelpClick} class="slds-p-left_small svmx-lookup-editor_help-btn">
+                                </lightning-button-icon>
+                                
+                            </lightning-button-group>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <lightning-card class="slds-grid slds-grid_vertical slds-scrollable_y">
+            <div class="slds-card__body slds-card__body_inner">
+                <template if:true={error}>
+                    <c-alert variant="error">{error}</c-alert>
+                </template>
+
+                <c-x-expandable-section title={i18n.generalInfoSection}>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item" role="listitem">
+                            <div class="slds-form-element_stacked">
+                                <template if:true={editMode}>
+                                    <lightning-input placeholder={i18n.titlePlaceholder} label={i18n.lookupName}
+                                        data-field="lookupName" message-when-value-missing={i18n.titleMissing} required
+                                        value={lookupRecord.lookupName} max-length="80" onchange={handleFormInputChange}
+                                        onblur={handleNameBlur} class="requiredInput svmx-lookup-editor_lookupname-input"></lightning-input>
+                                </template>
+                            </div>
+                        </div>
+                        <div class="slds-form__item" role="listitem">
+                            <div class="slds-form-element_stacked">
+                                <lightning-input label={i18n.object} data-field="object" value={objectLabel} class="svmx-lookup-editor_objectname-input" disabled>
+                                </lightning-input>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item" role="listitem">
+                            <div class="slds-form-element_stacked">
+                                <template if:true={developerNameEditable}>
+                                    <lightning-input placeholder={i18n.developerName} label={i18n.developerName}
+                                        data-field="developerName"
+                                        message-when-value-missing={i18n.developerNameMissing} required
+                                        value={lookupRecord.developerName} max-length="40"
+                                        onchange={handleFormInputChange} class="requiredInput svmx-lookup-editor_developername-input"></lightning-input>
+                                </template>
+                                <template if:false={developerNameEditable}>
+                                    <lightning-input placeholder={i18n.developerName} label={i18n.developerName}
+                                        data-field="developerName"
+                                        message-when-value-missing={i18n.developerNameMissing} required
+                                        value={lookupRecord.developerName} max-length="40" disabled
+                                        onchange={handleFormInputChange} class="requiredInput svmx-lookup-editor_developername-input"></lightning-input>
+                                </template>
+                            </div>
+                        </div>
+                        <div class="slds-form__item" role="listitem">
+                            <c-combobox required variant="label-stacked" placeholder={i18n.select}
+                                data-field="numberOfRecords" label={i18n.noOfRecordsToReturn}
+                                message-when-value-missing={i18n.noOfRecordsToReturnMissing} value={lookupRecord.numberOfRecords}
+                                items={numberOfRecords} onchange={handleFormInputChange} class="requiredInput svmx-lookup-editor_noofrecords-input">
+                            </c-combobox>
+                        </div>
+                    </div>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item" role="listitem">
+                            <div class="slds-form-element_stacked">
+                                <lightning-input label={i18n.fieldToReturn}
+                                    data-field="fieldToReturn"
+                                    value={lookupRecord.fieldToReturn} disabled
+                                    class="requiredInput svmx-lookup-editor_fieldtoreturn-input">
+                                </lightning-input>
+                            </div>
+                        </div>
+                        <template if:true={displayHeaderObjectLabel}>
+                            <div class="slds-form__item" role="listitem">
+                                <div class="slds-form-element_stacked">
+                                    <lightning-input label={i18n.dataSourceObject} data-field="object" value={headerObjectLabel} class="svmx-lookup-editor_headerobjectname-input" disabled>
+                                    </lightning-input>
+                                </div>
+                            </div>
+                        </template>
+                        <template if:false={displayHeaderObjectLabel}>
+                            <div class="slds-form__item" role="listitem">
+                                <div class="slds-form-element_stacked">
+                                    <lightning-textarea label={i18n.description} max-length="512"
+                                        value={lookupRecord.description} data-field="description"
+                                        onchange={handleFormInputChange} class="svmx-lookup-editor_description-input"></lightning-textarea>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <template if:true={displayHeaderObjectLabel}>
+                        <div class="slds-form__row">
+                            <div class="slds-form__item" role="listitem">
+                                <div class="slds-form-element_stacked">
+                                    <lightning-textarea label={i18n.description} max-length="512"
+                                        value={lookupRecord.description} data-field="description"
+                                        onchange={handleFormInputChange} class="svmx-lookup-editor_description-input"></lightning-textarea>
+                                </div>
+                            </div>
+                            <div class="slds-form__item" role="listitem">
+                            </div>
+                        </div>
+                    </template>
+                </c-x-expandable-section>
+
+                <c-x-expandable-section title={i18n.searchFieldsSection}>
+                    <div class="slds-size_small">
+                        <lightning-input name="SearchSearchFields" placeholder={i18n.searchAvailableFieldsPlaceholder}
+                            label={i18n.searchAgainstSelectedFields} data-field="searchSearchFields" class="svmx-lookup-editor_searchsearchfields-input"
+                            onchange={filterObjectFields} type="search">
+                        </lightning-input>
+                    </div>
+
+                    <lightning-dual-listbox name="searchFields" label={i18n.addSearchFields} source-label={i18n.availableFields}
+                        selected-label={i18n.selectedFields} field-level-help={i18n.selectSearchFields} data-field="searchFields"
+                        options={seachableFields} value={lookupRecord.searchFields} onchange={handleDuelListChange}
+                        class="requiredInput svmx-lookup-editor_searchfields-input" required>
+                    </lightning-dual-listbox>
+                </c-x-expandable-section>
+
+                <c-x-expandable-section title={i18n.displayFieldsSection}>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item" role="listitem">
+                            <div class="slds-size_small">
+                                <lightning-input name="SearchDisplayFields" placeholder={i18n.searchAvailableFieldsPlaceholder}
+                                    label={i18n.labelDisplaySelectedFields} data-field="searchDisplayFields"
+                                    onchange={filterObjectFields} type="search" disabled={disableDisplayDualingList}
+                                    value={displayFieldSearchString} class="svmx-lookup-editor_searchdisplayfields-input">
+                                </lightning-input>
+                            </div>
+                        </div>
+                        <div class="slds-form__item" role="listitem">
+                            <lightning-input label={i18n.useSearchFields} type="checkbox" name="input" checked={value}
+                                onchange={onUseSearchFieldsCheckboxHandler} class="svmx-lookup-editor_usesearchfields-input">
+                            </lightning-input>
+                        </div>
+                    </div>
+                    
+                    <lightning-dual-listbox name="displayFields" label={i18n.addDisplayFields}
+                        source-label={i18n.availableFields} selected-label={i18n.selectedFields} required
+                        field-level-help={i18n.selectDisplayFields} data-field="displayFields"
+                        options={displayFields} disabled={disableDisplayDualingList}
+                        value={defaultValueLookUp}
+                        required-options={requiredDisplayFields}
+                        class="requiredInput svmx-lookup-editor_displayfields-input"
+                        onchange={handleDuelListChange}
+                    >
+                    </lightning-dual-listbox>
+                </c-x-expandable-section>
+
+                <c-x-expandable-section title={i18n.conditionsAndLogicSection}>
+                    
+                    <div class="slds-card__body slds-card__body_inner">
+                        <c-expression-builder class="svmx-expression-builder" expression-data={basicFilter}
+                            entity-definition={lookupRecord.fieldDetails} edit-mode={editMode} header-record-object={headerObjectAPIName}
+                            onitemchanged={handleItemChanged} header-object-label={headerObjectLabel} is-lookup-criteria="true" 
+                            ontoggleedit={editMode} optional="true"></c-expression-builder>
+                    </div>
+                </c-x-expandable-section>
+                    
+            </div>
+
+            <template if:true={apiInProgress}>
+                <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+            </template>
+
+        </lightning-card>
+        <template if:true={deleteWhereUsedModalDialogOpen}>
+            <c-where-used-modal-dialog
+                class="svmx-whereUsedModalDialog"
+                module-type={moduleType} 
+                configuration-id={configurationId}  
+                config-developer-name={configDeveloperName} 
+                config-name={configName}
+                launch-module={launchModule}
+                operation-type={operationType}
+                row={row}
+                oncancelwhereusedmodal={handleCancelWhereUsedModal}
+                ondeletemodal={handleDeleteModal}
+                onsavemodal={handleWhereUsedSave}>
+            </c-where-used-modal-dialog>             
+        </template>
+        <c-modal-dialog title={modalTitle} class="confirmationModal" is-open={showConfirmationModal} modal-content-id="cancelModalContent" modal-header-id="cancelModalHeader" onmodalclosed={handleConfirmationCancel}>
+            <div slot="body">
+                <p><lightning-formatted-text value={modalContent}></lightning-formatted-text></p>
+            </div>
+            <div slot="footer">
+                <lightning-button label={modalCancel} title={modalCancel} variant="neutral" onclick={handleConfirmationCancel} class="slds-p-right_x-small svmx-lookup-editor_modal_cancel-btn"></lightning-button>
+                <template if:true={isDelete}>
+                    <lightning-button label={i18n.confirm} title={i18n.confirm}
+                    variant="brand" onclick={handleModalDelete} class="svmx-lookup-editor_modal_confirm-btn"></lightning-button>
+                </template>
+                <template if:true={isCancel}>
+                    <lightning-button label={i18n.continue} title={i18n.continue}
+                    variant="brand" onclick={handleModalCancel} class="svmx-lookup-editor_modal_continue-btn"></lightning-button>
+                </template>
+            </div>
+        </c-modal-dialog>
+    </div>
+</template>

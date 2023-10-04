@@ -1,0 +1,17 @@
+<template>
+    <template if:false={loading}>
+        <c-runtime-section
+            onrecordmodified={handleHeaderRecordModified}
+            sections={sections}
+            engine-id={engineId}
+        ></c-runtime-section>
+    </template>
+    <template if:true={showCustomButton}>
+        <div class={fabContainerClass}>
+            <c-svmx-actions
+                slot="actions"
+                report-validity={reportValidity}
+            ></c-svmx-actions>
+        </div>
+    </template>  
+</template>

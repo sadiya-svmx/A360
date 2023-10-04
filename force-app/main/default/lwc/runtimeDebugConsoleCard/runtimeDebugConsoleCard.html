@@ -1,0 +1,655 @@
+<!-- sldsValidatorIgnore -->
+<template>
+    <template for:each={cards} for:item="group">
+        <template if:true={group.isMappingNotApplied}>
+            <h3 key={group.id} class="slds-var-p-around_x-small">{group.title}</h3>
+            <div class="slds-var-m-around_x-small" key={group.id}>{i18n.labelMappingNotApplied}</div>
+        </template>
+        <template if:true={group.isMapping}>
+            <h3 key={group.id} class="slds-var-p-around_x-small">{group.title}</h3>
+            <template
+                for:each={group.cards}
+                for:item="mappingCard"
+            >
+                <div key={mappingCard.id} data-created-id={mappingCard.id}>
+                    <div
+                        class="slds-var-p-around_x-small slds-var-m-around_x-small svmx-card"
+                    >
+                        <div class="slds-grid slds-wrap">
+                            <template if:true={group.isValueMapping}>
+                                <!-- Value Mapping Target Header -->
+                                <div class="slds-col slds-size_12-of-12 svmx-field_label-black slds-text-heading_small">
+                                    {mappingCard.cardTitle}
+                                </div>
+
+                                <!-- Value Mapping Subsection Header -->
+                                <div class="slds-col slds-size_12-of-12 slds-m-top_small slds-grid">
+                                    <div class="slds-col slds-size_5-of-12 svmx-field_label-black">
+                                        {i18n.labelLookupAutofill}
+                                    </div>
+
+                                    <!-- Section Applied/Not Applied BadgeZ -->
+                                    <div class="slds-col slds-size_7-of-12">
+                                        <lightning-badge label={i18n.labelApplied} class="slds-float_right applied-badge">
+                                        </lightning-badge>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <div class="slds-col slds-size_5-of-12 svmx-field_label">
+                                {i18n.labelMappingName}
+                            </div>
+                            <div class="slds-col slds-size_7-of-12">
+                                <a
+                                    href={mappingCard.url}
+                                    title={mappingCard.name}
+                                    target="_blank"
+                                >
+                                    {mappingCard.name}
+                                    <lightning-button-icon
+                                        class="slds-var-m-left_x-small slds-var-m-bottom_x-small"
+                                        icon-name="utility:new_window"
+                                        variant="bare"
+                                        alternative-text={mappingCard.developerName}
+                                        title={mappingCard.developerName}
+                                    ></lightning-button-icon>
+                                </a>
+                            </div>
+        
+                            <div class="slds-col slds-size_5-of-12 svmx-field_label">
+                                {i18n.labelDeveloperName}
+                            </div>
+                            <div class="slds-col slds-size_7-of-12">
+                                {mappingCard.developerName}
+                            </div>
+        
+                            <div if:true={mappingCard.hasSourceObjectAPIName} class="slds-col slds-size_5-of-12 svmx-field_label">
+                                {i18n.labelSourceObject}
+                            </div>
+                            <div if:true={mappingCard.hasSourceObjectAPIName} class="slds-col slds-size_7-of-12">
+                                {mappingCard.sourceObject}
+                            </div>
+                            <div class="slds-col slds-size_5-of-12 svmx-field_label">
+                                {i18n.labelTargetObject}
+                            </div>
+                            <div class="slds-col slds-size_7-of-12">
+                                {mappingCard.targetObject}
+                            </div>
+                        </div>
+        
+                        <c-x-expandable-section
+                            header-style-override="font-size: 1em"
+                            no-header-highlight
+                            is-collapsed
+                        >
+                        <div
+                            slot="header"
+                            class="svmx-card_mapping-values"
+                        >
+                            {i18n.labelMappingValues}
+                            <a
+                                class="slds-float_right slds-m-right_small"
+                                href="javascript:void(0);"
+                                data-json={mappingCard.recordsDataJson}
+                                onclick={handleJsonDownload}
+                            >{i18n.labelRawJsonData}</a>
+                        </div>
+                            <ul class="slds-has-dividers_bottom-space">
+                                <li class="slds-item header-item">
+                                    <lightning-layout multiple-rows vertical-align="center">
+                                        <lightning-layout-item size="4">
+                                            <div>{i18n.labelFieldName}</div>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4">
+                                            <div>{i18n.labelMappedBy}</div>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4">
+                                            <div>{i18n.labelMappedTo}</div>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                </li>
+        
+                                <template for:each={mappingCard.data} for:item="detail">
+                                    <li key={detail.id} class="slds-item detail-item">
+                                        <lightning-layout multiple-rows vertical-align="center">
+                                            <lightning-layout-item size="4">
+                                                <div title={detail.fieldName} class="slds-text-body--regular slds-text-color--default slds-truncate">{detail.fieldName}</div>
+                                                <div title={detail.fieldApiName} class="Text slds-text-body--regular slds-text-color--inverse-weak slds-truncate">{detail.fieldApiName}</div>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4">
+                                                <div title={detail.mappedBy} class="slds-text-body--regular slds-text-color--default slds-truncate slds-p-right_small svmx-mapping-row_mapping-type-label">{detail.mappedBy}</div>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4">
+                                                <div title={detail.mappedTo} data-row-key={detail.fieldApiName} class="slds-text-body--regular slds-text-color--default value-truncate svmx-mapping-row_value-label">{detail.mappedTo}</div>
+                                            </lightning-layout-item>
+                                        </lightning-layout>
+                                    </li>
+                                </template>
+                            </ul>
+                        </c-x-expandable-section>
+                    </div>
+                </div>
+            </template>
+        </template>
+        <template if:true={group.isExpression}>
+            <h3 key={group.id} class="slds-var-p-around_x-small">{group.title}</h3>
+            <template
+                for:each={group.cards}
+                for:item="expressionCard"
+            >
+                <div key={expressionCard.id} data-created-id={expressionCard.id}>
+                    <div
+                        class="slds-var-p-around_x-small slds-var-m-around_x-small svmx-card"
+                    >
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_5-of-12 svmx-field_label-black slds-text-heading_small">
+                                {expressionCard.name}
+                            </div>
+                            <div
+                                if:true={expressionCard.hidden}
+                                class="slds-col slds-size_7-of-12 "
+                            >
+                                <lightning-badge
+                                    label={i18n.labelHidden}
+                                    class="slds-float_right"
+                                >
+                                </lightning-badge>
+                            </div>
+                            <div
+                                if:false={expressionCard.hidden}
+                                class="slds-col slds-size_7-of-12 "
+                            >
+                                <lightning-badge
+                                    label={expressionCard.childRecordsCountLines}
+                                    class="slds-float_right applied-badge"
+                                >
+                                </lightning-badge>
+                                <lightning-badge
+                                    if:true={expressionCard.isHeader}
+                                    label={i18n.labelDisplayed}
+                                    class="slds-float_right applied-badge"
+                                >
+                                </lightning-badge>
+                            </div>
+
+                            <div class="slds-col slds-size_5-of-12 svmx-field_label">
+                                {i18n.labelDisplayRule}
+                            </div>
+                            <div
+                                if:false={expressionCard.hasRule}
+                                class="slds-col slds-size_7-of-12"
+                            >
+                                {i18n.labelAlwaysDisplay}
+                            </div>
+                            <div
+                                if:true={expressionCard.isEvaluationEventAlways}
+                                class="slds-col slds-size_7-of-12"
+                            >
+                                {i18n.labelEvaluateAlways}
+                            </div>
+                            <div
+                                if:true={expressionCard.isEvaluationEventFieldChange}
+                                class="slds-col slds-size_7-of-12"
+                            >
+                                {i18n.labelFieldChange}
+                            </div>
+                            <div
+                                if:true={expressionCard.isEvaluationEventOnload}
+                                class="slds-col slds-size_7-of-12"
+                            >
+                                {i18n.labelOnLoad}
+                            </div>
+
+                            <template if:true={expressionCard.hasRule}>
+                                <div class="slds-col slds-size_5-of-12 svmx-field_label">
+                                    {i18n.labelExpressionName}
+                                </div>
+                                <div class="slds-col slds-size_7-of-12">
+                                    <a
+                                        href={expressionCard.url}
+                                        title={expressionCard.visibilityCriteriaName}
+                                        target="_blank"
+                                    >
+                                        {expressionCard.visibilityCriteriaName}
+                                        <lightning-button-icon
+                                            class="slds-var-m-left_x-small slds-var-m-bottom_x-small"
+                                            icon-name="utility:new_window"
+                                            variant="bare"
+                                            alternative-text={expressionCard.visibilityCriteriaName}
+                                            title={expressionCard.visibilityCriteriaName}
+                                        ></lightning-button-icon>
+                                    </a>
+                                </div>
+
+                                <div class="slds-col slds-size_5-of-12 svmx-field_label">
+                                    {i18n.labelDeveloperName}
+                                </div>
+                                <div class="slds-col slds-size_7-of-12">
+                                    {expressionCard.developerName}
+                                </div>
+                            
+                                <div class="slds-col slds-size_5-of-12 svmx-field_label">
+                                    {i18n.labelConditionsLogic}
+                                </div>
+                                <div class="slds-col slds-size_7-of-12">
+                                    <c-display-token-sequence
+                                        token-sequence={expressionCard.formattedExpression}
+                                    ></c-display-token-sequence>
+                                </div>
+                            </template>
+                        </div>
+                        <template if:false={expressionCard.hidden}>
+                            <template if:false={expressionCard.isHeader}>
+                                <div class="slds-grid slds-wrap">
+                                    <div class="slds-col slds-size_5-of-12 svmx-field_label-black slds-text-heading_small">
+                                        {i18n.labelQualifyingCriteria}
+                                    </div>
+                                    <template if:false={expressionCard.hasQualifyingCriteria}>
+                                        <div class="slds-col slds-size_7-of-12 ">
+                                            <lightning-badge
+                                                label={i18n.labelNotApplied}
+                                                class="slds-float_right applied-badge"
+                                            >
+                                            </lightning-badge>
+                                        </div>
+                                    </template>
+                                
+                                    <template if:true={expressionCard.hasQualifyingCriteria}>                                  
+                                        <div class="slds-col slds-size_7-of-12 ">
+                                            <lightning-badge
+                                                label={i18n.labelApplied}
+                                                class="slds-float_right applied-badge"
+                                            >
+                                            </lightning-badge>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <template if:true={expressionCard.hasQualifyingCriteria}>
+                                    <c-x-expandable-section
+                                        title={i18n.labelQualifyingCriteriaDetails}
+                                        header-style-override="font-size: 1em; color: #706E6B"
+                                        no-header-highlight
+                                        is-collapsed
+                                    >
+                                        <div class="slds-grid slds-wrap">
+                                            <div class="slds-col slds-size_5-of-12 svmx-field_label slds-p-left_small">
+                                                {i18n.labelCriteriaName}
+                                            </div>
+                                            <div class="slds-col slds-size_7-of-12">
+                                                <a
+                                                    href={expressionCard.qcDetails.url}
+                                                    title={expressionCard.visibilityCriteriaName}
+                                                    target="_blank"
+                                                >
+                                                    {expressionCard.qcDetails.qualifyingCriteriaName}
+                                                    <lightning-button-icon
+                                                        class="slds-var-m-left_x-small slds-var-m-bottom_x-small"
+                                                        icon-name="utility:new_window"
+                                                        variant="bare"
+                                                        alternative-text={expressionCard.qcDetails.qualifyingCriteriaName}
+                                                        title={expressionCard.qcDetails.qualifyingCriteriaName}
+                                                    ></lightning-button-icon>
+                                                </a>
+                                            </div>
+            
+                                            <div class="slds-col slds-size_5-of-12 svmx-field_label slds-p-left_small">
+                                                {i18n.labelDeveloperName}
+                                            </div>
+                                            <div class="slds-col slds-size_7-of-12">
+                                                {expressionCard.qcDetails.developerName}
+                                            </div>
+                                        
+                                            <div class="slds-col slds-size_5-of-12 svmx-field_label slds-p-left_small">
+                                                {i18n.labelConditionsLogic}
+                                            </div>
+                                            <div class="slds-col slds-size_7-of-12">
+                                                <c-display-token-sequence
+                                                    token-sequence={expressionCard.qcDetails.formattedExpression}
+                                                ></c-display-token-sequence>
+                                            </div>
+                                        </div>
+                                    </c-x-expandable-section>
+                                </template>
+
+                                <template if:true={isSourceToTarget}>
+                                    <div class="slds-grid slds-wrap">
+                                        <div class="slds-col slds-size_5-of-12 svmx-field_label-black slds-text-heading_small">
+                                            {i18n.labelFieldMapping}
+                                        </div>
+                                        <template if:false={expressionCard.hasFieldMapping}>
+                                            <div class="slds-col slds-size_7-of-12 ">
+                                                <lightning-badge
+                                                    label={i18n.labelNotApplied}
+                                                    class="slds-float_right applied-badge"
+                                                >
+                                                </lightning-badge>
+                                            </div>
+                                        </template>
+                                    
+                                        <template if:true={expressionCard.hasFieldMapping}>                                  
+                                            <div class="slds-col slds-size_7-of-12 ">
+                                                <lightning-badge
+                                                    label={i18n.labelApplied}
+                                                    class="slds-float_right applied-badge"
+                                                >
+                                                </lightning-badge>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                                <template if:true={expressionCard.hasFieldMapping}>
+                                    <c-x-expandable-section
+                                        title={i18n.labelMappingDetails}
+                                        header-style-override="font-size: 1em; color: #706E6B"
+                                        no-header-highlight
+                                    >
+                                        <div class="slds-grid slds-wrap">
+                                            <div class="slds-col slds-size_5-of-12 svmx-field_label slds-p-left_small">
+                                                {i18n.labelMappingName}
+                                            </div>
+                                            <div class="slds-col slds-size_7-of-12">
+                                                <a
+                                                    href={expressionCard.mappingDetails.url}
+                                                    title={expressionCard.mappingDetails.name}
+                                                    target="_blank"
+                                                >
+                                                    {expressionCard.mappingDetails.name}
+                                                    <lightning-button-icon
+                                                        class="slds-var-m-left_x-small slds-var-m-bottom_x-small"
+                                                        icon-name="utility:new_window"
+                                                        variant="bare"
+                                                        alternative-text={expressionCard.mappingDetails.name}
+                                                        title={expressionCard.mappingDetails.name}
+                                                    ></lightning-button-icon>
+                                                </a>
+                                            </div>
+                                
+                                            <div class="slds-col slds-size_5-of-12 svmx-field_label slds-p-left_small">
+                                                {i18n.labelDeveloperName}
+                                            </div>
+                                            <div class="slds-col slds-size_7-of-12">
+                                                {expressionCard.mappingDetails.developerName}
+                                            </div>
+                                            
+                                            <template if:true={isSourceToTarget}>
+                                                <div class="slds-col slds-size_5-of-12 slds-p-left_small svmx-field_label">
+                                                    {i18n.labelSourceObject}
+                                                </div>
+                                                <div class="slds-col slds-size_7-of-12">
+                                                    {expressionCard.mappingDetails.sourceObject}
+                                                </div>
+                                            </template>
+                                            <div class="slds-col slds-p-left_small slds-size_5-of-12 svmx-field_label">
+                                                {i18n.labelTargetObject}
+                                            </div>
+                                            <div class="slds-col slds-size_7-of-12">
+                                                {expressionCard.mappingDetails.targetObject}
+                                            </div>
+
+                                            <div class="slds-col slds-size_12-of-12">
+                                                <c-x-expandable-section
+                                                    header-style-override="font-size: 1em"
+                                                    no-header-highlight
+                                                    is-collapsed
+                                                    is-nested
+                                                >
+                                                    <div
+                                                        slot="header"
+                                                        class="svmx-card_mapping-values"
+                                                    >
+                                                        {i18n.labelMappingValues}
+                                                        <a
+                                                            class="slds-float_right slds-m-right_small"
+                                                            href="javascript:void(0);"
+                                                            data-json={expressionCard.mappingDetails.recordsDataJson}
+                                                            onclick={handleJsonDownload}
+                                                        >{i18n.labelRawJsonData}</a>
+                                                    </div>
+                                                    <ul class="slds-has-dividers_bottom-space">
+                                                        <li class="slds-item header-item">
+                                                            <lightning-layout
+                                                                multiple-rows
+                                                                vertical-align="center"
+                                                            >
+                                                                <lightning-layout-item size="4">
+                                                                    <div>{i18n.labelFieldName}</div>
+                                                                </lightning-layout-item>
+                                                                <lightning-layout-item size="4">
+                                                                    <div>{i18n.labelMappedBy}</div>
+                                                                </lightning-layout-item>
+                                                                <lightning-layout-item size="4">
+                                                                    <div>{i18n.labelMappedTo}</div>
+                                                                </lightning-layout-item>
+                                                            </lightning-layout>
+                                                        </li>
+                                                        
+                                                        <template
+                                                            for:each={expressionCard.mappingDetails.data}
+                                                            for:item="detail"
+                                                        >
+                                                            <li
+                                                                key={detail.id}
+                                                                class="slds-item detail-item"
+                                                            >
+                                                                <lightning-layout
+                                                                    multiple-rows
+                                                                    vertical-align="center"
+                                                                >
+                                                                    <lightning-layout-item size="4">
+                                                                        <div
+                                                                            title={detail.fieldName}
+                                                                            class="slds-text-body--regular slds-text-color--default slds-truncate"
+                                                                        >{detail.fieldName}</div>
+                                                                        <div
+                                                                            title={detail.fieldApiName}
+                                                                            class="Text slds-text-body--regular slds-text-color--inverse-weak slds-truncate"
+                                                                        >{detail.fieldApiName}</div>
+                                                                    </lightning-layout-item>
+                                                                    <lightning-layout-item size="4">
+                                                                        <div
+                                                                            title={detail.mappedBy}
+                                                                            class="slds-text-body--regular slds-text-color--default slds-truncate slds-p-right_small svmx-mapping-row_mapping-type-label"
+                                                                        >{detail.mappedBy}</div>
+                                                                    </lightning-layout-item>
+                                                                    <lightning-layout-item size="4">
+                                                                        <div
+                                                                            title={detail.mappedTo}
+                                                                            data-row-key={detail.fieldApiName}
+                                                                            class="slds-text-body--regular slds-text-color--default value-truncate svmx-mapping-row_value-label"
+                                                                        >{detail.mappedTo}</div>
+                                                                    </lightning-layout-item>
+                                                                </lightning-layout>
+                                                            </li>
+                                                        </template>
+                                                    </ul>
+                                                </c-x-expandable-section>
+                                            </div>
+                                        </div>
+                                    </c-x-expandable-section>
+                                </template>
+                            </template>
+                        </template>
+                    </div>
+                </div>
+            </template>
+        </template>
+        <template if:true={group.isLookup}>
+            <h3 key={group.id} class="slds-var-p-around_x-small">{group.title}</h3>
+            <template if:false={group.hasCards}>
+                <div key={group.id} class="slds-var-p-around_x-small">
+                    {i18n.labelNoAdvancedLookup}
+                </div>
+            </template>
+            <template if:true={group.hasCards}>
+                <template
+                    for:each={group.cards}
+                    for:item="lookupCard"
+                >
+                    <div
+                        key={lookupCard.id}
+                        class="slds-var-p-around_x-small slds-var-m-around_x-small svmx-card"
+                    >
+                        <div class="slds-grid slds-wrap">
+                            <!-- Lookup Card Header -->
+                            <div class="slds-col slds-size_12-of-12 svmx-field_label-black slds-text-heading_small">
+                                {lookupCard.cardTitle}
+                            </div>
+
+                            <!-- Section - Lookup Filter -->
+                            <!-- Section Header -->
+                            <div class="slds-col slds-size_12-of-12 slds-m-top_small slds-grid">
+                                <div class="slds-col slds-size_5-of-12 svmx-field_label-black">
+                                    {i18n.labelLookupFilter}
+                                </div>
+
+                                <!-- Section Applied/Not Applied BadgeZ -->
+                                <div class="slds-col slds-size_7-of-12">
+                                    <template if:true={lookupCard.hasLookupFilterData}>
+                                        <lightning-badge label={i18n.labelApplied} class="slds-float_right applied-badge">
+                                        </lightning-badge>
+                                    </template>
+                                    <template if:false={lookupCard.hasLookupFilterData}>
+                                        <lightning-badge label={i18n.labelNotApplied} class="slds-float_right">
+                                        </lightning-badge>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Section Details -->
+                            <template if:true={lookupCard.hasLookupFilterData}>
+                                <!-- Lookup Filter Section - Name -->
+                                <div class="slds-col slds-size_5-of-12 svmx-field_label">
+                                    {i18n.labelLookupFilterName}
+                                </div>
+                                <div class="slds-col slds-size_7-of-12">
+                                    <a
+                                        href={lookupCard.url}
+                                        title={lookupCard.lookupFilterName}
+                                        target="_blank"
+                                    >
+                                        {lookupCard.lookupFilterName}
+                                        <lightning-button-icon
+                                            class="slds-var-m-left_x-small slds-var-m-bottom_x-small"
+                                            icon-name="utility:new_window"
+                                            variant="bare"
+                                            alternative-text={lookupCard.lookupFilterName}
+                                            title={lookupCard.lookupFilterName}
+                                        ></lightning-button-icon>
+                                    </a>
+                                </div>
+
+                                <!-- Lookup Filter Section - Developer Name -->
+                                <div class="slds-col slds-size_5-of-12 svmx-field_label">
+                                    {i18n.labelDeveloperName}
+                                </div>
+                                <div class="slds-col slds-size_7-of-12">
+                                    {lookupCard.developerName}
+                                </div>
+
+                                <!-- Lookup Filter Section - Object Name -->
+                                <div class="slds-col slds-size_5-of-12 svmx-field_label">
+                                    {i18n.labelObject}
+                                </div>
+                                <div class="slds-col slds-size_7-of-12">
+                                    {lookupCard.objectLabel}
+                                </div>
+
+                                <!-- Lookup Filter Section - Fields Returned -->
+                                <div class="slds-col slds-size_5-of-12 svmx-field_label">
+                                    {i18n.labelFieldsReturned}
+                                </div>
+                                <div class="slds-col slds-size_7-of-12">
+                                    {lookupCard.fieldsReturned}
+                                </div>
+
+                                <!-- Lookup Filter Section - Search Fields -->
+                                <div class="slds-col slds-size_5-of-12 svmx-field_label">
+                                    {i18n.labelSearchFields}
+                                </div>
+                                <div class="slds-col slds-size_7-of-12">
+                                    {lookupCard.searchFields}
+                                </div>
+
+                                <!-- Lookup Filter Section - Search Conditions/Logic -->
+                                <!-- TODO: Reenable once expression data can be properly retrieved for lookup filter expressions: A360ENG-1807 -->
+                                <div class="slds-col slds-size_5-of-12 svmx-field_label">
+                                    {i18n.labelConditionsLogic}
+                                </div>
+                                <div class="slds-col slds-size_7-of-12">
+                                    <c-display-token-sequence
+                                        token-sequence={lookupCard.conditionExpression}
+                                    ></c-display-token-sequence>
+                                </div>
+
+                                <!-- Lookup Filter Section - Source Values -->
+                                <!--<div class="slds-col slds-size_5-of-12 svmx-field_label">
+                                    {i18n.labelSourceValues}
+                                </div>
+                                <div class="slds-col slds-size_7-of-12">
+                                    {lookupCard.sourceValues}
+                                </div>-->
+                            </template>
+
+
+                            <!-- Section - Lookup Context -->
+                            <!-- Section Header -->
+                            <div class="slds-col slds-size_12-of-12 slds-m-top_small slds-grid">
+                                <div class="slds-col slds-size_5-of-12 svmx-field_label-black">
+                                    {i18n.labelLookupContext}
+                                </div>
+
+                                <!-- Section Applied/Not Applied BadgeZ -->
+                                <div class="slds-col slds-size_7-of-12">
+                                    <template if:true={lookupCard.hasContextFilterData}>
+                                        <lightning-badge label={i18n.labelApplied} class="slds-float_right applied-badge">
+                                        </lightning-badge>
+                                    </template>
+                                    <template if:false={lookupCard.hasContextFilterData}>
+                                        <lightning-badge label={i18n.labelNotApplied} class="slds-float_right">
+                                        </lightning-badge>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Section Details -->
+                            <template if:true={lookupCard.hasContextFilterData}>
+                                <!-- Lookup Context Section - Override Enabled -->
+                                <div class="slds-col slds-size_5-of-12 svmx-field_label">
+                                    {i18n.labelOverride}
+                                </div>
+                                <div class="slds-col slds-size_7-of-12">
+                                    {lookupCard.isLookupContextOverriddenLabel}
+                                </div>
+
+                                <!-- Lookup Context Section - Context Matching Expression -->
+                                <div class="slds-col slds-size_5-of-12 svmx-field_label">
+                                    {i18n.labelContextMatching}
+                                </div>
+                                <div class="slds-col slds-size_4-of-12">
+                                    {lookupCard.contextMatchingValueField}: {lookupCard.contextMatchingField}
+                                </div>
+                                <div class="slds-col slds-size_3-of-12">
+                                    <template if:true={lookupCard.isLookupContextOverridden}>
+                                        <lightning-badge label={i18n.labelNotApplied} class="slds-float_right">
+                                        </lightning-badge>
+                                    </template>
+                                    <template if:false={lookupCard.isLookupContextOverridden}>
+                                        <template if:true={lookupCard.foundMatch}>
+                                            <lightning-badge label={i18n.labelMatched} class="slds-theme_success slds-float_right">
+                                            </lightning-badge>
+                                        </template>
+                                        <template if:false={lookupCard.foundMatch}>
+                                            <lightning-badge label={i18n.labelNotMatched} class="slds-theme_error slds-float_right">
+                                            </lightning-badge>
+                                        </template>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </template>
+        </template>
+    </template>
+</template>

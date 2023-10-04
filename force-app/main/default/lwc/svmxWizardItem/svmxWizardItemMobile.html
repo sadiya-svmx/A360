@@ -1,0 +1,47 @@
+<template>
+    <li class="slds-dropdown__item" role="presentation">
+        <a onclick={handleClick} href="#" role="menuitem" tabindex="0" class={computeWizardItemClassName}>
+            <span class="vertical-align_middle slds-truncate" title={wizardItem.name}>
+                <template if:true={showIcons}>
+                    <span class="slds-p-right_x-small">
+                        <template if:true={imageFromStaticResource}>
+                            <lightning-icon size="small" src={computedIconName}
+                                alternative-text={wizardItem.name}>
+                            </lightning-icon>
+                        </template>
+                        <template if:false={imageFromStaticResource}>
+                            <lightning-icon size="small" icon-name={computedIconName}
+                                alternative-text={wizardItem.name}>
+                            </lightning-icon>
+                        </template>
+                    </span>
+                </template>
+
+                <template if:true={isLoading} class="slds-is-relative">
+                    <lightning-spinner variant="brand" alternative-text="API working..." size="small">
+                    </lightning-spinner>
+                </template>
+
+                <span class={computeTitleClassMobile}>{wizardItem.name}</span>
+            </span>
+
+            <template if:false={wizardItem.showQCError}>
+                <template if:true={stepDependencyFlag}>
+                    <span>
+                        <lightning-input
+                            type="checkbox"
+                            onchange={handleStepCompleteChange}
+                            checked={wizardItem.stepCompleted}
+                            disabled={enableCompletion}
+                            onclick={handleStepCompleteClicked}
+                        ></lightning-input>
+                    </span>
+                </template>
+            </template>
+
+            <template if:true={wizardItem.showQCError}>
+                <span class="svmx-wizard-item_error-message slds-float_right">{i18n.messageQCNotValid}</span>
+            </template>
+        </a>
+    </li>
+</template>

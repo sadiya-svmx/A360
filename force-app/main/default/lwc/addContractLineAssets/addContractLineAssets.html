@@ -1,0 +1,58 @@
+<template>
+    <!--Add Asset Modal-->
+    <c-modal-dialog title={i18n.title} size="SMALL" is-open={showAssetSelectionModal}
+        class="svmx-add-contract-line-assets_modal" modal-content-id="assetModalContent"
+        modal-header-id="assetModalHeader" onmodalclosed={handleCancelOfAssetModal}>
+        <div slot="body" style="height: 500px;">
+            <template if:true={errorForAssetModal}>
+                <c-alert variant="error">{errorForAssetModal}</c-alert>
+            </template>
+            <div class="slds-grid slds-wrap">
+                <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                    <div class="slds-form-element slds-form-element_stacked">
+                        <lightning-input type="search" autocomplete="off" placeholder={i18n.placeholderForAssetSearch}
+                            variant="label-hidden" onchange={handleChangeOfSearchBox}
+                            class="svmx-add-contract-line-assets_modal_search_box">
+                        </lightning-input>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                    <div class="slds-form-element slds-form-element_stacked">
+                        <lightning-button label={i18n.search} title={i18n.search} variant="brand"
+                            onclick={handleSearchButton} disabled={disableSearchButton}
+                            class="svmx-add-contract-line-assets_modal_search_button">
+                        </lightning-button>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-p-top_medium">
+                <div if:true={apiInProgress} class="slds-is-relative">
+                    <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium">
+                    </lightning-spinner>
+                </div>
+                <div if:false={assetListHasRecords} class="slds-align_absolute-center no-data">
+                    {i18n.noResults}
+                </div>
+                <template if:true={assetListHasRecords}>
+                    <div class="svmx-asset-list-view_table" style={computedAssetDataTableHeightWidth}>
+                        <c-x-paginated-datatable 
+                            key-field="Id"
+                            records={assetRecordsList}
+                            columns={assetColumns}
+                            onpaginatedrowselection={handleAssetRowSelection}
+                            show-info-header="true">
+                        </c-x-paginated-datatable>
+                    </div>
+                </template>                
+            </div>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                class="slds-p-right_x-small svmx-manage-maintenance-asset-add_modal_cancel_btn"
+                onclick={handleCancelOfAssetModal}></lightning-button>
+            <lightning-button label={i18n.confirm} title={i18n.confirm} variant="brand"
+                class="svmx-add-contract-line-assets_modal_confirm_btn"
+                disabled={isDisableConfirmButtonOfAssetModal} onclick={handleConfirmOfAssetModal}></lightning-button>
+        </div>
+    </c-modal-dialog>
+</template>

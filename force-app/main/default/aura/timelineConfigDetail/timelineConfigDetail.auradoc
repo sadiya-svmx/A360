@@ -1,0 +1,4 @@
+<aura:documentation>
+	<aura:description>Wrapper for Timeline Config Detail so we can navigate to the component.</aura:description>
+	
+</aura:documentation>

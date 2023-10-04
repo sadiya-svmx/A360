@@ -1,0 +1,7 @@
+<aura:event type="COMPONENT">
+    <aura:attribute name="redirectRecordId" type="String" />
+    <aura:attribute name="status" type="String" />
+    <aura:attribute name="showError" type="Boolean" />
+    <aura:attribute name="showToast" type="Boolean" />
+    <aura:attribute name="actionType" type="String" />
+</aura:event>

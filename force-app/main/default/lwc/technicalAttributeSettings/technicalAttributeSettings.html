@@ -1,0 +1,87 @@
+<template>
+    <div class="full-height slds-grid slds-grid_vertical slds-card">
+        <template if:true={error}>
+            <c-alert
+                variant="error"
+                class="svmx-ta-settings_custom-alert">
+                {error}
+            </c-alert>
+        </template>
+        <div class="slds-page-header list-view-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <c-service-max-logo-icon
+                                title-text={i18n.technicalAttributes}
+                                alternative-text={i18n.technicalAttributes}
+                                icon-size="large"
+                            ></c-service-max-logo-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span>
+                                            {i18n.technicalAttributes}
+                                        </span>
+                                        <span class="slds-page-header__title slds-truncate" title={i18n.settings}>
+                                            {i18n.settings}
+                                        </span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-page-header__col-actions">
+                    <div class="slds-page-header__controls">
+                        <div class="slds-page-header__control">
+                            <lightning-button-group>
+                                <lightning-button
+                                    label={i18n.save}
+                                    title={i18n.save}
+                                    variant="brand"
+                                    onclick={handleSave}
+                                    class="svmx-ta-settings_save-btn"
+                                    disabled={disableSaveBtn}
+                                ></lightning-button>
+                            </lightning-button-group>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slds-p-horizontal_large slds-p-vertical_medium">
+            <c-x-expandable-section title={i18n.userGroupAssignment}>
+                <div class="slds-media slds-m-bottom_x-large">
+                    <div class="slds-media__figure slds-m-right_none">
+                        <lightning-input
+                            class="svmx-ta-user-groupsetting_input-field"
+                            type="checkbox"
+                            name="assignUserGroup"
+                            checked={applyUserGroupAssignment}
+                            variant="label-hidden"
+                            onchange={handleValueChange}
+                        ></lightning-input>
+                    </div>
+                    <div class="slds-media__body">
+                        <label class="slds-m-bottom_small">
+                            {i18n.respectUserGroupAssignment}
+                        </label>
+                        <p class="slds-grid slds-grid_vertical-align-center slds-m-top_x-small">
+                            {i18n.userGroupAssignmentDesc}
+                        </p>
+                    </div>
+                </div>
+            </c-x-expandable-section>
+        </div>
+        <div if:true={apiInProgress} class="slds-is-relative">
+            <lightning-spinner
+                variant="brand"
+                alternative-text={i18n.loading}
+            ></lightning-spinner>
+        </div>
+    </div>
+</template>

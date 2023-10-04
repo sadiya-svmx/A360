@@ -1,0 +1,23 @@
+@import 'c/xMobileStyle';
+
+.svmx-modal__close {
+    width: var(--lwc-squareIconMediumBoundary,2rem);
+    height: var(--lwc-squareIconMediumBoundary,2rem);
+    position: absolute;
+    top: -2.5rem;
+    left: 0;
+    border: 0;
+    background-color: transparent;
+}
+
+.svmx-picklist_item {
+    padding-right: 0px;
+}
+
+li:first-child div.svmx-picklist_item {
+    padding-top: 5px;
+}
+
+li:last-child span.svmx-picklist_item_label {
+    border-bottom: 0px;
+}

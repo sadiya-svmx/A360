@@ -1,0 +1,248 @@
+<template>
+    <lightning-layout-item flexibility="grow">
+        <div class="slds-card">
+            <div class="slds-page-header">
+                <div class="slds-page-header__row">
+                    <div class="slds-page-header__col-title">
+                        <div class="slds-media">
+                            <div class="slds-media__figure">
+                                <lightning-icon src={iconName} size="large"
+                                    alternative-text={i18n.titleWarrantyManagement}
+                                    title={i18n.titleWarrantyManagement}></lightning-icon>
+                            </div>
+                            <div class="slds-media__body">
+                                <div class="slds-page-header__name">
+                                    <div class="slds-page-header__name-title">
+                                        <h1>
+                                            <span>{i18n.titleWarrantyManagement}</span>
+                                            <span class="slds-page-header__title"
+                                                title={i18n.titleWarrantyManagement}>{i18n.titleSetting}</span>
+                                        </h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-page-header__col-actions">
+                        <div class="slds-page-header__controls">
+                            <div class="slds-page-header__control">
+                                <ul class="slds-button-group-list">
+                                    <template if:false={editMode}>
+                                        <li>
+                                            <lightning-button label={i18n.btnEdit} title={i18n.btnEdit}
+                                                class="svmx-warranty-rules_edit-button" onclick={handleEdit}>
+                                            </lightning-button>
+                                            <lightning-button-icon
+                                                icon-name="utility:help"
+                                                variant="bare"
+                                                alternative-text={i18n.help}
+                                                title={i18n.help}
+                                                onclick={handleHelpClick}
+                                                class="svmx-help-link-button slds-m-left_x-small"
+                                            ></lightning-button-icon>
+                                        </li>
+                                    </template>
+                                    <template if:true={editMode}>
+                                        <li>
+                                            <lightning-button label={i18n.btnCancel}
+                                                class="slds-var-p-right_x-small svmx-warranty-rules_cancel-button"
+                                                title={i18n.btnCancel} onclick={handleCancel}></lightning-button>
+                                            <lightning-button label={i18n.btnSave}
+                                                class="slds-var-p-right_x-small svmx-warranty-rules_save-button"
+                                                variant="brand" title={i18n.btnSave} onclick={handleSave}>
+                                            </lightning-button>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <template if:true={apiInProgress}>
+            <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+        </template>
+        <div class="slds-card">
+            <div class="slds-card__body slds-card__body_inner">
+                <div class="slds-form" role="list">
+                    <c-x-expandable-section title={i18n.secGeneralInformation}>
+                        <div class="slds-form__row">
+                            <div class="slds-form__item">
+                                <div
+                                    class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent">
+                                    <div class="slds-form-element__control">
+                                        <template if:false={editMode}>
+                                            <span class="slds-form-element__label">{i18n.lblAutoCreate}</span>
+                                            <div class="slds-form-element__static">
+                                                <template if:false={isAutoWarrOnCreate}>
+                                                    {i18n.lblNo}
+                                                </template>
+                                                <template if:true={isAutoWarrOnCreate}>
+                                                    {i18n.lblYes}
+                                                </template>
+                                            </div>
+                                            <lightning-layout-item flexibility="auto"
+                                                class="slds-text-align_right action-col">
+                                                <lightning-button-icon icon-name="utility:edit" variant="bare"
+                                                    size="medium" alternative-text={i18n.btnEdit} title={i18n.btnEdit}
+                                                    onclick={handleEdit}></lightning-button-icon>
+                                            </lightning-layout-item>
+                                        </template>
+                                        <template if:true={editMode}>
+                                            <lightning-input label={i18n.lblAutoCreate}
+                                                class="svmx-warranty-rules_auto-create-checkbox" type="checkbox"
+                                                checked={isAutoWarrOnCreateNewVal} onchange={handleOnCreateCheckbox}>
+                                            </lightning-input>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-form__item">
+                                <div
+                                    class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent">
+                                    <div class="slds-form-element__control">
+                                        <template if:false={editMode}>
+                                            <span class="slds-form-element__label">{i18n.lblTemplateMapping}</span>
+                                            <div class="slds-form-element__static">
+                                                {objectMapping}
+                                            </div>
+                                            <lightning-layout-item flexibility="auto"
+                                                class="slds-text-align_right action-col">
+                                                <lightning-button-icon icon-name="utility:edit" variant="bare"
+                                                    size="medium" alternative-text={i18n.btnEdit} title={i18n.btnEdit}
+                                                    onclick={handleEdit}></lightning-button-icon>
+                                            </lightning-layout-item>
+                                        </template>
+                                        <template if:true={editMode}>
+                                            <div class="slds-form-element__label fullwidth">
+                                                {i18n.lblTemplateMapping}
+                                                <a class="slds-float_right slds-text-link svmx-warranty-rules_new-mapping-link"
+                                                    href="#" onclick={handleCreateMapping}>
+                                                    {i18n.lblNewMapping}
+                                                </a>
+                                            </div>
+                                            <lightning-combobox label={i18n.lblTemplateMapping}
+                                                value={editObjectMappingNewVal} options={objectMappingOptions} onchange={handleMappingChange}
+                                                variant="label-hidden" class="svmx-warranty-rules_mapping-combo">
+                                            </lightning-combobox>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-form__row">
+                            <div class="slds-form__item">
+                                <div
+                                    class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent">
+                                    <div class="slds-form-element__control">
+                                        <template if:false={editMode}>
+                                            <span class="slds-form-element__label">{i18n.lblAutoUpdate}</span>
+                                            <div class="slds-form-element__static">
+                                                <template if:false={isAutoWarrOnUpdate}>
+                                                    {i18n.lblNo}
+                                                </template>
+                                                <template if:true={isAutoWarrOnUpdate}>
+                                                    {i18n.lblYes}
+                                                </template>
+                                            </div>
+                                            <lightning-layout-item flexibility="auto"
+                                                class="slds-text-align_right action-col">
+                                                <lightning-button-icon icon-name="utility:edit" variant="bare"
+                                                    size="medium" alternative-text={i18n.btnEdit} title={i18n.btnEdit}
+                                                    onclick={handleEdit}></lightning-button-icon>
+                                            </lightning-layout-item>
+                                        </template>
+                                        <template if:true={editMode}>
+                                            <lightning-input type="checkbox" label={i18n.lblAutoUpdate}
+                                                class="svmx-warranty-rules_auto-update-checkbox"
+                                                checked={isAutoWarrOnUpdateNewVal} onchange={handleOnUpdateCheckbox}>
+                                            </lightning-input>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-form__item"></div>
+                        </div>
+                    </c-x-expandable-section>
+
+                    <c-x-expandable-section title={i18n.secDateMapping}>
+                        <ul class="slds-has-dividers_bottom-space slds-var-m-top_medium">
+                            <li class="slds-item header-item slds-theme_shade">
+                                <lightning-layout multiple-rows vertical-align="center">
+                                    <lightning-layout-item flexibility="auto" size="6">
+                                        <div class="slds-text-heading_small" title={i18n.lblWarrantyTerm}>
+                                            <span
+                                                class="slds-text-heading_small slds-text-align_center">{i18n.lblWarrantyTerm}</span>
+                                        </div>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item flexibility="auto" size="5">
+                                        <div class="slds-var-p-left_small value slds-text-heading_small"
+                                            title={i18n.lblSourceAssetField}>
+                                            <span
+                                                class="slds-text-heading_small slds-text-align_center">{i18n.lblSourceAssetField}</span>
+                                        </div>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </li>
+                            <template if:false={editMode}>
+                                <template for:each={dateMapping} for:item="eachMapping" for:index="index">
+                                    <li id={index} key={eachMapping.key} class="slds-item detail-item">
+                                        <lightning-layout multiple-rows vertical-align="center">
+                                            <lightning-layout-item size="6" flexibility="auto">
+                                                <div title={eachMapping.keyLabel}
+                                                    class="slds-text-body_regular slds-text-color_default slds-truncate">
+                                                    {eachMapping.keyLabel}
+                                                </div>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="5" flexibility="auto">
+                                                <div title={eachMapping.valueLabel}
+                                                    class="slds-var-p-left_small value slds-text-body_regular slds-text-color_default slds-truncate">
+                                                    {eachMapping.valueLabel}
+                                                </div>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item flexibility="auto"
+                                                class="slds-text-align_right action-col">
+                                                <lightning-button-icon icon-name="utility:edit" variant="bare"
+                                                    size="medium" class="slds-var-p-around_small"
+                                                    alternative-text={i18n.btnEdit} title={i18n.btnEdit}
+                                                    data-row-key={eachMapping.key} onclick={handleEdit}>
+                                                </lightning-button-icon>
+                                            </lightning-layout-item>
+                                        </lightning-layout>
+                                    </li>
+                                </template>
+                            </template>
+                            <template if:true={editMode}>
+                                <template for:each={dateMappingNewVal} for:item="eachMappingVal" for:index="index">
+                                    <li id={index} key={eachMappingVal.key} class="slds-item detail-item">
+                                        <lightning-layout multiple-rows vertical-align="center">
+                                            <lightning-layout-item size="6" flexibility="auto">
+                                                <div class="key" title={eachMappingVal.key}>
+                                                    {eachMappingVal.keyLabel}
+                                                </div>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="5" flexibility="auto">
+                                                <lightning-combobox class="slds-var-p-left_small value"
+                                                    variant="label-hidden" options={assetFieldOptions}
+                                                    value={eachMappingVal.value} data-row-key={eachMappingVal.key}
+                                                    onchange={handleChangeAssetField}></lightning-combobox>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item flexibility="auto no grow" class="">
+                                                <lightning-button-icon icon-name="utility:clear" variant="bare"
+                                                    size="large" class="slds-var-p-around_small"
+                                                    alternative-text={i18n.btnClear} tooltip={i18n.btnClear}
+                                                    data-row-key={eachMappingVal.key} onclick={handleClearDetail}>
+                                                </lightning-button-icon>
+                                            </lightning-layout-item>
+                                        </lightning-layout>
+                                    </li>
+                                </template>
+                            </template>
+                        </ul>
+                    </c-x-expandable-section>
+                </div>
+            </div>
+        </div>
+    </lightning-layout-item>
+</template>

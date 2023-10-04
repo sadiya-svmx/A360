@@ -1,0 +1,57 @@
+.svmx-runtime-datatable .slds-has-error .svmx-cell-edit {
+    box-shadow: var(--lwc-colorBorderError,rgb(194, 57, 52)) 0 0 0 1px inset;
+}
+.svmx-runtime-grid_publish-error .svmx-runtime-datatable .slds-has-error .svmx-cell-edit {
+    box-shadow: var(--lwc-colorBorderError,rgb(194, 57, 52)) 0 0 0 2px inset;
+}
+
+/* datatable edit modal specific picklist & textarea fixes */
+.svmx-runtime-datatable .svmx-cell-edit_picklist .combo-search-input .slds-input,
+.svmx-runtime-datatable .slds-has-error .svmx-cell-edit_picklist .combo-input,
+.svmx-runtime-datatable .slds-has-error .svmx-modal .slds-textarea {
+    background-color: var(--lwc-colorBackgroundInput, rgb(255, 255, 255));
+    border: var(--lwc-borderWidthThin, 1px) solid var(--lwc-colorBorderInput, rgb(217, 219, 221));
+    box-shadow: none;
+}
+
+.svmx-runtime-datatable .slds-has-error .svmx-cell-edit_picklist .slds-has-error .combo-input,
+.svmx-runtime-datatable .slds-has-error .svmx-modal .slds-has-error .slds-textarea {
+    background-color: var(--lwc-colorBackgroundInput,rgb(255, 255, 255));
+    border-color: var(--lwc-colorBorderError,rgb(194, 57, 52));
+    box-shadow: var(--lwc-colorBorderError,rgb(194, 57, 52)) 0 0 0 var(--lwc-borderWidthThin,1px) inset;
+}
+
+.svmx-runtime-datatable .svmx-cell-edit_picklist .combo-search-input .slds-input__icon {
+    fill: var(--sds-c-icon-color-foreground-default, var(--lwc-colorTextIconDefault,rgb(112, 110, 107)));
+    color: var(--sds-c-icon-color-foreground-default, var(--lwc-colorTextIconDefault,rgb(112, 110, 107)));
+}
+
+.svmx-runtime-datatable .slds-table .slds-cell-edit.slds-is-edited,
+.svmx-runtime-datatable .slds-table .slds-cell-wrap {
+   word-break: break-word;
+}
+
+.svmx-runtime-datatable .slds-scrollable_x, .slds-scrollable--x {
+    padding-bottom: 5px;
+}
+
+.svmx-runtime-datatable .slds-table tbody tr:hover>td.slds-is-edited, 
+.svmx-runtime-datatable .slds-table tbody tr:hover>th.slds-is-edited {
+    background-color: var(--lwc-colorBackgroundHighlight,rgb(250, 255, 189));
+}
+
+.svmx-runtime-datatable .slds-table tbody tr.slds-is-selected>td.slds-is-edited, 
+.svmx-runtime-datatable .slds-table tbody tr.slds-is-selected>th.slds-is-edited {
+    background: var(--lwc-colorBackgroundHighlight,rgb(250, 255, 189));
+}
+
+.svmx-runtime-datatable .slds-has-error 
+.slds-checkbox [type=checkbox]+.slds-checkbox__label 
+.slds-checkbox_faux {
+    border-color: var(--slds-c-checkbox-color-border, var(--sds-c-checkbox-color-border, var(--lwc-colorBorderInput,rgb(201, 201, 201))));
+    border-width: var(--lwc-borderWidthThin,1px);
+}
+
+.svmx-runtime-datatable .slds-has-error .slds-checkbox [type=checkbox]:checked+.slds-checkbox__label .slds-checkbox_faux:after {
+    border-color: var(--lwc-brandAccessible,rgb(1, 118, 211));
+}

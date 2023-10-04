@@ -1,0 +1,120 @@
+.container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.scrollable {
+    overflow: auto;
+    height: 100%;    
+}
+
+.value-truncate {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.frequency {
+    width: 140px;
+}
+
+.interval {
+    width:120px;
+}
+
+.inlineContainer {
+    width:120px;
+    display: inline-block; 
+}
+
+.freqContainer {
+    position: absolute;
+    top: 15px;
+    width: 120px;
+}
+
+.comboboxContainer {
+    display: inline-block;
+    height: 70px
+}
+
+.monthDay {
+    margin-left: 63px;
+    width: 140px;    
+}
+
+.setpos {
+    margin-left: 63px;
+    width: 140px;  
+}
+
+.setweekpos {
+    width: 140px;  
+}
+
+.workRuleInterval {
+    margin-top: 10px;
+    margin-left: 5px;
+    width: 120px;
+    height: 77px;
+}
+
+.yearContainer {
+    padding-bottom: 75px;
+}
+
+.yearSecondRow {
+    position: relative;
+}
+
+.yearMonthCbxLbl {
+    position: absolute;
+    top: 96px;
+    left: 26%;
+}
+
+.yearCombobx {
+    width: 141px;
+}
+
+.yearMonthCbx {
+    position: absolute;
+    top: 70px;
+    left: 53%;
+}
+.yearMarginCbxFix {
+    margin-left: 8px;
+}
+
+.yearSetPos {
+    margin-left: 63px;
+}
+
+.yearMonthFirstCbx {
+    margin-left: 84px;
+}
+
+.svmx-is-view {
+    border-bottom: var(--lwc-borderWidthThin,1px) solid var(--lwc-colorBorder,rgb(221, 219, 218));
+}
+
+.svmx-time-row-at {
+    margin-top: 24px;
+    margin-left: 16px;
+}
+
+.svmx-time-option {
+    margin-left: 85px;
+    width: 142px;
+}
+
+.svmx-time-zone-option {
+    margin-left: -16px;
+    width: 142px;
+}
+
+.svmx-time-zone-option .slds-dropdown-trigger_click .slds-dropdown {
+    width: 1549px;
+}

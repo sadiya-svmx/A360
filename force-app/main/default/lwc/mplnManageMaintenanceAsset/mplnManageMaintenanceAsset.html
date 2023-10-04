@@ -1,0 +1,130 @@
+<template>
+    <lightning-card title={i18n.title} icon-name="standard:maintenance_asset">
+        <template if:true={error}>
+            <c-alert variant="error">{error}</c-alert>
+        </template>
+        <div slot="actions" class="slds-grid slds-wrap">
+            <lightning-input style="width: 350px;" type="search" autocomplete="off" placeholder={i18n.placeholder}
+                variant="label-hidden" class="slds-col svmx-manage-maintenance-asset-search_input" onchange={handleSearch}>
+            </lightning-input>
+            <lightning-button-menu alternative-text={i18n.actions} label={i18n.actions} onselect={handleActions} class="slds-col slds-m-left_x-small">
+                <lightning-menu-item value="addAssets" label={i18n.addAssets} class="svmx-manage-maintenance-asset-add_asset_menu"></lightning-menu-item>
+                <lightning-menu-item value="deleteAssets" label={i18n.removeAssets} disabled={disableDeleteMenu} class="svmx-manage-maintenance-asset-delete_asset_menu"></lightning-menu-item>
+            </lightning-button-menu>
+        </div>
+        <div class="slds-m-around_medium">
+            <div if:true={isListHasRecords} class="slds-text-align_left">
+                {recordCountInfo}
+            </div>
+            <div>
+                <div if:true={apiInProgress} class="slds-is-relative">
+                    <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium">
+                    </lightning-spinner>
+                </div>
+                <div if:false={isListHasRecords} class="slds-align_absolute-center no-data">
+                    {i18n.noResults}
+                </div>
+                <template if:true={isListHasRecords}>
+                    <c-x-paginated-datatable
+                        key-field="assetId"
+                        records={localMaintenanceAssetRecords}
+                        columns={columns}
+                        errors={errors}
+                        draft-values={draftValues}
+                        oncellchange={handleCellChange}
+                        ondynamicfieldchange={handleDynamicFieldChange}
+                        suppress-bottom-bar
+                        onpaginatedrowaction={handleRowAction}
+                        onpaginatedrowselection={handleRowSelection}>
+                    </c-x-paginated-datatable>
+                </template>
+            </div>
+        </div>
+        <!--Add Asset Modal-->
+        <c-modal-dialog title={i18n.addAssetTitle} size="MEDIUM" is-open={showAssetSelectionModal} class="svmx-manage-maintenance-asset-add_modal"
+                modal-content-id="assetModalContent" modal-header-id="assetModalHeader" onmodalclosed={handleCancelOfAssetModal}>
+            <div slot="body" style="height: 500px;">
+                <template if:true={errorForAssetModal}>
+                    <c-alert variant="error">{errorForAssetModal}</c-alert>
+                </template>
+                <lightning-layout>
+                    <lightning-layout-item flexibility="auto" class="slds-p-right_small">
+                        <lightning-input type="search" autocomplete="off" placeholder={i18n.placeholderForAssetSearch}
+                            variant="label-hidden" onchange={handleChangeOfSearchBox} class="svmx-manage-maintenance-asset-add_modal_search_box">
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item flexibility="auto">
+                        <lightning-button label={i18n.search} title={i18n.search} variant="brand" 
+                            onclick={handleSearchButton} disabled={disableSearchButton} class="svmx-manage-maintenance-asset-add_modal_search_button">
+                        </lightning-button>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <lightning-layout>
+                    <lightning-layout-item flexibility="auto" class="slds-p-top_small">
+                        <div if:true={apiInProgress} class="slds-is-relative">
+                            <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium">
+                            </lightning-spinner>
+                        </div>
+                        <div if:true={noRecordsFoundForAsset} class="slds-align_absolute-center no-data">
+                            {i18n.noResults}
+                        </div>
+                        <div class="slds-align_absolute-left slds-p-bottom_small">
+                            {countOfSelectedRowsString}
+                        </div>
+                        <div class="slds-scrollable" style="width:1140px; height:420px;">
+                            <lightning-datatable class="svmx-asset-list-view_table" key-field="id" data={assetRecordsList} columns={assetColumns}
+                                selected-rows={selectedRowsId} onrowselection={handleAssetRowSelection} wrap-text-max-lines="3">
+                            </lightning-datatable>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" 
+                    class="slds-p-right_x-small svmx-manage-maintenance-asset-add_modal_cancel_btn" onclick={handleCancelOfAssetModal}></lightning-button>
+                <lightning-button label={i18n.confirm} title={i18n.confirm} variant="brand" class="svmx-manage-maintenance-asset-add_modal_confirm_btn"
+                    disabled={isDisableConfirmButtonOfAssetModal} onclick={handleConfirmOfAssetModal}></lightning-button>
+            </div>
+        </c-modal-dialog>
+        <!--Confirm Delete Modal-->
+        <c-modal-dialog title={i18n.removeMaintenanceAsset} is-open={deleteModalDialogOpen} class="svmx-manage-maintenance-asset-delete_modal"
+            modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={handleCancelModal}>
+            <div slot="body">
+                <p>
+                    <lightning-formatted-text class="slds-align_absolute-center"
+                        value={i18n.removeConfirmMessage}>
+                    </lightning-formatted-text>
+                </p>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal}
+                    class="slds-p-right_x-small svmx-manage-maintenance-asset-delete_modal_cancel"></lightning-button>
+                <lightning-button label={i18n.confirm} title={i18n.confirm} variant="brand"
+                    onclick={handleDeleteConfirmModal} class="svmx-manage-maintenance-asset-delete_modal_confirm"></lightning-button>
+            </div>
+        </c-modal-dialog>
+        <c-svmx-form-footer
+            is-sticky
+            is-in-modal=true
+            alignment="right"
+            errors={bottomErrorMessage}
+            has-error={hasErrors}
+            >
+            <lightning-button
+                variant="neutral"
+                label={i18n.previous}
+                title={i18n.previous}
+                onclick={handlePrevious}
+                class="slds-m-left_xx-small slds-m-right_xx-small previous"
+            ></lightning-button>
+            <lightning-button
+                variant="brand"
+                label={i18n.createMaintenancePlan}
+                title={i18n.createMaintenancePlan}
+                onclick={handleNext}
+                disabled={isMaintenanceAssetListEmpty}
+                class="slds-m-left_xx-small slds-m-right_xx-small createMaintenancePlan"
+            ></lightning-button> 
+        </c-svmx-form-footer>
+    </lightning-card>
+</template>

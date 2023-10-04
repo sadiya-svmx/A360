@@ -1,0 +1,569 @@
+<template>
+    <!-- line type selection modal-->
+    <div class="svmx-negotiated-price-line-item-detail-type_modal">
+        <c-modal-dialog title={i18n.lineTypetitle} class="svmx-negotiated-price-line-item-detail_new_modal" size="SMALL"
+            is-open={newContractPriceModalOpen} modal-content-id="newModalContent" modal-header-id="newModalHeader"
+            onmodalclosed={handleNewCancelModal}>
+            <div slot="body">
+                <lightning-radio-group label={i18n.lineTypeSelection} name="radioButtonGroup"
+                    class="svmx-negotiated-price-line-item-detail_line-type" onchange={handleChangeLineType}
+                    options={lineTypeOptions} value={selectedLineType} type="radio">
+                </lightning-radio-group>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                    onclick={handleNewCancelModal}
+                    class="slds-p-right_x-small svmx-negotiated-price-line-item-detail_new-cancel-btn">
+                </lightning-button>
+                <lightning-button class="svmx-negotiated-price-line-item-detail_new-confirm-btn" label={i18n.next}
+                    title={i18n.next} variant="brand" onclick={handleNext} disabled={isDisableNextButton}>
+                </lightning-button>
+            </div>
+        </c-modal-dialog>
+    </div>
+
+    <!-- create and edit form-->
+    <div class="svmx-negotiated-price-line-item-detail_modal">
+        <c-modal-dialog title={contractPriceTitle} class="svmx-negotiated-price-line-item-detail_edit_modal"
+            size="SMALL" is-open={contractPriceViewModalOpen} modal-content-id="editModalContent"
+            modal-header-id="editModalHeader" onmodalclosed={handleContractPriceViewCancel}>
+            <div slot="body">
+                <template if:true={error}>
+                    <div class="slds-box slds-theme_error slds-p-left_medium slds-p-right_medium" role="alert">
+                        <p>{i18n.reviewError}</p>
+                    </div>
+                    <div
+                        class="slds-text-color_error slds-p-left_large slds-p-top_xx-small svmx-negotiated-price-line-item-detail_error">
+                        {error}
+                    </div>
+                </template>
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                        <template if:true={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked svmx-npli-detail_is-view">
+                                <span class="slds-form-element__label">
+                                    {i18n.serviceContract}
+                                </span>
+                                <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                    <span class="slds-form-element__static slds-grow word-break-ie11">
+                                        <div class="slds-form-element__static">
+                                            {recordInfo.serviceContractName}
+                                        </div>
+                                    </span>
+                                    <lightning-button-icon 
+                                        icon-name="utility:edit"
+                                        variant="bare"
+                                        alternative-text={i18n.edit}
+                                        title={i18n.edit}
+                                        onclick={handleEdit}
+                                        class="slds-col_bump-left slds-button__icon_hint"
+                                    ></lightning-button-icon>
+                                </div>
+                            </div>
+                        </template>
+                        <template if:false={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <c-svmx-lookup
+                                    class="svmx-negotiated-price-line-item-detail_contractId required-input"
+                                    advanced-search-config={booleanFalse}
+                                    data-field="ServiceContract"
+                                    field-api-name="ServiceContract"
+                                    disabled={booleanFalse}
+                                    enable-advanced-search={booleanFalse}
+                                    icon-name="standard:service_contract"
+                                    label={i18n.serviceContract}
+                                    target-object-api-name="ServiceContract"
+                                    target-label-api-name={serviceContractNameField}
+                                    onlookupselect={handleLookupFieldChange}
+                                    read-only={booleanFalse}
+                                    value={recordInfo.serviceContractId}
+                                    required>
+                                </c-svmx-lookup>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                        <template if:true={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked svmx-npli-detail_is-view">
+                                <span class="slds-form-element__label">
+                                    {i18n.entitledService}
+                                </span>
+                                <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                    <span class="slds-form-element__static slds-grow word-break-ie11">
+                                        <div class="slds-form-element__static">
+                                            {recordInfo.entitledServiceName}
+                                        </div>
+                                    </span>
+                                    <lightning-button-icon 
+                                        icon-name="utility:edit"
+                                        variant="bare"
+                                        alternative-text={i18n.edit}
+                                        title={i18n.edit}
+                                        onclick={handleEdit}
+                                        class="slds-col_bump-left slds-button__icon_hint"
+                                    ></lightning-button-icon>
+                                </div>
+                            </div>
+                        </template>
+                        <template if:false={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <c-svmx-lookup
+                                    class="svmx-negotiated-price-line-item-detail_entitledServiceId"
+                                    advanced-search-config={booleanFalse}
+                                    data-field="EntitledService"
+                                    field-api-name="EntitledService"
+                                    disabled={booleanFalse}
+                                    enable-advanced-search={booleanFalse}
+                                    icon-name="standard:entitlement"
+                                    label={i18n.entitledService}
+                                    target-object-api-name="Entitlement"
+                                    target-label-api-name={entitledServiceNameField}
+                                    onlookupselect={handleLookupFieldChange}
+                                    read-only={booleanFalse}
+                                    value={recordInfo.entitledServiceId}
+                                    filters={entitledServiceFilter}>
+                                </c-svmx-lookup>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                        <template if:true={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked svmx-npli-detail_is-view">
+                                <span class="slds-form-element__label">
+                                    {i18n.contractLine}
+                                </span>
+                                <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                    <span class="slds-form-element__static slds-grow word-break-ie11">
+                                        <div class="slds-form-element__static">
+                                            {recordInfo.contractLineName}
+                                        </div>
+                                    </span>
+                                    <lightning-button-icon 
+                                        icon-name="utility:edit"
+                                        variant="bare"
+                                        alternative-text={i18n.edit}
+                                        title={i18n.edit}
+                                        onclick={handleEdit}
+                                        class="slds-col_bump-left slds-button__icon_hint"
+                                    ></lightning-button-icon>
+                                </div>
+                            </div>
+                        </template>
+                        <template if:false={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <c-svmx-lookup
+                                    class="svmx-negotiated-price-line-item-detail_contractLineId"
+                                    advanced-search-config={booleanFalse}
+                                    data-field="ContractLine"
+                                    field-api-name="ContractLine"
+                                    disabled={booleanFalse}
+                                    enable-advanced-search={booleanFalse}
+                                    icon-name="standard:contract_line_item"
+                                    label={i18n.contractLine}
+                                    target-object-api-name="ContractLineItem"
+                                    target-label-api-name={contractLineNameField}
+                                    onlookupselect={handleLookupFieldChange}
+                                    read-only={booleanFalse}
+                                    value={recordInfo.contractLineId}
+                                    show-relationship-value={booleanTrue}
+                                    filters={contractLineFilter}>
+                                </c-svmx-lookup>
+                            </div>
+                        </template>                        
+                    </div>
+                </div>
+
+                <div if:false={isExpenseItemSection} class="slds-section slds-is-open">
+                    <h3 class="slds-section__title slds-theme_shade">
+                        <span class="slds-truncate slds-p-horizontal_small" title={i18n.product}>{i18n.product}</span>
+                    </h3>
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-npli-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.type}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {productTypeLabel}
+                                            </div>
+                                        </span>
+                                        <lightning-button-icon 
+                                            icon-name="utility:edit"
+                                            variant="bare"
+                                            alternative-text={i18n.edit}
+                                            title={i18n.edit}
+                                            onclick={handleEdit}
+                                            class="slds-col_bump-left slds-button__icon_hint"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>                                
+                                <lightning-combobox label={i18n.type} value={selectedProductType}
+                                    options={productTypeOptions} onchange={handleChangeProductType}
+                                    class="svmx-negotiated-price-line-item-detail_product-type">
+                                </lightning-combobox>
+                            </template>
+                        </div>
+                        <template if:false={viewMode}>
+                            <div if:true={isDisabledProductField}
+                                class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                                <lightning-input label={i18n.labelDisabled} type="text" disabled></lightning-input>
+                            </div>
+                        </template>
+                        <div if:true={isProductVisible}
+                            class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-npli-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.product}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {recordInfo.productName}
+                                            </div>
+                                        </span>
+                                        <lightning-button-icon 
+                                            icon-name="utility:edit"
+                                            variant="bare"
+                                            alternative-text={i18n.edit}
+                                            title={i18n.edit}
+                                            onclick={handleEdit}
+                                            class="slds-col_bump-left slds-button__icon_hint"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked">
+                                    <c-svmx-lookup
+                                        class="svmx-negotiated-price-line-item-detail_productId"
+                                        advanced-search-config={booleanFalse}
+                                        data-field="Product"
+                                        field-api-name="Product"
+                                        disabled={booleanFalse}
+                                        enable-advanced-search={booleanFalse}
+                                        icon-name="standard:product"
+                                        label={i18n.product}
+                                        target-object-api-name="Product2"
+                                        target-label-api-name={productNameField}
+                                        onlookupselect={handleLookupFieldChange}
+                                        read-only={booleanFalse}
+                                        value={recordInfo.productId}>
+                                    </c-svmx-lookup>
+                                </div>
+                            </template>                            
+                        </div>
+                        <div if:true={isProductFamilyVisible}
+                            class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-npli-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.productFamily}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {productFamilyLabel}
+                                            </div>
+                                        </span>
+                                        <lightning-button-icon 
+                                            icon-name="utility:edit"
+                                            variant="bare"
+                                            alternative-text={i18n.edit}
+                                            title={i18n.edit}
+                                            onclick={handleEdit}
+                                            class="slds-col_bump-left slds-button__icon_hint"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <lightning-combobox data-field="productFamily"
+                                    class="svmx-negotiated-price-line-item-detail_productfamily"
+                                    label={i18n.productFamily} value={recordInfo.productFamily}
+                                    options={productFamilyOptions} onchange={handleChange}>
+                                </lightning-combobox>
+                            </template>                            
+                        </div>
+                    </div>
+                </div>
+
+                <div if:true={isExpenseItemSection} class="slds-section slds-is-open">
+                    <h3 class="slds-section__title slds-theme_shade">
+                        <span class="slds-truncate slds-p-horizontal_small"
+                            title={i18n.expenseItem}>{i18n.expenseItem}</span>
+                    </h3>
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-npli-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.expenseItem}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {expenseLabel}
+                                            </div>
+                                        </span>
+                                        <lightning-button-icon 
+                                            icon-name="utility:edit"
+                                            variant="bare"
+                                            alternative-text={i18n.edit}
+                                            title={i18n.edit}
+                                            onclick={handleEdit}
+                                            class="slds-col_bump-left slds-button__icon_hint"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <lightning-combobox data-field="expenseItem"
+                                    class="svmx-negotiated-price-line-item-detail_expenseitem"
+                                    label={i18n.expenseItem} value={recordInfo.expenseItem} options={expenseOptions}
+                                    onchange={handleChange}>
+                                </lightning-combobox>
+                            </template>                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slds-section slds-is-open">
+                    <h3 class="slds-section__title slds-theme_shade">
+                        <span class="slds-truncate slds-p-horizontal_small" title={i18n.pricing}>{i18n.pricing}</span>
+                    </h3>
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-npli-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.type}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {pricingTypeLabel}
+                                            </div>
+                                        </span>
+                                        <lightning-button-icon 
+                                            icon-name="utility:edit"
+                                            variant="bare"
+                                            alternative-text={i18n.edit}
+                                            title={i18n.edit}
+                                            onclick={handleEdit}
+                                            class="slds-col_bump-left slds-button__icon_hint"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <lightning-combobox
+                                    class="svmx-negotiated-price-line-item-detail_pricing-type required-input"
+                                    label={i18n.type} value={selectedPricingMethod}
+                                    options={pricingTypeOptions} onchange={handleChangePricingMethod}
+                                    message-when-value-missing={i18n.valueMissing} required>
+                                </lightning-combobox>
+                            </template>                            
+                        </div>
+                        <template if:false={viewMode}>
+                            <div if:true={isDisabledPriceField}
+                                class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                                <lightning-input label={i18n.labelDisabled} type="text" disabled></lightning-input>
+                            </div>
+                        </template>
+                        <div if:true={showCurrencyCode}
+                            class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-npli-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.currency}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {currencyCodeLabel}
+                                            </div>
+                                        </span>
+                                        <lightning-button-icon 
+                                            icon-name="utility:edit"
+                                            variant="bare"
+                                            alternative-text={i18n.edit}
+                                            title={i18n.edit}
+                                            onclick={handleEdit}
+                                            class="slds-col_bump-left slds-button__icon_hint"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <lightning-combobox 
+                                    data-field="currencyIsoCode"
+                                    class="svmx-negotiated-price-line-item-detail_currency required-input"
+                                    label={i18n.currency} value={recordInfo.currencyIsoCode}
+                                    options={currencyCodeOptions} onchange={handleChange}
+                                    message-when-value-missing={i18n.valueMissing} required>
+                                </lightning-combobox>
+                            </template>
+                        </div>
+                        <div if:true={isPricingVisible}
+                            class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-npli-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.pricing}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                <lightning-formatted-number value={recordInfo.price} format-style={formatterType}>
+                                                </lightning-formatted-number>
+                                            </div>
+                                        </span>
+                                        <lightning-button-icon 
+                                            icon-name="utility:edit"
+                                            variant="bare"
+                                            alternative-text={i18n.edit}
+                                            title={i18n.edit}
+                                            onclick={handleEdit}
+                                            class="slds-col_bump-left slds-button__icon_hint"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <lightning-input data-field="price" type="number" autocomplete="off" name={i18n.pricing} label={i18n.pricing}
+                                    value={recordInfo.price} onchange={handleChange} formatter={formatterType} step="0.01"
+                                    message-when-step-mismatch={currencyStepMismatchMessage} max={currencyMaxValue}
+                                    message-when-range-overflow={currencyStepMismatchMessage} required
+                                    message-when-value-missing={i18n.valueMissing}
+                                    class="svmx-negotiated-price-line-item-detail_price required-input">
+                                </lightning-input>
+                            </template>                            
+                        </div>
+                        <div if:true={isDiscountVisible}
+                            class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-npli-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.discount}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                <lightning-formatted-number value={recordInfo.discount} format-style="percent-fixed">
+                                                </lightning-formatted-number>
+                                            </div>
+                                        </span>
+                                        <lightning-button-icon 
+                                            icon-name="utility:edit"
+                                            variant="bare"
+                                            alternative-text={i18n.edit}
+                                            title={i18n.edit}
+                                            onclick={handleEdit}
+                                            class="slds-col_bump-left slds-button__icon_hint"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <lightning-input type="number" autocomplete="off" data-field="discount" onchange={handleChange}
+                                    name={i18n.discount} label={i18n.discount} value={recordInfo.discount}
+                                    formatter="percent-fixed" step="0.01"
+                                    message-when-step-mismatch={percentStepMismatchMessage} min="0" max="100"
+                                    message-when-range-overflow={i18n.discountError}
+                                    message-when-range-underflow={i18n.discountError} required
+                                    message-when-value-missing={i18n.valueMissing}
+                                    class="svmx-negotiated-price-line-item-detail_discount required-input">
+                                </lightning-input>
+                            </template>                            
+                        </div>
+                        <div if:true={isSurchargeVisible}
+                            class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-npli-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.surcharge}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">                                                
+                                                <lightning-formatted-number value={recordInfo.surcharge} format-style="percent-fixed">
+                                                </lightning-formatted-number>
+                                            </div>
+                                        </span>
+                                        <lightning-button-icon 
+                                            icon-name="utility:edit"
+                                            variant="bare"
+                                            alternative-text={i18n.edit}
+                                            title={i18n.edit}
+                                            onclick={handleEdit}
+                                            class="slds-col_bump-left slds-button__icon_hint"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <lightning-input type="number" autocomplete="off" data-field="surcharge" onchange={handleChange}
+                                    name={i18n.surcharge} label={i18n.surcharge} value={recordInfo.surcharge}
+                                    formatter="percent-fixed" step="0.01"
+                                    message-when-step-mismatch={percentStepMismatchMessage} min="0" max={percentMaxValue}
+                                    message-when-range-overflow={percentStepMismatchMessage}                                
+                                    message-when-range-underflow={i18n.surchargeError} required
+                                    message-when-value-missing={i18n.valueMissing}
+                                    class="svmx-negotiated-price-line-item-detail_surcharge required-input">
+                                </lightning-input>
+                            </template>                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div slot="footer">
+                <template if:true={viewMode}>
+                    <lightning-button label={i18n.delete} title={i18n.delete} variant="destructive-text"
+                        onclick={handleDeleteModal} class="slds-float_left svmx-npli_deletebtn">
+                    </lightning-button>
+                </template>
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                    onclick={handleContractPriceViewCancel}
+                    class="slds-p-right_x-small svmx-negotiated-price-line-item-detail_cancel-btn">
+                </lightning-button>
+                <template if:true={viewMode}>
+                    <lightning-button label={i18n.clone} title={i18n.clone} variant="neutral"
+                        onclick={handleClone} class="slds-p-right_x-small svmx-npli-detail_clonebtn">
+                    </lightning-button>
+                    <lightning-button class="svmx-npli-detail_editbtn" label={i18n.edit} title={i18n.edit} variant="brand" onclick={handleEdit}>
+                    </lightning-button>
+                </template>
+                <template if:false={viewMode}>
+                    <lightning-button class="slds-p-right_x-small svmx-npli-detail_saveclonebtn" data-name="saveAndClone" label={i18n.saveAndClone} title={i18n.saveAndClone} variant="neutral" onclick={handleSave}>
+                    </lightning-button>
+                    <lightning-button class="svmx-negotiated-price-line-item-detail_confirm-btn" data-name="save" label={i18n.save}
+                        title={i18n.save} variant="brand" onclick={handleSave}>
+                    </lightning-button>
+                </template>                
+            </div>
+        </c-modal-dialog>
+    </div>
+    <c-modal-dialog title={i18n.deletePriceLineItem}
+        class="svmx-negotiated-price-line-items-list-view_delete-modal" is-open={deleteModalDialogOpen}
+        modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={handleCancelModal}>
+        <div slot="body">
+            <p>
+                <lightning-formatted-text class="slds-align_absolute-center"
+                    value={i18n.deleteConfirmMessage}>
+                </lightning-formatted-text>
+            </p>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal}
+                class="slds-p-right_x-small svmx-delete-modal_cancel-btn"></lightning-button>
+            <lightning-button class="svmx-delete-modal_confirm-btn" label={i18n.confirm} title={i18n.confirm} variant="brand"
+                onclick={handleDeleteConfirmModal}></lightning-button>
+        </div>
+    </c-modal-dialog>
+</template>

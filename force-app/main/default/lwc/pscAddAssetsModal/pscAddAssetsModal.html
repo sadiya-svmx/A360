@@ -1,0 +1,88 @@
+<template>
+    <c-modal-dialog title={i18n.addAssetsTitle} size="MEDIUM_FIXED" is-open={isModalOpen} modal-content-id="addModalContent"
+        modal-header-id="addAssetHeader" onmodalclosed={handleCancel}>
+        <div slot="body">
+            <template if:true={error}>
+                <c-alert variant="error">{error}</c-alert>
+            </template>
+            <fieldset class="slds-form-element slds-form-element_compound slds-m-bottom_medium">
+                <div class="slds-form-element__control"> 
+                    <div class="slds-form-element__row">
+                        <div class="slds-size_2-of-6">
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <c-svmx-lookup
+                                        advanced-search-config={booleanFalse}
+                                        icon-name={productIcon}
+                                        label={i18n.serviceProduct}
+                                        target-object-api-name={productObject}
+                                        target-label-api-name={productNameField}
+                                        onlookupselect={handleLookupChange}
+                                        value={productId}
+                                        placeholder={placeholderLookup}
+                                    ></c-svmx-lookup>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-size_2-of-6">
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <div class="slds-input-has-icon slds-input-has-icon--right">
+                                        <lightning-input value={searchTerm}
+                                            variant="label-hidden" autocomplete="off" title={i18n.placeholderSearch}
+                                            placeholder={i18n.placeholderSearch} onchange={handleSearchTermChange}>
+                                        </lightning-input>
+                                        <lightning-icon icon-name="utility:search"
+                                            class="slds-input__icon" size="xx-small">
+                                        </lightning-icon>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-size_2-of-6">
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <lightning-button class="searchButton" label={i18n.searchBtn} title={i18n.searchBtn}
+                                    variant="brand" onclick={handleSearch} disabled={isSearchDisabled}></lightning-button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <template if:true={apiInProgress}>
+                <div class="svmx-psc-search_spinner">
+                    <lightning-spinner variant="brand" alternative-text={i18n.labelLoading}
+                        size="large"></lightning-spinner>
+                </div>
+            </template>
+            <template if:true={assetList}>
+                <div class="slds-p-horizontal_small">
+                    <c-x-paginated-datatable 
+                    key-field="Id"
+                    records={assetList}
+                    columns={assetColumns}
+                    default-sort-direction={i18n.labelAscending}
+                    sorted-by={sortBy}
+                    sorted-direction={sortDirection}
+                    entity-name={entityName}
+                    onpaginatedrowselection={handleRowSelection}
+                    show-info-header="true"
+                    >
+                    </c-x-paginated-datatable>
+                </div>
+            </template>
+            <template if:true={isEmptyResult}>
+                <div class="slds-align_absolute-center slds-text-heading_small">
+                    {i18n.noResultsFound}
+                </div>
+            </template>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.cancelBtn} title={i18n.cancelBtn} variant="neutral"
+                onclick={handleCancel} class="slds-p-right_x-small"></lightning-button>
+            <lightning-button class="confirmButton" label={i18n.confirmBtn} title={i18n.confirmBtn}
+                variant="brand" onclick={handleConfirm} disabled={isConfirmDisabled}></lightning-button>
+        </div>
+    </c-modal-dialog>
+</template>

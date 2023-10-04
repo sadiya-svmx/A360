@@ -1,0 +1,6 @@
+.cancel-back_button {
+    background: none;
+    border: none;
+    padding: 0;
+    fill : var(--lwc-brandTextLink,rgb(1, 68, 134));
+}

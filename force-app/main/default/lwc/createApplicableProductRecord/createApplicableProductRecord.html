@@ -1,0 +1,41 @@
+<template>
+    <header class="slds-modal__header">
+    <h2 class="slds-modal__title slds-hyphenate">{i18n.addNewProduct}</h2>
+    </header>
+    <div class="slds-modal__content slds-p-around_medium slds-theme_shade">
+        <div class="slds-text-title slds-p-left_medium">
+            {i18n.title} <b>{nameField}</b>
+        </div>
+    </div>
+    <lightning-record-edit-form object-api-name="ProductWarrantyTerm"  onsubmit={handleSubmit} 
+                                onsuccess={handleSuccess} onerror={handleError}> 
+        <template if:true={error}>
+            <div class="slds-box slds-theme_error slds-p-left_medium slds-p-right_medium" role="alert">
+                <p>{i18n.reviewError}</p>
+            </div>
+            <div class="slds-text-color_error slds-p-left_large slds-p-top_xx-small svmx-error" >{error}</div>
+        </template>
+        <div class="slds-p-bottom_large slds-p-top_medium slds-p-right_x-large slds-p-left_x-large">
+            <label class="slds-p-left_x-small slds-text-color_weak" for="productId">{i18n.product}</label>
+            <lightning-input-field field-name='CoveredProductId' onchange={handleProductChange} disabled={productVisible}
+                                   variant="label-hidden" class="svmx-coveredProductId">
+            </lightning-input-field>
+            <div class="slds-p-top_medium">
+                <label class="slds-p-left_x-small slds-text-color_weak" for="productFamilyId">{i18n.productFamily}</label>
+                <lightning-input-field field-name='CoveredProductFamily' onchange={handleProductFamilyChange} 
+                                    disabled={productFamilyVisible} id="productFamilyId" variant="label-hidden" class="svmx-coveredProductFamily">
+                </lightning-input-field>
+            </div>
+        </div>
+        <footer class="slds-modal__footer">
+            <lightning-button label={i18n.cancel} variant="neutral" class="svmx-cancel slds-m-left_x-small" 
+                              onclick='{closeAndRefresh}'>
+            </lightning-button>
+            <lightning-button type="submit" label={i18n.saveAndNew} variant="neutral" class="svmx-submit slds-m-left_x-small" 
+                              onclick='{handleSaveAndNew}'>
+            </lightning-button>
+            <lightning-button  type="submit" label={i18n.save} variant="brand" class="svmx-save slds-m-left_x-small">
+            </lightning-button>
+        </footer>
+    </lightning-record-edit-form>
+</template>

@@ -1,0 +1,10 @@
+.alert {
+    border-radius: var(--lwc-borderRadiusMedium,0.25rem);
+    justify-content: flex-start;
+    margin-top: var(--lwc-spacingXSmall,0.5rem);
+    margin-bottom: var(--lwc-spacingXSmall,0.5rem);
+}
+
+.svmx-alert-message-wrap {
+    word-break: break-all;
+}

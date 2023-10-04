@@ -1,0 +1,3 @@
+<aura:documentation>
+	<aura:description>Wizard Detail component wrapped by Aura to support isUrlAddressable (Navigation to Lightning Components).</aura:description>
+</aura:documentation>

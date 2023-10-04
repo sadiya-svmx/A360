@@ -1,0 +1,23 @@
+<template>
+    <div class="slds-card card_size"> 
+      <img src={iconName} width="419" height="166">
+      <article class="slds-tile slds-media slds-text-heading_small slds-align_absolute-center main_body">
+          <div class="media_body slds-media__body slds-p-left_small slds-p-right_medium slds-text-align_center">
+            <div class="slds-tile__title slds-truncate slds-p-top_medium slds-p-bottom_xx-small tile_title" title={title}>
+              <lightning-formatted-text class="card-title" value={title}></lightning-formatted-text>
+            </div>
+            <div class="tile_description">
+              <lightning-formatted-text value={description}></lightning-formatted-text>
+            </div>
+          </div>
+      </article>
+      <lightning-button 
+        class="slds-align_absolute-center button_tile"
+        label={buttonLabel}
+        title={buttonLabel}
+        icon-name="utility:new_window"
+        onclick={handleclick}
+      >
+      </lightning-button>
+    </div>
+</template>

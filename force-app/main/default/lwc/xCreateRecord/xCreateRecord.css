@@ -1,0 +1,3 @@
+.svmx-content_fixed-height {
+    height: calc(100vh - 400px);
+}

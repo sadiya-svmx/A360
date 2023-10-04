@@ -1,0 +1,22 @@
+<aura:component implements="force:hasRecordId,force:lightningQuickActionWithoutHeader">
+  <aura:html tag="style">
+    .cuf-content {
+    padding: 0 0rem !important;
+    }
+    .slds-p-around--medium {
+    padding: 0rem;
+    }
+    .slds-modal__container{
+    max-width: 80rem;
+    width:100% !important;
+    padding:0;
+    height:100%;
+    }
+    .slds-modal__content{
+    overflow-y;
+    height:70% !important;
+    }
+
+  </aura:html>
+  <c:interactiveAssetWarranty recordId="{!v.recordId}" onclose="{!c.handleClose}" />
+</aura:component>

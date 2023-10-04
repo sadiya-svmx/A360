@@ -1,0 +1,17 @@
+<aura:component implements="lightning:isUrlAddressable">
+    <aura:attribute name="url_path" type="String" default=""/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <lightning:navigation aura:id="navService"/>
+    	<c:adminLayoutAura>
+            <lightning:layout>
+    
+                <lightning:layoutItem flexibility="grow" padding="horizontal-small">
+    
+                    <lightning:container aura:id="FSLMAX_LayoutEditor" src="{!$Resource.SPMLayoutEditor + v.url_path}"
+                      onmessage="{!c.handleMessage}" 
+                                           onerror="{!c.handleError}" class="layoutEditorContainer"
+                                         />
+                </lightning:layoutItem>
+       		 </lightning:layout>
+    	</c:adminLayoutAura>
+  </aura:component>

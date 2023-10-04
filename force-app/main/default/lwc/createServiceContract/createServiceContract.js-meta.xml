@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>A360 – Create Service Contract</masterLabel>
+    <description>Lightning Component to create Service Contract using the Service Contract template for an Account, Location or an Asset.</description>
+</LightningComponentBundle>

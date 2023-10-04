@@ -1,0 +1,3 @@
+<aura:documentation>
+	<aura:description>This component used for invoking wizard from record page quick action</aura:description>
+</aura:documentation>

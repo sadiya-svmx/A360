@@ -1,0 +1,54 @@
+/* base lookup styles */
+.svmx-lookup_form-element.slds-has-error .slds-pill_container,
+.slds-has-error .svmx-cell-edit_lookup .svmx-lookup_form-element.slds-has-error .slds-pill_container {
+    border-color: var(--lwc-colorBorderError,rgb(194, 57, 52));
+}
+
+.slds-has-error .svmx-cell-edit_lookup .svmx-lookup_form-element .slds-pill_container {
+    border-color: var(--lwc-colorBorderInput, rgb(217, 219, 221));
+}
+
+.svmx-lookup_form-element.slds-has-error .slds-pill__label,
+.slds-has-error .svmx-cell-edit_lookup .svmx-lookup_selection .slds-pill__label {
+    color: var(--lwc-colorTextDefault, rgb(22, 50, 92));
+    font-weight: 400;
+}
+
+/* lookup-advanced-search styles */
+.slds-has-error .svmx-lookup-advanced-search_modal .slds-input, 
+.slds-has-error .svmx-lookup-advanced-search_modal .slds-checkbox [type=checkbox]:checked+.slds-checkbox__label .slds-checkbox_faux,
+.slds-has-error .svmx-lookup-advanced-search_modal .slds-radio [type=radio]+.slds-radio__label .slds-radio_faux {
+    box-shadow: none;
+    background-color: var(--lwc-colorBackgroundInput, rgb(255, 255, 255));
+    border: var(--lwc-borderWidthThin, 1px) solid var(--lwc-colorBorderInput, rgb(217, 219, 221));
+}
+
+.slds-has-error .svmx-lookup-advanced-search_modal .slds-checkbox [type=checkbox]:checked+.slds-checkbox__label .slds-checkbox_faux:after {
+    border-bottom: var(--lwc-borderWidthThick, 2px) solid var(--lwc-brandAccessible, rgb(0, 112, 210));
+    border-left: var(--lwc-borderWidthThick, 2px) solid var(--lwc-brandAccessible, rgb(0, 112, 210));
+}
+
+.slds-has-error .svmx-lookup-advanced-search_modal .slds-input:disabled,
+.slds-has-error .svmx-lookup-advanced-search_modal .slds-checkbox [type=checkbox]:disabled+.slds-checkbox__label .slds-checkbox_faux,
+.slds-has-error .svmx-lookup-advanced-search_modal .slds-radio [type=radio]:disabled+.slds-radio__label .slds-radio_faux {
+    box-shadow: none;
+    border-color: var(--lwc-colorBorderInputDisabled,rgb(201, 199, 197));
+    background-color: var(--lwc-colorBackgroundInputDisabled,rgb(236, 235, 234));
+}
+
+.slds-has-error .svmx-lookup-advanced-search_modal .slds-checkbox [type=checkbox]:disabled+.slds-checkbox__label .slds-checkbox_faux:after {
+    border-color: var(--lwc-colorGray8,rgb(150, 148, 146));
+}
+
+.slds-has-error .svmx-lookup-advanced-search_modal .slds-checkbox [type=checkbox]+.slds-checkbox__label .slds-checkbox_faux {
+    border-color: var(--lwc-colorBorderInput, rgb(217, 219, 221));
+}
+
+.slds-has-error .svmx-lookup-advanced-search_modal .slds-radio [type=radio]:checked+.slds-radio__label .slds-radio_faux:after {
+    background-color: var(--lwc-brandAccessible, rgb(0, 112, 210));
+}
+
+lightning-tabset.svmx-mobile-tab-set .slds-tabs_scoped ul.slds-tabs_scoped__nav li.slds-tabs_scoped__overflow-button div.slds-dropdown {
+    left: 1px;
+    right: auto;
+}

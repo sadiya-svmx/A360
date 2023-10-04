@@ -1,0 +1,125 @@
+<template>
+    <template if:true={hasError}>
+        <c-alert variant="error">{error}</c-alert>
+    </template>
+    <c-combobox
+        filterable
+        required
+        placeholder={i18n.searchLayoutPlaceholder}
+        onchange={handleChangeDeveloperName}
+        value={developerName}
+        items={listDeveloperNames}
+        label={i18n.developerName}
+        variant="label-stacked"
+    ></c-combobox>
+
+    <template if:true={hasDeveloperName}>
+        <lightning-input
+            required
+            disabled
+            type="text"
+            value={sourceObjectH}
+            label={i18n.sourceObject}
+            data-field="sourceObjectH"
+        ></lightning-input>
+        <div class="slds-m-vertical_x-small slds-m-left_medium">
+            <lightning-combobox
+                class="svmx-resource_combobox"
+                variant="label-hidden"
+                value={headerRecordData}
+                data-name="headerRecordData"
+                placeholder={i18n.recordCollection}
+                options={resourcesAndElements}
+                onchange={handleChangeHeader}
+            ></lightning-combobox>
+        </div>
+
+        <template if:true={showTargetObjectA}>
+            <lightning-input
+                required
+                disabled
+                type="text"
+                value={targetObjectA}
+                label={targetObjectALabel}
+                data-field="targetObjectA"
+            ></lightning-input>
+            <div class="slds-m-vertical_x-small slds-m-left_medium">
+                <lightning-combobox
+                    class="svmx-resource_combobox"
+                    variant="label-hidden"
+                    value={child1Modified}
+                    data-name="child1Modified"
+                    placeholder={i18n.recordCollection}
+                    options={resourcesAndElements}
+                    onchange={handleChangeChild1}
+                ></lightning-combobox>
+            </div>
+        </template>
+
+        <template if:true={showTargetObjectB}>
+            <lightning-input
+                required
+                disabled
+                type="text"
+                value={targetObjectB}
+                label={targetObjectBLabel}
+                data-field="targetObjectB"
+            ></lightning-input>
+            <div class="slds-m-vertical_x-small slds-m-left_medium">
+                <lightning-combobox
+                    class="svmx-resource_combobox"
+                    variant="label-hidden"
+                    value={child2Modified}
+                    data-name="child2Modified"
+                    placeholder={i18n.recordCollection}
+                    options={resourcesAndElements}
+                    onchange={handleChangeChild2}
+                ></lightning-combobox>
+            </div>
+        </template>
+
+        <template if:true={showTargetObjectC}>
+            <lightning-input
+                required
+                disabled
+                type="text"
+                value={targetObjectC}
+                label={targetObjectCLabel}
+                data-field="targetObjectC"
+            ></lightning-input>
+            <div class="slds-m-vertical_x-small slds-m-left_medium">
+                <lightning-combobox
+                    class="svmx-resource_combobox"
+                    variant="label-hidden"
+                    value={child3Modified}
+                    data-name="child3Modified"
+                    placeholder={i18n.recordCollection}
+                    options={resourcesAndElements}
+                    onchange={handleChangeChild3}
+                ></lightning-combobox>
+            </div>
+        </template>
+
+        <template if:true={showTargetObjectD}>
+            <lightning-input
+                required
+                disabled
+                type="text"
+                value={targetObjectD}
+                label={targetObjectDLabel}
+                data-field="targetObjectD"
+            ></lightning-input>
+            <div class="slds-m-vertical_x-small slds-m-left_medium">
+                <lightning-combobox
+                    class="svmx-resource_combobox"
+                    variant="label-hidden"
+                    value={child4Modified}
+                    data-name="child4Modified"
+                    placeholder={i18n.recordCollection}
+                    options={resourcesAndElements}
+                    onchange={handleChangeChild4}
+                ></lightning-combobox>
+            </div>
+        </template>
+    </template>
+</template>

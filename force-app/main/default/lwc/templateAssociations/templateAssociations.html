@@ -1,0 +1,206 @@
+<template>
+    <div class="slds-card full-height">
+        <div class="slds-page-header__row slds-p-top_small">
+            <div class="slds-page-header__col-meta">
+                <div class="slds-page-header__control">
+                    <!--<lightning-input
+                        type="search"
+                        autocomplete="off"
+                        placeholder={i18n.searchPlaceholder}
+                        variant="label-hidden"
+                        class="slds-size_large svmx-ta-search-input"
+                        disabled={disableSearchInput}
+                        oncommit={handleSearchCommit}
+                    ></lightning-input>-->
+                </div>
+            </div>
+            <div class="slds-page-header__col-controls">
+                <div class="slds-page-header__controls">
+                    <div class="slds-page-header__control">
+                        <lightning-button
+                            label={i18n.addMatchValue}
+                            title={i18n.new}
+                            icon-name="utility:add"
+                            class="svmx-ta-addnew slds-var-p-right_x-small"
+                            onclick={handleNewMatchValue}>
+                        </lightning-button>
+                        <lightning-button-icon
+                            size="large"
+                            icon-name="utility:table_settings"
+                            variant="bare"
+                            alternative-text={i18n.help}
+                            title={i18n.setting}
+                            onclick={handleConfigColumns}
+                            class="svmx-ta-column-setting slds-var-p-right_x-small"
+                        ></lightning-button-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <template if:true={error}>
+            <c-alert variant="error">{error}</c-alert>
+        </template>
+        <div if:true={matchValueColumns} class="svmx-ta-match-value_list-view slds-m-around_medium">
+            <div class="slds-text-align_left">
+                {recordCountInfo}
+            </div>
+            <div style={computedDataTableHeight}>
+                <div if:true={apiInProgress} class="slds-is-relative">
+                    <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium">
+                    </lightning-spinner>
+                </div>
+                <c-x-datatable
+                    class="svmx-match-values-list-view_table"
+                    key-field="id"
+                    data={matchValueRecords}
+                    columns={matchValueColumns}
+                    onrowaction={handleRowAction}
+                    hide-checkbox-column
+                    default-sort-direction={sortDirection}
+                    sorted-direction={sortDirection}
+                    sorted-by={sortBy}
+                    onsort={handleColumnSort}>
+                </c-x-datatable>
+                <div if:false={matchValueRecords} class="slds-p-top_xx-large slds-align_absolute-center no-data">
+                    {i18n.noResults}
+                </div>
+            </div>
+        </div>
+       <c-modal-dialog title={i18n.matchValueDeleteTitle} class="deleteModal" is-open={deleteModalDialogOpen} modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={handleCancelModal}>
+            <div slot="body">
+                <p><lightning-formatted-text class="slds-align_absolute-center" value={i18n.actionCannotBeUndone}></lightning-formatted-text></p>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal} class="slds-p-right_x-small svmx-deleteTACancel"></lightning-button>
+                <lightning-button class="confirmButton svmx-ta-deleteconfirm" label={i18n.confirm} title={i18n.confirm} variant="brand" onclick={handleDelete}></lightning-button>
+            </div>
+        </c-modal-dialog> 
+        <!-- create,edit and clone form-->
+        <div class="svmx-match-value-modal">
+            <c-modal-dialog title={i18n.templateMatchValues} class="svmx-template-association-detail_new_modal" size="SMALL"
+                is-open={addMatchValueModalOpen} modal-content-id="newModalContent" modal-header-id="newModalHeader"
+                onmodalclosed={handleAddValueCancel}>
+                <div slot="body">
+                    <div class="svmx-ta-detail-view">
+                        <div class="title_description">
+                            <lightning-formatted-text value={i18n.matchValueTitle}></lightning-formatted-text>
+                        </div>
+                        <template if:true={errorMsg}>
+                            <div class="slds-box slds-theme_error slds-p-left_medium slds-p-right_medium" role="alert">
+                                <p>{i18n.reviewError}</p>
+                            </div>
+                            <div
+                                class="slds-text-color_error slds-p-left_large slds-p-top_xx-small svmx-ta-match-value_error">
+                                {errorMsg}
+                            </div>
+                        </template>
+                        <template if:true={fieldList}>
+                            <div class="slds-grid slds-wrap slds-p-top_medium">
+                                <div class="slds-col slds-size_12-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <c-svmx-lookup
+                                            class="svmx-match-value_templateId svmx-ta-input_field"
+                                            advanced-search-config={booleanFalse}
+                                            field-api-name="SVMXA360__TemplateId__c"
+                                            data-field="SVMXA360__TemplateId__c"
+                                            disabled={booleanFalse}
+                                            enable-advanced-search={booleanFalse}
+                                            icon-name={templateIcon}
+                                            label={templateFieldLabel}
+                                            target-object-api-name="SVMXA360__SM_TA_Template__c"
+                                            target-label-api-name="Name"
+                                            onlookupselect={handleLookupFieldChange}
+                                            read-only={templateRecordId}
+                                            value={templateRecordId}
+                                            required>
+                                        </c-svmx-lookup>
+                                    </div>
+                                </div>
+                                <template for:each={fieldList} for:item="field">
+                                    <div key={field.apiName} class="slds-col slds-size_12-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                                        <div class="slds-form-element slds-form-element_stacked">
+                                            <c-value-input
+                                                class="svmx-ta-input_field"
+                                                data-field-apiname={field.apiName}
+                                                field-definition={field.def}
+                                                field-id={field.id}
+                                                onvalueinputchange={handleValueChange}
+                                                meta={field.meta}
+                                                value={field.value}
+                                                variant="label-stacked">
+                                            </c-value-input>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div slot="footer">
+                    <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                        onclick={handleAddValueCancel} class="slds-p-right_x-small svmx-ta-detail_cancelbtn">
+                    </lightning-button>
+                    <template if:true={hideAddBtn}>
+                        <lightning-button class="svmx-ta-detail_savebtn" data-name="save" label={i18n.save} title={i18n.save} variant="brand" onclick={handleAddMatchValue}>
+                        </lightning-button>
+                    </template>
+                    <template if:false={hideAddBtn}>
+                        <lightning-button class="svmx-ta-detail_savebtn" data-name="save" label={i18n.save} title={i18n.save} variant="brand" onclick={handleAddMatchValue}>
+                        </lightning-button>
+                    </template>
+                </div>
+            </c-modal-dialog>
+        </div>
+        <div class="svmx-match-value-config-columns">
+            <c-modal-dialog title={i18n.selectTableColumns} class="svmx-ta-config-tablle-columns_modal" size="SMALL"
+                is-open={configColumnsModalOpen} modal-content-id="dualBoxContent" modal-header-id="dualBoxHeader"
+                onmodalclosed={handleConfigColumnCancel}>
+                <div slot="body"> 
+                    <template if:true={error}>
+                        <div class="slds-box slds-theme_error slds-p-left_medium slds-p-right_medium" role="alert">
+                            <p>{i18n.reviewError}</p>
+                        </div>
+                        <div
+                            class="slds-text-color_error slds-p-left_large slds-p-top_xx-small svmx-technical-attribute-detail_error">
+                            {error}
+                        </div>
+                    </template>
+                    <template if:true={selectedFieldOptions}>
+                        <div class="slds-wrap slds-p-top_medium">
+                            <h3 class="slds-truncate slds-text-title_bold" title={i18n.selectTenColumns}>{i18n.selectTenColumns}</h3>
+                            <div class="slds-m-bottom_medium">
+                                <div class="slds-form__row">
+                                    <div class="slds-form__item" role="listitem">
+                                        <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                            <lightning-dual-listbox
+                                                name="displayColumns"
+                                                source-label={i18n.availableFields}
+                                                selected-label={i18n.selectedFields}
+                                                data-field="configFieldList"
+                                                options={availableFieldOptions}
+                                                value={selectedFieldOptions}
+                                                class="svmx-ta-config-column"
+                                                onchange={handleChangeFields}
+                                                max=10
+                                                min=3
+                                                message-when-range-overflow={i18n.tableFieldMaxError}
+                                                message-when-value-missing={i18n.tableFieldMinError}>
+                                            </lightning-dual-listbox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div slot="footer">
+                    <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                        onclick={handleConfigColumnCancel} class="slds-p-right_x-small svmx-ta-detail_cancelbtn">
+                    </lightning-button>
+                    <lightning-button class="svmx-ta_applybtn" disabled={disableApplyBtn} data-name="apply" label={i18n.apply} title={i18n.apply} variant="brand" onclick={handleApplyColumn}>
+                    </lightning-button>                    
+                </div>
+            </c-modal-dialog>
+        </div>
+    </div>
+</template>

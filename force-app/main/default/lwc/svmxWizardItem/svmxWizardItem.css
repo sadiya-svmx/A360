@@ -1,0 +1,60 @@
+.pointer {
+    cursor: pointer;
+}
+
+.disable {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.notClicable {
+    cursor: non-allowed;
+}
+
+.wizardItemFont {
+    font-size: 0.813rem;
+    line-height: 1.063rem;
+}
+
+.svmx-wizard-item_error-popover-body {
+    position: absolute;
+    left: calc(100% - 20rem);
+    bottom: 40px;
+}
+
+.svmx-wizard-item_tooltip{
+    position: absolute;
+    left: 20%;
+    bottom: 40px;
+}
+
+.svmx-wizard-item-tooltip_small {
+    min-width: 10rem;
+}
+
+.svmx-wizard-item-tooltip_medium {
+    min-width: 20rem;
+}
+
+.svmx-wizard-item-tooltip_large {
+    min-width: 28rem;
+}
+
+.svmx-wizard-item_error-message:hover {
+    visibility: visible;
+    cursor: pointer;
+}
+
+.svmx-wizard-item_error-message {
+   color: rgb(112, 110, 107);
+}
+
+.svmx-wizard-item-name_error {
+    text-decoration: line-through
+}
+
+.svmx-wizard-item-icon-class {
+    display:flex;
+    align-items: center;
+    padding-right: 1em;
+}

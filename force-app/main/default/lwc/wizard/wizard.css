@@ -1,0 +1,19 @@
+.wizardContainer {
+    padding: 0;
+}
+
+.wizardContainer .wizardContainerButton {
+    opacity: 0;
+}
+
+.wizardContainer:hover .wizardContainerButton {
+    opacity: 1;
+}
+
+.svmx-wizard_dev-name:after {
+    content: "]"
+  }
+  
+.svmx-wizard_dev-name:before {
+content: "["
+}

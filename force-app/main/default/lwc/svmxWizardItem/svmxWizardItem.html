@@ -1,0 +1,63 @@
+<template>
+    <div class={computeWizardItemClassName}>
+        <div class="slds-grid">
+            <div class="slds-col slds-is-relative">
+                <div class="slds-grid">
+                    <div class={computeWizardItemIconClass}>
+                        <template if:true={showIcons}>
+                            <template if:true={imageFromStaticResource}>
+                                <lightning-icon size="small" src={computedIconName}
+                                    alternative-text={wizardItem.name}>
+                                </lightning-icon>
+                            </template>
+                            <template if:false={imageFromStaticResource}>
+                                <lightning-icon size="small" icon-name={computedIconName}
+                                    alternative-text={wizardItem.name}>
+                                </lightning-icon>
+                            </template>
+                        </template>
+                    </div>
+                    <section class="slds-is-relative ">
+                        <a onclick={handleClick} href="#" class={computeWizardItemClassName}>
+                            <span class={computeTitleClass} onmouseover={handleMouseOver}
+                                onmouseout={handleMouseOut}>{wizardItem.name}
+                            </span>
+                            <template if:false={wizardItem.showQCError}>
+                                <div class={computeWizardTooltipClassName} data-id={wizardItem.name} role="tooltip">
+                                    <div class="slds-popover__body slds-p-vertical_xx-small">
+                                        {computedTitle}
+                                    </div>
+                                </div>
+                            </template>
+                        </a>
+                    </section>
+                </div>
+            </div>
+            <template if:false={wizardItem.showQCError}>
+                <template if:true={stepDependencyFlag}>
+                    <div class="slds-col slds-size_1-of-12 slds-float_right"> 
+                        <c-svmx-checkbox oncheckboxchange={handleStepCompleteChange} value={stepCompleted} disabled={enableCompletion}></c-svmx-checkbox>
+                        <!-- <lightning-input type="checkbox" onchange={handleStepCompleteChange} checked={wizardItem.stepCompleted} disabled={enableCompletion}> </lightning-input>  -->
+                    </div>
+                </template>
+            </template> 
+                       
+            <template if:true={wizardItem.showQCError}>
+                <div class="slds-is-relative  slds-col slds-text-link">
+                    <span class="svmx-wizard-item_error-message slds-float_right" onmouseover={handleMouseOverForError}
+                        onmouseout={handleMouseOutForError}>{i18n.messageQCNotValid}</span>
+                    <div class="svmx-wizard-item_error-popover-body slds-popover slds-popover_tooltip
+                        slds-nubbin_bottom-right slds-fall-into-ground">
+                        <div class="slds-popover__body slds-p-vertical_xx-small">
+                            {i18n.messageForIncorrectConfig}
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+    <template if:true={isLoading} class="slds-is-relative">
+        <lightning-spinner variant="brand" alternative-text="API working..." size="small">
+        </lightning-spinner>
+    </template>
+</template>

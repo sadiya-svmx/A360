@@ -1,0 +1,418 @@
+<template>
+    <lightning-layout>
+        <lightning-layout-item flexibility="grow" padding="horizontal-small">
+            <div class="container">
+                <div class="slds-card">
+                    <div class="slds-page-header list-view-header">
+                        <div class="slds-page-header__row">
+                            <div class="slds-page-header__col-title">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure">
+                                        <c-service-max-logo-icon
+                                            title-text={i18n.pageHeader}
+                                            alternative-text={i18n.pageHeader}
+                                            icon-size="large"
+                                        ></c-service-max-logo-icon>
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <div class="slds-page-header__name">
+                                            <div class="slds-page-header__name-title">
+                                              <h1>
+                                                <span>{i18n.pageHeader}</span>
+                                                <span class="slds-page-header__title slds-truncate" title={i18n.pageHeader}>{i18n.title}</span>
+                                              </h1>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="slds-page-header__col-actions">
+                                <div class="slds-page-header__controls">
+                                    <div class="slds-page-header__control">
+                                        <template if:false={viewMode}>
+                                            <lightning-layout>
+                                                <lightning-layout-item flexibility="auto" padding="horizontal-small">
+                                                </lightning-layout-item>
+                                                <lightning-layout-item flexibility="auto, no-grow" padding="horizontal-small">
+                                                    <lightning-button label={i18n.cancel} title={i18n.cancel} onclick={handleCancelEdit}></lightning-button>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item flexibility="auto, no-grow">
+                                                    <lightning-button variant="brand" label={i18n.save} title={i18n.save} onclick={handleSave}></lightning-button>
+                                                </lightning-layout-item>
+                                            </lightning-layout>
+                                        </template>
+                                        <template if:true={viewMode}>
+                                            <lightning-layout>
+                                                <lightning-layout-item flexibility="auto" padding="horizontal-small">
+                                                </lightning-layout-item>
+                                                <lightning-layout-item flexibility="auto, no-grow" padding="horizontal-small">
+                                                    <lightning-button  label={i18n.edit} title={i18n.edit} onclick={handleEditView}></lightning-button>
+                                                    <lightning-button-icon
+                                                        icon-name="utility:help"
+                                                        variant="bare"
+                                                        alternative-text={i18n.help}
+                                                        title={i18n.help}
+                                                        onclick={handleHelpClick}
+                                                        class="svmx-help-link-button slds-m-left_x-small"
+                                                    ></lightning-button-icon>
+                                                </lightning-layout-item>
+                                            </lightning-layout>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <template if:true={error}>
+                    <c-alert variant="error">{error}</c-alert>
+                </template>
+                <template if:true={apiInProgress}>
+                    <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+                </template>
+                <div class="slds-card">
+                    <div class="slds-card__body slds-card__body_inner">
+                        <lightning-tabset variant="scoped" active-tab-value="Case">
+                            <template for:each={tabs} for:item="tab">
+                                <lightning-tab label={tab.label} key={tab.value} value={tab.value} onactive={handleActiveTab}>
+
+                                    <div class="slds-form" role="list">
+                                        <div class="slds-form__row">
+                                            <div class="slds-form__item" role="listitem">
+                                                <template if:true={viewMode}>
+                                                    <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_future">
+                                                        <span class="slds-form-element__label">{i18n.futureEntitlements}</span>
+                                                        <div class="slds-form-element__control">
+                                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                                <lightning-input type="checkbox" name="futureEntitlements" disabled checked={activeSettingData.futureEntitlements}></lightning-input>
+                                                            </span>
+                                                            <lightning-button-icon icon-name="utility:edit" variant="bare" alternative-text={i18n.futureEntitlements} title={i18n.futureEntitlements} onclick={handleEditView} class="svmx-editbutton-icon"></lightning-button-icon>
+                                                        </div>
+
+                                                    </div>
+                                                </template>
+                                                <template if:false={viewMode}>
+                                                    <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_future">
+                                                        <lightning-input type="checkbox" label={i18n.futureEntitlements} checked={activeSettingData.futureEntitlements} onchange={handleValueChange} name="futureEntitlements" title={i18n.futureEntitlements}></lightning-input>
+                                                    </div>
+                                                </template>
+
+                                            </div>
+                                            <div class="slds-form__item" role="listitem">
+                                                <template if:true={viewMode}>
+
+                                                    <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_allow-override">
+                                                        <span class="slds-form-element__label">{i18n.allowOverrideSettings}</span>
+                                                        <div class="slds-form-element__control">
+                                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                                <lightning-input type="checkbox" name="allowOverrideSettings" disabled checked={activeSettingData.allowOverrideSettings}></lightning-input>
+                                                            </span>
+                                                            <lightning-button-icon icon-name="utility:edit" variant="bare" alternative-text={i18n.allowOverrideSettings} title={i18n.allowOverrideSettings} onclick={handleEditView} class="svmx-editbutton-icon"></lightning-button-icon>
+                                                        </div>
+
+                                                    </div>
+                                                </template>
+                                                <template if:false={viewMode}>
+                                                    <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_allow-override">
+                                                        <lightning-input type="checkbox" label={i18n.allowOverrideSettings} checked={activeSettingData.allowOverrideSettings} onchange={handleValueChange} name="allowOverrideSettings"></lightning-input>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <div class="slds-form__row">
+                                            <div class="slds-form__item" role="listitem">
+                                                <template if:true={viewMode}>
+                                                    <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_numb-months-future-entitlements">
+                                                        <span class="slds-form-element__label">{i18n.numberOfMonthsShownFutureEntitlements}</span>
+                                                        <div class="slds-form-element__control">
+                                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                                <div class="slds-form-element__static">{activeSettingData.futureEntitlementDuration}</div>
+                                                            </span>
+                                                            <lightning-button-icon icon-name="utility:edit" variant="bare" alternative-text={i18n.numberOfMonthsShownFutureEntitlements} onclick={handleEditView} class="svmx-editbutton-icon"></lightning-button-icon>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                                <template if:false={viewMode}>
+                                                    <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_numb-months-future-entitlements">
+                                                        <lightning-input type="number" name="futureEntitlementDuration" label={i18n.numberOfMonthsShownFutureEntitlements} value={activeSettingData.futureEntitlementDuration} title={i18n.numberOfMonthsShownFutureEntitlements} onchange={handleValueChange} max="36" message-when-range-overflow={i18n.durationRangeOverflowErrorMessage} disabled={isFutureMonthDisable} class="interactive-input" required></lightning-input>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                            <div class="slds-form__item" role="listitem">
+                                                <template if:true={viewMode}>
+                                                    <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_asset-label">
+                                                        <span class="slds-form-element__label">{i18n.selectDefaultBillingType}</span>
+                                                        <div class="slds-form-element__control">
+                                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                                <div class="slds-form-element__static">{activeSettingData.defaultBillingType}</div>
+                                                            </span>
+                                                            <lightning-button-icon icon-name="utility:edit" variant="bare" alternative-text={i18n.assetAPIName} title={i18n.assetAPIName} onclick={handleEditView} class="svmx-editbutton-icon"></lightning-button-icon>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                                <template if:false={viewMode}>
+                                                    <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_asset-label">
+                                                        <c-combobox variant="label-stacked" data-field="defaultBillingType" label={i18n.selectDefaultBillingType} value={activeSettingData.defaultBillingType} items={defaultBillingTypeOptions} onchange={handleDefaultBillingTypeChange} class="dataField svmx-auto-entitlement_field" filterable></c-combobox>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+
+                                        <div class="slds-form__row">
+                                            <div class="slds-form__item" role="listitem">
+                                                <template if:true={viewMode}>
+
+                                                    <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_expired">
+                                                        <span class="slds-form-element__label">{i18n.expiredEntitlements}</span>
+                                                        <div class="slds-form-element__control">
+                                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                                <lightning-input type="checkbox" name="expiredEntitlements" disabled checked={activeSettingData.expiredEntitlements}></lightning-input>
+                                                            </span>
+                                                            <lightning-button-icon icon-name="utility:edit" variant="bare" alternative-text={i18n.expiredEntitlements} title={i18n.expiredEntitlements} onclick={handleEditView} class="svmx-ebutton-icon"></lightning-button-icon>
+                                                        </div>
+
+                                                    </div>
+                                                </template>
+                                                <template if:false={viewMode}>
+                                                    <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_expired">
+                                                        <lightning-input type="checkbox" label={i18n.expiredEntitlements} checked={activeSettingData.expiredEntitlements} onchange={handleValueChange} name="expiredEntitlements" title={i18n.expiredEntitlements}></lightning-input>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                            <div class="slds-form__item" role="listitem"></div>
+                                        </div>
+                                        <div class="slds-form__row">
+                                            <div class="slds-form__item" role="listitem">
+                                                <template if:true={viewMode}>
+                                                    <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_numb-months-Expired-entitlements">
+                                                        <span class="slds-form-element__label">{i18n.numberOfMonthsShownExpiredEntitlements}</span>
+                                                        <div class="slds-form-element__control">
+                                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                                <div class="slds-form-element__static">{activeSettingData.expiredEntitlementDuration}</div>
+                                                            </span>
+                                                            <lightning-button-icon icon-name="utility:edit" variant="bare" alternative-text={i18n.numberOfMonthsShownExpiredEntitlements} onclick={handleEditView} class="svmx-editbutton-icon"></lightning-button-icon>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                                <template if:false={viewMode}>
+                                                    <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_numb-months-Expired-entitlements">
+                                                        <lightning-input type="number" name="expiredEntitlementDuration" label={i18n.numberOfMonthsShownExpiredEntitlements} title={i18n.numberOfMonthsShownExpiredEntitlements} value={activeSettingData.expiredEntitlementDuration} onchange={handleValueChange} max="36" message-when-range-overflow={i18n.durationRangeOverflowErrorMessage} disabled={isExpiredMonthDisable} class="interactive-input" required></lightning-input>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                            <div class="slds-form__item" role="listitem"></div>
+                                        </div>
+                                        <div class="slds-form__row">
+                                          <div class="slds-form__item" role="listitem">
+                                              <template if:true={viewMode}>
+
+                                                  <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-fully_consumed">
+                                                      <span class="slds-form-element__label">{i18n.fullyConsumedServices}</span>
+                                                      <div class="slds-form-element__control">
+                                                          <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                              <lightning-input type="checkbox" name="fullyConsumedServices" disabled checked={activeSettingData.fullyConsumedServices}></lightning-input>
+                                                          </span>
+                                                          <lightning-button-icon icon-name="utility:edit" variant="bare" alternative-text={i18n.fullyConsumedServices} title={i18n.fullyConsumedServices} onclick={handleEditView} class="svmx-ebutton-icon"></lightning-button-icon>
+                                                      </div>
+                                                  </div>
+                                              </template>
+                                              <template if:false={viewMode}>
+                                                  <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-fully_consumed">
+                                                      <lightning-input type="checkbox" label={i18n.fullyConsumedServices} checked={activeSettingData.fullyConsumedServices} onchange={handleValueChange} name="fullyConsumedServices"></lightning-input>
+                                                  </div>
+                                              </template>
+                                          </div>
+                                          <div class="slds-form__item" role="listitem">
+                                            <template if:true={viewMode}>
+
+                                                <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-fully_consumed">
+                                                    <span class="slds-form-element__label">{i18n.onHoldEntitlements}</span>
+                                                    <div class="slds-form-element__control">
+                                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                            <lightning-input type="checkbox" name="onHoldEntitlements" disabled checked={activeSettingData.onHoldEntitlements}></lightning-input>
+                                                        </span>
+                                                        <lightning-button-icon icon-name="utility:edit" variant="bare" alternative-text={i18n.onHoldEntitlements} title={i18n.onHoldEntitlements} onclick={handleEditView} class="svmx-ebutton-icon"></lightning-button-icon>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                            <template if:false={viewMode}>
+                                                <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-fully_consumed">
+                                                    <lightning-input type="checkbox" label={i18n.onHoldEntitlements} checked={activeSettingData.onHoldEntitlements} onchange={handleValueChange} name="onHoldEntitlements"></lightning-input>
+                                                </div>
+                                            </template>
+                                          </div>
+                                        </div>
+                                        <div class="slds-form__row">
+                                            <div class="slds-form__item" role="listitem">
+                                                <template if:true={viewMode}>
+
+                                                    <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_covered-by">
+                                                        <span class="slds-form-element__label">{i18n.coveredBy}</span>
+                                                        <div class="slds-form-element__control">
+                                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                                <div class="slds-form-element__static">{activeSettingData.coveredBy}</div>
+                                                            </span>
+                                                            <lightning-button-icon icon-name="utility:edit" variant="bare" alternative-text={i18n.coveredBy} title={i18n.coveredBy} onclick={handleEditView} class="svmx-editbutton-icon"></lightning-button-icon>
+                                                        </div>
+
+                                                    </div>
+                                                </template>
+                                                <template if:false={viewMode}>
+                                                    <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_covered-by">
+                                                        <lightning-combobox name="coveredBy" label={i18n.coveredBy} value={activeSettingData.coveredBy} options={coveredBy} onchange={handleValueChange} ></lightning-combobox>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                            <div class="slds-form__item" role="listitem"></div>
+                                        </div>
+
+                                        <template if:true={showComponent}>
+                                            <div class="slds-form__row">
+                                                <div class="slds-form__item" role="listitem">
+                                                    <template if:true={viewMode}>
+
+                                                        <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_match-account">
+                                                            <span class="slds-form-element__label">{matchAccountLabel}</span>
+                                                            <div class="slds-form-element__control">
+                                                                <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                                    <lightning-input type="checkbox" name="matchAccount" disabled checked={activeSettingData.matchAccount}></lightning-input>
+                                                                </span>
+                                                                <lightning-button-icon icon-name="utility:edit" variant="bare" alternative-text={i18n.matchAccount} title={i18n.matchAccount} onclick={handleEditView} class="svmx-editbutton-icon"></lightning-button-icon>
+                                                            </div>
+
+                                                        </div>
+                                                    </template>
+                                                    <template if:false={viewMode}>
+                                                        <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_match-account">
+                                                            <lightning-input type="checkbox" label={matchAccountLabel} checked={activeSettingData.matchAccount}  onchange={handleValueChange} name="matchAccount"></lightning-input>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                                <div class="slds-form__item" role="listitem"></div>
+                                            </div>
+                                        </template>
+
+                                        <template if:true={showAccount}>
+                                            <div class="slds-form__row">
+                                                <div class="slds-form__item" role="listitem">
+                                                    <template if:true={viewMode}>
+
+                                                        <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_account-label">
+                                                            <span class="slds-form-element__label">{i18n.accountAPIName}</span>
+                                                            <div class="slds-form-element__control">
+                                                                <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                                    <div class="slds-form-element__static">{accountLabel}</div>
+                                                                </span>
+                                                                <lightning-button-icon icon-name="utility:edit" variant="bare" alternative-text={i18n.accountAPIName} title={i18n.accountAPIName} onclick={handleEditView} class="svmx-editbutton-icon"></lightning-button-icon>
+                                                            </div>
+
+                                                        </div>
+                                                    </template>
+                                                    <template if:false={viewMode}>
+                                                        <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_account-label">
+                                                            <lightning-combobox name="accountAPIName" label={i18n.accountAPIName} value={activeSettingData.accountAPIName} options={accountAPINames} onchange={handleValueChange} ></lightning-combobox>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                                <div class="slds-form__item" role="listitem"></div>
+                                            </div>
+                                        </template>
+
+                                        <template if:true={showComponent}>
+
+                                            <div class="slds-form__row">
+                                                <div class="slds-form__item" role="listitem">
+                                                    <template if:true={viewMode}>
+
+                                                        <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_asset-label">
+                                                            <span class="slds-form-element__label">{i18n.assetAPIName}</span>
+                                                            <div class="slds-form-element__control">
+                                                                <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                                    <div class="slds-form-element__static">{assetLabel}</div>
+                                                                </span>
+                                                                <lightning-button-icon icon-name="utility:edit" variant="bare" alternative-text={i18n.assetAPIName} title={i18n.assetAPIName} onclick={handleEditView} class="svmx-editbutton-icon"></lightning-button-icon>
+                                                            </div>
+
+                                                        </div>
+                                                    </template>
+                                                    <template if:false={viewMode}>
+                                                        <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_asset-label">
+                                                            <lightning-combobox name="assetAPIName" label={i18n.assetAPIName} value={activeSettingData.assetAPIName} options={assetAPINames} onchange={handleValueChange} ></lightning-combobox>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                                <div class="slds-form__item" role="listitem"></div>
+                                            </div>
+
+                                            <div class="slds-form__row">
+                                                <div class="slds-form__item" role="listitem">
+                                                    <template if:true={viewMode}>
+
+                                                        <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_include-root-asset">
+                                                            <span class="slds-form-element__label">{i18n.includeRootAsset}</span>
+                                                            <div class="slds-form-element__control">
+                                                                <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                                    <lightning-input type="checkbox" name="includeRootAsset" disabled checked={activeSettingData.includeRootAsset}></lightning-input>
+                                                                </span>
+                                                                <lightning-button-icon icon-name="utility:edit" variant="bare" alternative-text={i18n.includeRootAsset} title={i18n.includeRootAsset} onclick={handleEditView} class="svmx-editbutton-icon"></lightning-button-icon>
+                                                            </div>
+
+                                                        </div>
+                                                    </template>
+                                                    <template if:false={viewMode}>
+                                                        <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_include-root-asset">
+                                                            <lightning-input type="checkbox" label={i18n.includeRootAsset} checked={activeSettingData.includeRootAsset} onchange={handleValueChange} name="includeRootAsset"></lightning-input>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                                <div class="slds-form__item" role="listitem"></div>
+                                            </div>
+
+                                            <div class="slds-form__row">
+                                                <div class="slds-form__item" role="listitem">
+                                                    <template if:true={viewMode}>
+
+                                                        <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_include-parent-asset">
+                                                            <span class="slds-form-element__label">{i18n.includeParentAsset}</span>
+                                                            <div class="slds-form-element__control">
+                                                                <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                                    <lightning-input type="checkbox" name="includeParentAsset" disabled checked={activeSettingData.includeParentAsset}></lightning-input>
+                                                                </span>
+                                                                <lightning-button-icon icon-name="utility:edit" variant="bare" alternative-text={i18n.includeParentAsset} title={i18n.includeParentAsset} onclick={handleEditView} class="svmx-editbutton-icon"></lightning-button-icon>
+                                                            </div>
+
+                                                        </div>
+                                                    </template>
+                                                    <template if:false={viewMode}>
+                                                        <div class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent svmx-entitlement_include-parent-asset">
+                                                            <lightning-input type="checkbox" label={i18n.includeParentAsset} checked={activeSettingData.includeParentAsset} onchange={handleValueChange} name="includeParentAsset"></lightning-input>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                                <div class="slds-form__item" role="listitem"></div>
+                                            </div>
+
+                                        </template>
+                                    </div>
+
+                                </lightning-tab>
+                            </template>
+                        </lightning-tabset>
+                    </div>
+                </div>
+                <c-modal-dialog title={i18n.cancelModalTitle} class="cancelModal" is-open={cancelModalDialogOpen} modal-content-id="cancelModalContent" modal-header-id="cancelModalHeader" onmodalclosed={handleCancelModal}>
+                    <div slot="body">
+                        <span slot="body">
+                            <p><lightning-formatted-text value={i18n.cancelModalContent}></lightning-formatted-text></p>
+                        </span>
+                    </div>
+                    <div slot="footer">
+                        <lightning-button label={i18n.goBack} title={i18n.goBack} variant="neutral" onclick={handleCancelModal} class="slds-p-right_x-small svmx-modal_button-cancel"></lightning-button>
+                        <lightning-button label={i18n.continue} title={i18n.continue} variant="brand" onclick={handleCancelConfirmModal} class="confirmButton svmx-modal_button-confirm" ></lightning-button>
+                    </div>
+                </c-modal-dialog>
+            </div>
+        </lightning-layout-item>
+    </lightning-layout>
+</template>

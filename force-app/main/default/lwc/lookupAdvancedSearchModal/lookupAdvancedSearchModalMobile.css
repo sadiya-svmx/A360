@@ -1,0 +1,10 @@
+@import 'c/xMobileStyle';
+
+.svmx-lookup-advanced-search_spinner {
+    position: relative;
+    margin-top: 25%;
+}
+.svmx-lookup-advanced-search_message {
+    white-space: normal;
+    word-break: break-word;
+}

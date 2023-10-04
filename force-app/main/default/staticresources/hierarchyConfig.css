@@ -1,0 +1,3 @@
+.objectsContainer .slds-accordion__summary-action {
+    background-color: var(--lwc-colorBackgroundInputCheckbox,rgb(255, 255, 255));
+}

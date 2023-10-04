@@ -1,0 +1,19 @@
+<design:component label="A360 – Asset Hierarchy">
+    <design:attribute name="label" label="Label"
+        description="“Enter label that needs to be displayed at runtime." />
+    <design:attribute name="order" label="Select Hierarchy Order"
+        datasource="Asset Only, Location > Asset, Account > Asset" required="true" default="Location > Asset"
+        description="Select the data display order in the hierarchy view." />
+    <design:attribute name="hierarchyField" label="Select field to plot hierarchy"
+        datasource="apex://AMGT_HierarchyFieldPickList" required="true"
+        description="Select one from the available list. Hierarchy is plotted for the selected field from its root node" />
+    <design:attribute name="plotHierarchyField" label="Plot hierarchy from selected field"
+        description="When ticked, hierarchy will be plotted from the field configured in 'Select field to plot hierarchy'. Select location field for Location >Asset, account field for Account >Asset, asset field on Asset Only hierarchy order" 
+        default="false"/>
+    <design:attribute name="displayIcon" label="Display Icon"
+        description="Tick this option to display record icon." 
+        default="true"/>
+    <design:attribute name="maxHeight" label="Max Height" default="500"
+        description="Set a maximum height for the Asset Hierarchy." 
+    />
+</design:component>

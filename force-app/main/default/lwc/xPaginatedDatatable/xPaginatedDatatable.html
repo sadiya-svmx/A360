@@ -1,0 +1,131 @@
+<template>
+    <template if:true={apiInProgress}>
+        <lightning-spinner variant="brand" alternative-text={i18n.labelLoading} size="large">
+        </lightning-spinner>
+    </template>
+    <template if:false={apiInProgress}>
+        <div if:true={records}>
+            <div if:true={showInfoHeader} class="svmx-datatable-header slds-p-left_small">
+                <div class="slds-text-title_bold">{totalItemsLabel}</div>
+                <div title="selected items">{selectedCount} {i18n.labelItemsSelected}</div>
+            </div>
+            <div class="svmx-datatable slds-scrollable">
+                <c-x-datatable
+                    key-field={keyField}
+                    data={displayRecords}
+                    columns={columns}
+                    sorted-by={sortedBy}
+                    sorted-direction={sortedDirection}
+                    default-sort-direction={defaultSortDirection}
+                    selected-rows={preSelectedRows}
+                    onsort={handleSortData}
+                    onrowselection={handleRowSelection}
+                    onrowaction={handleRowAction}
+                    suppress-bottom-bar={suppressBottomBar}
+                    oncellchange={handleCellChange}
+                    draft-values={draftValues}
+                    errors={errors}
+                    class={classList}
+                    show-row-number-column={showRowNumberColumn}
+                    row-number-offset={rowOffset}>
+                </c-x-datatable>
+            </div>
+        </div>
+        <div class="slds-grid slds-m-vertical_small svmx-pagination-bottom">
+            <div class="slds-col slds-align_absolute-center">
+                <div class="svmx-previous">
+                    <button class="slds-m-left_small slds-button slds-button_icon slds-button_icon-border"
+                        title={i18n.buttonFirst}
+                        disabled={disablePreviousButtons}
+                        onclick={handleNavigation}>
+                        <svg width="10" height="12" viewBox="0 0 12 14" fill="none" title={i18n.buttonFirst} xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M11.5 13.5398V0.479841C11.5 0.074023 11.0125 -0.147332 10.675 0.110916L2.725 6.5671C2.575 6.67778 2.5 6.85302 2.5 7.02826V0.5C2.5 0.223858 2.27614 6.72937e-09 2 6.72937e-09H1C0.723858 6.72937e-09 0.5 0.223857 0.5 0.5V13.5C0.5 13.7761 0.723858 14 1 14H2C2.27614 14 2.5 13.7761 2.5 13.5V7.02826C2.5 7.2035 2.575 7.37874 2.725 7.48942L10.675 13.8718C11.0125 14.167 11.5 13.9087 11.5 13.5398Z"
+                                fill={fillFirst}>
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="svmx-previous">
+                    <lightning-button-icon
+                        icon-name="utility:left"
+                        alternative-text={i18n.buttonPrevious}
+                        class="slds-m-left_small"
+                        title={i18n.buttonPrevious}
+                        disabled={disablePreviousButtons} 
+                        onclick={handleNavigation}>
+                    </lightning-button-icon>
+                </div>
+                <div>
+                    <lightning-button
+                        variant="base"
+                        label={pagePrevPrev}
+                        title={pagePrevPrev}
+                        onclick={handlePageJump}
+                        disabled={disablePreviousButtons}
+                        class="slds-m-left_small">
+                    </lightning-button>
+                </div>
+                <div>
+                    <lightning-button variant="base"
+                    label={pagePrev} title={pagePrev}
+                    onclick={handlePageJump}
+                    disabled={disablePreviousButtons}
+                    class="slds-m-left_small">
+                </lightning-button>
+                </div>
+                <div class="svmx-pageJump slds-m-left_small">
+                    <lightning-input
+                        title="PageNumber"
+                        variant="label-hidden"
+                        type="text"
+                        value={pageNumber}
+                        onkeypress={handleKeyPress}
+                        message-when-pattern-mismatch=' '
+                        pattern="[0-9]+">
+                    </lightning-input>
+                </div>
+                <div>
+                    <lightning-button
+                        variant="base" label={pageNext}
+                        title={pageNext} onclick={handlePageJump}
+                        disabled={disableNextButtons}
+                        class="slds-m-left_small">
+                    </lightning-button>
+                </div>
+                <div>
+                    <lightning-button
+                        variant="base"
+                        label={pageNextNext}
+                        title={pageNextNext}
+                        onclick={handlePageJump}
+                        disabled={disableNextButtons}
+                        class="slds-m-left_small">
+                    </lightning-button>
+                </div>
+                <div class="svmx-next">
+                    <lightning-button-icon
+                        icon-name="utility:right"
+                        alternative-text={i18n.buttonNext}
+                        class="slds-m-left_small"
+                        title={i18n.buttonNext}
+                        disabled={disableNextButtons}
+                        onclick={handleNavigation}>
+                    </lightning-button-icon>
+                </div>
+                <div class="svmx--next">
+                    <button class="slds-m-left_small slds-button slds-button_icon slds-button_icon-border"
+                        title={i18n.buttonLast}
+                        disabled={disableNextButtons}
+                        onclick={handleNavigation}>
+                        <svg width="10" height="12" viewBox="0 0 12 14" fill="none" title={i18n.buttonLast} xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M0.5 0.460211L0.499999 13.5202C0.499999 13.926 0.987499 14.1473 1.325 13.8891L9.275 7.4329C9.425 7.32222 9.5 7.14698 9.5 6.97174L9.5 13.5C9.5 13.7761 9.72386 14 10 14L11 14C11.2761 14 11.5 13.7761 11.5 13.5L11.5 0.5C11.5 0.223858 11.2761 -2.29349e-08 11 -4.70761e-08L10 -1.34499e-07C9.72386 -1.5864e-07 9.5 0.223857 9.5 0.5L9.5 6.97174C9.5 6.7965 9.425 6.62126 9.275 6.51058L1.325 0.128178C0.9875 -0.166962 0.5 0.0912857 0.5 0.460211Z"
+                            fill={fillLast}></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+          </div>
+    </template>
+</template>

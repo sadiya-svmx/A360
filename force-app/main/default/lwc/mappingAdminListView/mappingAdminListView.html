@@ -1,0 +1,181 @@
+<template>
+  <div class="slds-card full-height">
+    <c-svmx-page-header 
+        title={selectedFilterView} 
+        icon-name={srcIconName} 
+        sub-title={i18n.pageHeader} 
+        icon-title={i18n.pageHeader}
+        meta-title={rowCountPhrase}
+        icon-size={iconSize}
+        is-object-home = "Object">
+            <div class="slds-page-header__name-switcher" slot="switch-list-view">         
+                <lightning-button-menu variant="bare" class="slds-button--reset slds-type-focus forceListViewPicker" onselect={handleViewFilter}>
+                    <template for:each={viewFilterMenuItems} for:item="menuItem">
+                        <lightning-menu-item
+                            key={menuItem.id}
+                            value={menuItem.value}
+                            label={menuItem.label}
+                            checked={menuItem.checked}>
+                        </lightning-menu-item>
+                    </template>
+                </lightning-button-menu>
+            </div>
+            <lightning-button 
+                slot="actions"  
+                class="svmx-new-mapping" 
+                label={i18n.new} 
+                title={i18n.new} 
+                icon-name="utility:add" 
+                onclick={handleNewMapping}
+            ></lightning-button>
+            <lightning-button-icon
+                slot="actions" 
+                icon-name="utility:help"
+                class="svmx-help-link-button"
+                variant="container"
+                alternative-text={i18n.help}
+                title={i18n.help}
+                onclick={handleHelpClick}
+            ></lightning-button-icon>       
+            <div class="slds-page-header__control" slot="object-controls">
+                <div class="slds-page-header__controls">
+                    <div class="slds-page-header__control">
+                        <lightning-input 
+                            type="search" 
+                            autocomplete="off" 
+                            placeholder={i18n.searchPlaceholder} 
+                            variant="label-hidden" 
+                            class="slds-size_large search-input" 
+                            onchange={handleSearchKeyChange}>
+                        </lightning-input>
+                    </div>
+                </div>                             
+            </div>       
+    </c-svmx-page-header>
+    <template if:true={error}>
+        <div class="slds-text-color_error svmx-error">{error}</div>
+    </template>
+    <div style={computedDataTableHeight}>
+        <c-x-datatable key-field="id" data={listViewData} columns={columns} hide-checkbox-column sorted-by={sortBy} sorted-direction={sortDirection} default-sort-direction="asc" onsort={handleColumnSort} onrowaction={handleRowAction}></c-x-datatable>
+        
+        <div if:false={rowCount} class="slds-align_absolute-center no-data">{i18n.noResults}</div>
+
+        <template if:true={apiInProgress}>
+            <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+        </template>
+    </div>
+    <c-modal-dialog title={i18n.newModalTitle} class="new-mapping-modal" is-open={newModalDialog} size="small" modal-content-id="new-mapping-content" modal-header-id="new-mapping-header" onmodalclosed={handleCancelModal}>
+        <div slot="body">
+            <div class="slds-grid slds-p-bottom_xx-large">
+                <div>
+                    <fieldset class="slds-form-element">
+                        <legend class="slds-form-element__legend slds-form-element__label slds-assistive-text">{i18n.comboPlaceholder}</legend>
+                        <div class="slds-form-element__control">
+                            <div class="slds-visual-picker slds-visual-picker_vertical">
+                                <input type="radio" id="fieldMapping" name="mappingType" value={mappingTypes.FIELD} checked={fieldMappingChecked} onchange={handleMappingTypeChange} />
+                                <label for="fieldMapping">
+                                    <span class="slds-visual-picker__figure slds-visual-picker__text slds-align_absolute-center height-auto">
+                                    <div class="slds-media__figure slds-align_absolute-center slds-m-right_medium">
+                                        <span class="slds-icon_container slds-icon-utility-knowledge_base">
+                                            <svg class="slds-icon" aria-hidden="true" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <rect width="48" height="48" rx="4" fill="#006AC6"></rect>
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M20 11C20 10.4477 20.4477 10 21 10H24C24.5523 10 25 10.4477 25 11V37C25 37.5523 24.5523 38 24 38H21C20.4477 38 20 37.5523 20 37V11ZM27 22.5C27 21.9477 27.4477 21.5 28 21.5H40C40.5523 21.5 41 21.9477 41 22.5V25.5C41 26.0523 40.5523 26.5 40 26.5H28C27.4477 26.5 27 26.0523 27 25.5V22.5ZM28 13.5C27.4477 13.5 27 13.9477 27 14.5V17.5C27 18.0523 27.4477 18.5 28 18.5H40C40.5523 18.5 41 18.0523 41 17.5V14.5C41 13.9477 40.5523 13.5 40 13.5H28ZM27 30.5C27 29.9477 27.4477 29.5 28 29.5H35C35.5523 29.5 36 29.9477 36 30.5V33.5C36 34.0523 35.5523 34.5 35 34.5H28C27.4477 34.5 27 34.0523 27 33.5V30.5ZM18.7846 23.7868C18.9032 23.9042 18.9032 24.0958 18.7846 24.2132L14.261 28.6904C14.0716 28.8779 13.75 28.7437 13.75 28.4772V26H8V22H13.75V19.5229C13.75 19.2564 14.0716 19.1222 14.261 19.3097L18.7846 23.7868Z" fill="white"></path>
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <div class="slds-media__body slds-border_left  slds-p-left_small">
+                                        <h2 class="slds-truncate slds-text-heading_small">{i18n.fieldMappingType}</h2>
+                                        <p class="slds-m-top_small slds-is-relative slds-text-body_small">
+                                            {i18n.fieldMappingExplanation}
+                                            <lightning-helptext content={i18n.fieldMappingExample} class="help-icon"></lightning-helptext>
+                                        </p>
+                                    </div>
+                                    </span>
+                                    <span class="slds-icon_container slds-visual-picker__text-check">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" class="slds-icon slds-icon-text-check slds-icon_x-small" aria-hidden="true">
+                                            <path d="M19.1 42.5L2.6 25.9c-.6-.6-.6-1.6 0-2.2l2.2-2.2c.6-.6 1.6-.6 2.2 0L19.4 34c.4.4 1.1.4 1.5 0L45.2 9.5c.6-.6 1.6-.6 2.2 0l2.2 2.2c.6.6.6 1.6 0 2.2L21.3 42.5c-.6.7-1.6.7-2.2 0z"></path>
+                                        </svg>
+                                    </span>
+                                </label>
+                            </div>
+                            <div class="slds-visual-picker slds-visual-picker_vertical">
+                                <input type="radio" id="valueMapping" name="mappingType" value={mappingTypes.VALUE} checked={valueMappingChecked} onchange={handleMappingTypeChange} />
+                                <label for="valueMapping">
+                                    <span class="slds-visual-picker__figure slds-visual-picker__text slds-align_absolute-center height-auto">
+                                    <div class="slds-media__figure slds-align_absolute-center slds-m-right_medium">
+                                        <span class="slds-icon_container slds-icon-utility-knowledge_base">
+                                            <svg class="slds-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <rect width="32" height="32" rx="4" fill="#388150"></rect>
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M15.9726 22.2419L11.4425 20.561C11.2563 20.5548 11.1521 20.3275 11.2341 20.1066L15.4568 8.72609C15.5388 8.50511 15.6903 8.43562 15.9113 8.51761L20.4414 10.1985C20.6624 10.2805 20.7319 10.432 20.6499 10.653L16.4271 22.0335C16.4208 22.2197 16.1936 22.3239 15.9726 22.2419ZM16.5548 7.12224C16.3338 7.04024 16.2296 6.81301 16.3116 6.59203L16.6868 5.41139C17.0148 4.52747 17.848 4.14526 18.7319 4.47324L21.0522 5.3342C21.9361 5.66219 22.3183 6.49537 21.9556 7.30355L21.5046 8.51894C21.4226 8.73992 21.1954 8.84415 20.9744 8.76216L16.5548 7.12224ZM12.1139 27.221C11.7699 27.4704 11.328 27.3064 11.23 26.893L10.4016 22.6888C10.3668 22.6131 10.3731 22.4269 10.4141 22.3164L10.4551 22.2059C10.4961 22.0954 10.7233 21.9911 10.9443 22.0731L15.4744 23.7541C15.6954 23.8361 15.7996 24.0633 15.7586 24.1738L15.7176 24.2843C15.6766 24.3948 15.6356 24.5052 15.4841 24.5747L12.1139 27.221ZM6.83333 15.3336C6.83333 13.9528 7.95262 12.8336 9.33333 12.8336H13.3333V9.83355H9.33333C6.29576 9.83355 3.83333 12.296 3.83333 15.3336V17.3336C3.83333 20.3711 6.29576 22.8336 9.33333 22.8336H9.99999V19.8336H9.33333C7.95262 19.8336 6.83333 18.7143 6.83333 17.3336V15.3336ZM21.3333 12.8336H22.6667C24.0474 12.8336 25.1667 13.9528 25.1667 15.3336V17.3336C25.1667 18.7143 24.0474 19.8336 22.6667 19.8336H18V22.8336H22.6667C25.7042 22.8336 28.1667 20.3711 28.1667 17.3336V15.3336C28.1667 12.296 25.7042 9.83355 22.6667 9.83355H21.3333V12.8336Z" fill="white"></path>
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <div class="slds-media__body slds-border_left  slds-p-left_small">
+                                        <h2 class="slds-truncate slds-text-heading_small">{i18n.valueMappingType}</h2>
+                                        <p class="slds-m-top_small slds-is-relative slds-text-body_small">
+                                            {i18n.valueMappingExplanation}
+                                            <lightning-helptext content={i18n.valueMappingExample} class="help-icon"></lightning-helptext>
+                                        </p>
+                                    </div>
+                                    </span>
+                                    <span class="slds-icon_container slds-visual-picker__text-check">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" class="slds-icon slds-icon-text-check slds-icon_x-small" aria-hidden="true">
+                                            <path d="M19.1 42.5L2.6 25.9c-.6-.6-.6-1.6 0-2.2l2.2-2.2c.6-.6 1.6-.6 2.2 0L19.4 34c.4.4 1.1.4 1.5 0L45.2 9.5c.6-.6 1.6-.6 2.2 0l2.2 2.2c.6.6.6 1.6 0 2.2L21.3 42.5c-.6.7-1.6.7-2.2 0z"></path>
+                                        </svg>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="slds-p-horizontal_small slds-grow">
+                    <div class="slds-form" role="list">
+                        <div if:true={fieldMappingChecked} class="slds-form__row">
+                            <div class="slds-form__item" role="listitem">
+                                <c-combobox filterable placeholder={i18n.selectSource} items={entityOptions} class="field-mapping-source-object" label={i18n.sourceComboLabel} variant="label-stacked" onchange={handleModalComboChange}></c-combobox>
+                            </div>
+                        </div>
+                        <div if:true={fieldMappingChecked} class="slds-form__row">
+                            <div class="slds-form__item" role="listitem">
+                                <c-combobox filterable placeholder={i18n.selectTarget} items={entityOptions} class="field-mapping-target-object" label={i18n.targetComboLabel} variant="label-stacked" onchange={handleModalComboChange}></c-combobox>
+                            </div>
+                        </div>
+                        <div if:true={valueMappingChecked} class="slds-form__row">
+                            <div class="slds-form__item" role="listitem">
+                                <c-combobox filterable placeholder={i18n.select} class="value-mapping-source-object" label={i18n.objectComboLabel} items={entityOptions} onchange={handleModalComboChange} variant="label-stacked"></c-combobox>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal} class="slds-p-right_x-small cancelButton"></lightning-button>
+            <lightning-button class="confirmButton" label={i18n.confirm} title={i18n.confirm} variant="brand" onclick={handleConfirmModal} disabled></lightning-button>
+        </div>        
+    </c-modal-dialog>
+    <template if:true={deleteWhereUsedModalDialogOpen}>
+        <c-where-used-modal-dialog
+            class="svmx-whereUsedModalDialog"
+            module-type={moduleType} 
+            config-type={configType}
+            configuration-id={configurationId}  
+            config-developer-name={configDeveloperName} 
+            config-name={configName}
+            operation-type={operationType}
+            row={row}
+            oncancelwhereusedmodal={handleCancelWhereUsedModal}
+            ondeletemodal={handleDeleteModal}>
+        </c-where-used-modal-dialog>             
+    </template>
+    <c-modal-dialog title={i18n.deleteModalTitle} class="deleteModal" is-open={deleteModalDialogOpen} modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={handleCancelModal}>
+        <div slot="body">
+            <p><lightning-formatted-text value={i18n.deleteModalContent}></lightning-formatted-text></p>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal} class="slds-p-right_x-small cancelButton"></lightning-button>
+            <lightning-button class="confirmButton" label={i18n.confirm} title={i18n.confirm} variant="brand" onclick={handleDeleteConfirmModal}></lightning-button>
+        </div>
+    </c-modal-dialog>    
+  </div>
+</template>

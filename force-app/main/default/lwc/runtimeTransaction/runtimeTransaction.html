@@ -1,0 +1,55 @@
+<template>
+    <template if:false={apiInProgress}>
+        <template if:true={hasError}>
+            <c-alert variant="error">{error}</c-alert>
+        </template>
+        <template if:true={developerName}>
+            <template if:false={hasError}>
+                <template if:true={isRecordPageDisplay}>
+                    <lightning-card> 
+                        <c-runtime
+                            developer-name={developerName}
+                            context={context}
+                            header-record-data={headerRecordData}
+                            page-data-config={pageDataConfig}
+                            title={title}
+                            error={error}
+                            is-in-modal={isInModal}
+                            icon-name={iconName}
+                            child-record-data={childRecordData}
+                            source-record-id={recordId}
+                            record-page-display={isRecordPageDisplay}
+                            step-id={stepId}
+                            step-complete={stepComplete}
+                            step-completion-enabled={stepCompletionEnabled}
+                        ></c-runtime>
+                    </lightning-card>
+                </template>
+                <template if:false={isRecordPageDisplay}>
+                    <c-runtime
+                        developer-name={developerName}
+                        context={context}
+                        header-record-data={headerRecordData}
+                        page-data-config={pageDataConfig}
+                        title={title}
+                        error={error}
+                        is-in-modal={isInModal}
+                        icon-name={iconName}
+                        child-record-data={childRecordData}
+                        source-record-id={recordId}
+                        record-page-display={isRecordPageDisplay}
+                        step-id={stepId}
+                        step-complete={stepComplete}
+                        step-completion-enabled={stepCompletionEnabled}
+                    ></c-runtime>
+                </template>
+            </template>
+        </template>
+    </template>
+    <template if:true={apiInProgress}>
+        <lightning-spinner
+            variant="brand"
+            alternative-text={i18n.loading}
+        ></lightning-spinner>
+    </template>
+</template>

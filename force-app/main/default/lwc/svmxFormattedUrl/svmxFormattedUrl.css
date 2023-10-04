@@ -1,0 +1,8 @@
+.url-link-style {
+    color: var(--lwc-brandTextLink,rgb(1, 118, 211));
+}
+
+.url-link-style:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}

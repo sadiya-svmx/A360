@@ -1,0 +1,409 @@
+<template>
+    <c-admin-layout remove-scroll=true>
+        <div class="container">
+            <div class="slds-card">
+                <c-svmx-page-header 
+                    title={viewModel.name} 
+                    icon-name={srcIconName} 
+                    sub-title={i18n.pageHeader} 
+                    icon-title={viewModel.name}
+                    icon-size={iconSize}>
+                    <div class="slds-page-header__control" slot="actions">
+                        <template if:false={editMode}> 
+                            <lightning-button
+                                if:false={isWhereUsedDisabled}
+                                label={i18n.whereused}
+                                title={i18n.whereused}
+                                onclick={handleWhereUsed}
+                                class="svmx-whereUsed slds-p-right_xx-small"
+                            ></lightning-button> 
+                            <lightning-button
+                                label={i18n.backToList}
+                                title={i18n.backToList}
+                                onclick={handleBackToList}
+                                class="svmx-backToList"
+                            ></lightning-button>
+                            <lightning-button
+                                label={i18n.edit}
+                                title={i18n.edit}
+                                onclick={toggleEdit}
+                                class="svmx-editExpression slds-p-left_xx-small"
+                                ></lightning-button>
+                            <lightning-button
+                                if:true={isVisibilityCriteria}
+                                label={i18n.buttonDelete}
+                                title={i18n.buttonDelete}
+                                onclick={checkWhereUsedForDelete}
+                                class="svmx-deleteExpression slds-p-left_xx-small"
+                                ></lightning-button>
+                            <lightning-button
+                                if:true={isConfigurationFilter}
+                                label={i18n.buttonDelete}
+                                title={i18n.buttonDelete}
+                                onclick={handleDelete}
+                                class="svmx-configurationFilterDelete slds-p-left_xx-small"
+                                ></lightning-button>
+                        </template>
+                        <template if:true={editMode}>
+                            <lightning-button
+                                label={i18n.cancel}
+                                title={i18n.cancel}
+                                onclick={handleCancelEdit}
+                                class="svmx-cancelExpressionEdit"
+                            ></lightning-button>
+                            <lightning-button
+                                variant="brand"
+                                class="svmx-saveExpression slds-p-left_xx-small"
+                                label={i18n.save}
+                                title={i18n.save}
+                                onclick={handleSave}
+                            ></lightning-button>
+                        </template>         
+                            <lightning-button-icon
+                                icon-name="utility:help"
+                                class="svmx-help-link-button"
+                                variant="container"
+                                alternative-text={i18n.help}
+                                title={i18n.help}
+                                onclick={handleHelpClick}
+                            ></lightning-button-icon>
+                    </div>       
+                </c-svmx-page-header>
+            </div>
+            <div class="scrollable">
+                <div class="slds-card__body slds-card__body_inner">
+                    <template if:true={error}>
+                        <c-alert variant="error">{error}</c-alert>
+                    </template>
+                    <div class="slds-section slds-is-open">
+                        <h3 class="slds-section__title slds-theme_shade">
+                            <span
+                                class="slds-truncate slds-p-horizontal_small"
+                                title={i18n.generalInfoSection}
+                                >{i18n.generalInfoSection}</span
+                            >
+                        </h3>
+                    </div>
+                    <template if:false={clearStateNeeded}>
+                        <div
+                            class="slds-form slds-p-bottom_x-small"
+                            role="list"
+                        >
+                            <div class="slds-form__row">
+                                <div class="slds-form__item" role="listitem">
+                                    <div class={computedFormLabel}>
+                                        <template if:true={editMode}>
+                                            <lightning-input
+                                                placeholder={i18n.titlePlaceholder}
+                                                label={i18n.expressionName}
+                                                class="svmx-expressionNameInput dataField"
+                                                data-field="name"
+                                                message-when-value-missing={i18n.enterExpressionName}
+                                                required
+                                                value={viewModel.name}
+                                                max-length="80"
+                                                onchange={handleMappingInputChange}
+                                                onblur={handleNameBlur}
+                                            ></lightning-input>
+                                        </template>
+                                        <template if:false={editMode}>
+                                            <span
+                                                class="slds-form-element__label"
+                                                ><abbr
+                                                    class="slds-required"
+                                                    title={i18n.required}
+                                                    >*</abbr
+                                                >{i18n.expressionName}</span
+                                            >
+                                            <div
+                                                class="slds-form-element__control"
+                                            >
+                                                <div
+                                                    class="slds-form-element__static"
+                                                >
+                                                    {viewModel.name}
+                                                </div>
+                                                <lightning-button-icon
+                                                    onclick={toggleEdit}
+                                                    class="svmx-editExpression"
+                                                    icon-class="slds-button__icon_hint"
+                                                    icon-name="utility:edit"
+                                                    variant="bare"
+                                                ></lightning-button-icon>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div class="slds-form__item" role="listitem">
+                                    <div class={computedFormLabel}>
+                                        <template if:true={objectEditable}>
+                                            <c-combobox
+                                                required
+                                                filterable
+                                                class="svmx-expressionObjectInput dataField"
+                                                variant="label-stacked"
+                                                placeholder={i18n.select}
+                                                data-field="objectAPIName"
+                                                label={i18n.object}
+                                                message-when-value-missing={i18n.objectSelector}
+                                                value={objectAPIName}
+                                                items={entityOptions}
+                                                onchange={handleObjectChange}
+                                            ></c-combobox>
+                                        </template>
+                                        <template if:false={objectEditable}>
+                                            <span
+                                                class="slds-form-element__label"
+                                                ><abbr
+                                                    class="slds-required"
+                                                    title={i18n.required}
+                                                    >*</abbr
+                                                >{i18n.object}</span
+                                            >
+                                            <div
+                                                class="slds-form-element__control"
+                                            >
+                                                <div
+                                                    class="slds-form-element__static"
+                                                >
+                                                    {viewModel.objectLabel}
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-form__row">
+                                <div class="slds-form__item" role="listitem">
+                                    <div class={computedFormLabel}>
+                                        <template
+                                            if:true={developerNameEditable}
+                                        >
+                                        <c-x-extended-text-box value={viewModel.developerName} editable>
+                                            <lightning-input
+                                                class="svmx-expressionDeveloperNameInput dataField"
+                                                placeholder={i18n.developerName}
+                                                label={i18n.developerName}
+                                                data-field="developerName"
+                                                message-when-value-missing={i18n.enterDeveloperName}
+                                                required
+                                                value={viewModel.developerName}
+                                                max-length="40"
+                                                onchange={handleMappingInputChange}
+                                            ></lightning-input>
+                                        </c-x-extended-text-box>
+                                        </template>
+                                        <template
+                                            if:false={developerNameEditable}
+                                        >
+                                            <span
+                                                class="slds-form-element__label"
+                                                ><abbr
+                                                    class="slds-required"
+                                                    title={i18n.required}
+                                                    >*</abbr
+                                                >{i18n.developerName}</span
+                                            >
+                                           <c-x-extended-text-box value={viewModel.developerName}>
+                                               <div class="slds-form-element__static">
+                                                   {viewModel.developerName}
+                                               </div>
+                                           </c-x-extended-text-box>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div class="slds-form__item" role="listitem">
+                                    <div class={computedFormLabel}>
+                                        <template if:true={editMode}>
+                                            <lightning-textarea
+                                                class="svmx-expressionDescriptionInput"
+                                                label={i18n.description}
+                                                max-length="512"
+                                                value={viewModel.description}
+                                                data-field="description"
+                                                onchange={handleMappingInputChange}
+                                            ></lightning-textarea>
+                                        </template>
+                                        <template if:false={editMode}>
+                                            <span
+                                                class="slds-form-element__label"
+                                                >{i18n.description}</span
+                                            >
+                                            <div
+                                                class="slds-form-element__control"
+                                            >
+                                                <div
+                                                    class="slds-form-element__static"
+                                                >
+                                                    {viewModel.description}
+                                                </div>
+                                                <lightning-button-icon
+                                                    onclick={toggleEdit}
+                                                    icon-class="slds-button__icon_hint"
+                                                    icon-name="utility:edit"
+                                                    variant="bare"
+                                                ></lightning-button-icon>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>  
+                    <div class="slds-section slds-is-open">
+                        <h3 class="slds-section__title slds-theme_shade">
+                            <span
+                                class="slds-truncate slds-p-horizontal_small"
+                                title={i18n.conditionsSection}
+                                >{i18n.conditionsSection}</span
+                            >
+                        </h3>
+                    </div>
+                    <c-expression-builder
+                        onerroronline={handleError}
+                        class="svmx-expression-builder"
+                        expression-data={viewModelUnwrapped}
+                        entity-definition={entityDefinition}
+                        edit-mode={editMode}
+                        ontoggleedit={toggleEdit}
+                        onitemchanged={handleItemChanged}
+                        is-visibility-criteria={isVisibilityCriteria}
+                        is-configuration-filter={isConfigurationFilter}
+                    ></c-expression-builder>
+                </div>
+
+                <template if:true={apiInProgress}>
+                    <lightning-spinner
+                        variant="brand"
+                        alternative-text={i18n.savingRecords}
+                    ></lightning-spinner>
+                </template>
+            </div>
+            <c-modal-dialog
+                title={i18n.cancelModalTitle}
+                class="cancelModal"
+                is-open={cancelModalDialogOpen}
+                modal-content-id="cancelModalContent"
+                modal-header-id="cancelModalHeader"
+                onmodalclosed={handleCancelModal}
+            >
+                <div slot="body">
+                    <span slot="body">
+                        <p>
+                            <lightning-formatted-text
+                                value={i18n.cancelModalContent}
+                            ></lightning-formatted-text>
+                        </p>
+                    </span>
+                </div>
+                <div slot="footer">
+                    <lightning-button
+                        label={i18n.goBack}
+                        title={i18n.goBack}
+                        variant="neutral"
+                        onclick={handleCancelModal}
+                        class="svmx-cancelEdit slds-p-right_x-small"
+                    ></lightning-button>
+                    <lightning-button
+                        class="svmx-confirmCancelEdit confirmButton"
+                        label={i18n.continue}
+                        title={i18n.continue}
+                        variant="brand"
+                        onclick={handleCancelConfirmModal}
+                    ></lightning-button>
+                </div>
+            </c-modal-dialog>
+            <c-modal-dialog
+                title={i18n.continueConfirmation}
+                class="changeObjectModal"
+                close-button-style="slds-hidden"
+                is-open={changeObjectModalDialogOpen}
+                modal-content-id="changeObjectModalContent"
+                modal-header-id="changeObjectModalHeader"
+            >
+                <div slot="body">
+                    <span slot="body">
+                        <p>
+                            <lightning-formatted-text
+                                value={i18n.cancelModalContent}
+                            ></lightning-formatted-text>
+                        </p>
+                    </span>
+                </div>
+                <div slot="footer">
+                    <lightning-button
+                        label={i18n.goBack}
+                        title={i18n.goBack}
+                        variant="neutral"
+                        onclick={handleChangeObjectCancelModal}
+                        class="svmx-cancelObjectChange slds-p-right_x-small"
+                    ></lightning-button>
+                    <lightning-button
+                        class="svmx-confirmObjectChange confirmButton"
+                        label={i18n.continue}
+                        title={i18n.continue}
+                        variant="brand"
+                        onclick={handleChangeObjectConfirmModal}
+                    ></lightning-button>
+                </div>
+            </c-modal-dialog>
+            <c-modal-dialog
+                title={i18n.continueConfirmation}
+                class="changeHeaderRecordObjectModal"
+                close-button-style="slds-hidden"
+                is-open={changeHeaderRecordModalDialogOpen}
+                modal-content-id="changeHeaderRecordObjectModalContent"
+                modal-header-id="changeHeaderRecordObjectModalHeader"
+            >
+                <div slot="body">
+                    <span slot="body">
+                        <p>
+                            <lightning-formatted-text
+                                value={i18n.cancelModalContent}
+                            ></lightning-formatted-text>
+                        </p>
+                    </span>
+                </div>
+                <div slot="footer">
+                    <lightning-button
+                        label={i18n.goBack}
+                        title={i18n.goBack}
+                        variant="neutral"
+                        onclick={handleChangeHeaderRecordObjectCancelModal}
+                        class="svmx-cancelHeaderRecordObjectChange slds-p-right_x-small"
+                    ></lightning-button>
+                    <lightning-button
+                        class="svmx-confirmHeaderRecordObjectChange confirmButton"
+                        label={i18n.continue}
+                        title={i18n.continue}
+                        variant="brand"
+                        onclick={handleChangeHeaderRecordObjectConfirmModal}
+                    ></lightning-button>
+                </div>
+            </c-modal-dialog>
+            <template if:true={whereUsedModalDialogOpen}>
+                <c-where-used-modal-dialog
+                    class="svmx-whereUsedModalDialog"
+                    module-type={moduleType} 
+                    configuration-id={configurationId}  
+                    config-developer-name={configDeveloperName} 
+                    config-name={configName}
+                    operation-type={operationType}
+                    launch-module={launchModule}
+                    oncancelwhereusedmodal={handleCancelDeleteModal}
+                    onsavemodal={handleSaveAfterChecks}
+                    ondeletemodal={handleDeleteModal}>
+                </c-where-used-modal-dialog>             
+            </template>
+            <c-modal-dialog title={i18n.deleteModalTitle} class="deleteModal" is-open={deleteModalDialogOpen} modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={handleCancelModal}>
+                <div slot="body">
+                    <p><lightning-formatted-text value={i18n.deleteModalContent}></lightning-formatted-text></p>
+                </div>
+                <div slot="footer">
+                    <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelDeleteModal} class="slds-p-right_x-small svmx-deleteExpressionCancel"></lightning-button>
+                    <lightning-button class="confirmButton svmx-deleteExpressionConfirm" label={i18n.confirm} title={i18n.confirm} variant="brand" onclick={handleDeleteConfirmModal}></lightning-button>
+                </div>
+            </c-modal-dialog> 
+        </div>
+    </c-admin-layout>
+</template>

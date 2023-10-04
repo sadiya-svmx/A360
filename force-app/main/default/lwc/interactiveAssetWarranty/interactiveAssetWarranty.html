@@ -1,0 +1,164 @@
+<template>
+    <section role="dialog" class="slds-modal slds-fade-in-open slds-modal_large" tabindex="-1"
+        aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+        <div class="slds-modal__container">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                    title={i18n.lnkClose} onclick={handleCancel}>
+                    <lightning-icon icon-name="utility:close" size="small" variant="bare"
+                        alternative-text={i18n.lnkClose} title={i18n.lnkClose}></lightning-icon>
+                </button>
+                <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">
+                    {i18n.secName}
+                </h2>
+                <p class="slds-m-top_x-small">
+                    {i18n.txtSecMessage} <strong>{assetName}</strong>
+                </p>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                <div class="slds-p-bottom_medium slds-p-horizontal_medium">
+                    <lightning-input type="search" placeholder={i18n.placeholderSrchWarrTerm} value={searchKeyword}
+                        onchange={handleSearch}></lightning-input>
+                </div>
+                <div class="slds-card slds-card_boundary slds-accordion">
+                    <lightning-accordion allow-multiple-sections-open active-section-name={activeSections}>
+                        <lightning-accordion-section name="ApplicableWarrantyTerm" label={applWarrantyTerm}>
+                            <table
+                                class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered slds-table_fixed-layout"
+                                role="grid">
+                                <thead>
+                                    <tr class="slds-line-height_reset">
+                                        <th class="slds-text-align_right" scope="col" style="width: 3.25rem">
+                                            <div class="slds-truncate slds-assistive-text" id="column-group-header"
+                                                title={i18n.placeholderChooseRow}>
+                                                {i18n.placeholderChooseRow}
+                                            </div>
+                                        </th>
+                                        <th role="gridcell">
+                                            {i18n.lblWarrantyTerms}
+                                        </th>
+                                        <th role="gridcell">
+                                            {i18n.lblCoverageEffectiveFrom}
+                                        </th>
+                                        <th role="gridcell">
+                                            {i18n.lblMaterialCovered}
+                                        </th>
+                                        <th role="gridcell">
+                                            {i18n.lblLaborCovered}
+                                        </th>
+                                        <th role="gridcell">
+                                            {i18n.lblExpenseCovered}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template for:each={matchingWarrantyTerms} for:item="eachTerm" for:index="indexval">
+                                        <tr key={eachTerm.Id} class="slds-hint-parent">
+                                            <td class="slds-text-align_right" role="gridcell">
+                                                <span class="slds-radio">
+                                                    <input type="radio" id={eachTerm.Id} value={eachTerm.Id}
+                                                        name="options" tabindex="-1" aria-labelledby={eachTerm.Id}
+                                                        onchange={handleSelect} />
+                                                    <label class="slds-radio__label" for={eachTerm.Id} id={eachTerm.Id}>
+                                                        <span class="slds-radio_faux"></span>
+                                                    </label>
+                                                </span>
+                                            </td>
+                                            <th role="gridcell" class="slds-truncate">
+                                                <a tabindex="-1" target={eachTerm.Id} onclick={viewWarrantyTermRecord} title={eachTerm.WarrantyTermName}>{eachTerm.WarrantyTermName}</a>
+                                            </th>
+                                            
+                                            <th role="gridcell">{eachTerm.EffectiveStartDate}</th>
+                                            <th role="gridcell"><lightning-formatted-number value={eachTerm.PartsCovered} format-style="percent-fixed"></lightning-formatted-number></th>
+                                            <th role="gridcell"><lightning-formatted-number value={eachTerm.LaborCovered} format-style="percent-fixed"></lightning-formatted-number></th>
+                                            <th role="gridcell"><lightning-formatted-number value={eachTerm.ExpensesCovered} format-style="percent-fixed"></lightning-formatted-number></th>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                            <footer class="slds-card__footer">
+                                <template if:true={showMatchedViewAll}>
+                                    <a class="slds-card__footer-action svmx-asset-warranty_view-all-matching-link" onclick={viewAllMatching}>{i18n.lnkViewAll}</a>
+                                </template>
+                            </footer>
+                        </lightning-accordion-section>
+                    </lightning-accordion>
+                    <lightning-accordion allow-multiple-sections-open active-section-name={activeSections}>
+                        <lightning-accordion-section name="OtherWarrantyTerm" label={otherWarrantyTerm}>
+                            <table
+                                class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered slds-table_fixed-layout"
+                                role="grid">
+                                <thead>
+                                    <tr class="slds-line-height_reset">
+                                        <th class="slds-text-align_right" scope="col" style="width: 3.25rem">
+                                            <div class="slds-truncate slds-assistive-text"
+                                                title={i18n.placeholderChooseRow}>
+                                                {i18n.placeholderChooseRow}
+                                            </div>
+                                        </th>
+                                        <th role="gridcell">
+                                            {i18n.lblWarrantyTerms}
+                                        </th>
+                                        <th role="gridcell">
+                                            {i18n.lblCoverageEffectiveFrom}
+                                        </th>
+                                        <th role="gridcell">
+                                            {i18n.lblMaterialCovered}
+                                        </th>
+                                        <th role="gridcell">
+                                            {i18n.lblLaborCovered}
+                                        </th>
+                                        <th role="gridcell">
+                                            {i18n.lblExpenseCovered}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template for:each={unMatchedWarrantyTerms} for:item="eachUnmatchedTerm"
+                                        for:index="indexval">
+                                        <tr key={eachUnmatchedTerm.Id} class="slds-hint-parent">
+                                            <td class="slds-text-align_right" role="gridcell">
+                                                <span class="slds-radio">
+                                                    <input type="radio" id={eachUnmatchedTerm.Id}
+                                                        value={eachUnmatchedTerm.Id} name="options" tabindex="-1"
+                                                        aria-labelledby={eachUnmatchedTerm.Id}
+                                                        onchange={handleSelect} />
+                                                    <label class="slds-radio__label" for={eachUnmatchedTerm.Id}
+                                                        id={eachUnmatchedTerm.Id}>
+                                                        <span class="slds-radio_faux"></span>
+                                                    </label>
+                                                </span>
+                                            </td>
+                                            <th role="gridcell" class="slds-truncate">
+                                                <a tabindex="-1" target={eachUnmatchedTerm.Id} onclick={viewWarrantyTermRecord} title={eachUnmatchedTerm.WarrantyTermName}>{eachUnmatchedTerm.WarrantyTermName}</a>
+                                            </th>
+                                            <th role="gridcell">{eachUnmatchedTerm.EffectiveStartDate}</th>
+                                            <th role="gridcell"><lightning-formatted-number value={eachUnmatchedTerm.PartsCovered} format-style="percent-fixed"></lightning-formatted-number></th>
+                                            <th role="gridcell"><lightning-formatted-number value={eachUnmatchedTerm.LaborCovered} format-style="percent-fixed"></lightning-formatted-number></th>
+                                            <th role="gridcell"><lightning-formatted-number value={eachUnmatchedTerm.ExpensesCovered} format-style="percent-fixed"></lightning-formatted-number></th>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                            <footer class="slds-card__footer">
+                                <template if:true={showunMatchedViewAll}>
+                                    <a class="slds-card__footer-action svmx-asset-warranty_view-all-not-matching-link"
+                                        onclick={viewAllNotMatching}>{i18n.lnkViewAll}</a>
+                                </template>
+                            </footer>
+                        </lightning-accordion-section>
+                    </lightning-accordion>
+                </div>
+            </div>
+            <footer class="slds-modal__footer">
+                <button class="slds-button slds-button_neutral" onclick={handleCancel}>
+                    {i18n.btnCancel}
+                </button>
+                <button class="slds-button slds-button_brand" onclick={handleSave}>
+                    {i18n.btnSave}
+                </button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

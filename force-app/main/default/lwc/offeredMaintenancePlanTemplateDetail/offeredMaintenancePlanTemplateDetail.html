@@ -1,0 +1,97 @@
+<template>    
+    <!--offered MPT selection  modal-->
+    <div class="svmx-offered-mpt-selection">
+        <c-modal-dialog title={i18n.title} class="svmx-offered-mpt-selection_modal"
+            size="MEDIUM" is-open={offeredMPTModalOpen} modal-content-id="offeredMPTModalContent"
+            modal-header-id="offeredMPTModalHeader" onmodalclosed={handleCancelOfferedMPTModal}>
+            <div slot="body">
+                <template if:true={error}>
+                    <div class="slds-box slds-theme_error slds-p-left_medium slds-p-right_medium" role="alert">
+                        <p>{i18n.reviewError}</p>
+                    </div>
+                    <div
+                        class="slds-text-color_error slds-p-left_large slds-p-top_small svmx-offered-mpt-detail-modal_error">
+                        {error}
+                    </div>
+                </template>
+                <lightning-input type="search" autocomplete="off" placeholder={i18n.placeholder}
+                    variant="label-hidden" title={i18n.placeholder}
+                    class="slds-p-top_large svmx-offered-mpt-detail-text_search"
+                    onchange={handleSearchKeyChange}>
+                </lightning-input>
+                <div class="slds-p-top_large">
+                    {selectedProductCountInfo}
+                </div>
+                <div class="slds-p-top_large" style="height: 400px;">
+                    <table class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered slds-table_fixed-layout svmx-offered-mpt-detail_table" role="grid">
+                        <thead>
+                            <tr class="slds-line-height_reset">
+                                <th class="slds-text-align_right" scope="col" style="width:4.25rem;height:2.3rem">
+                                    <div class="slds-truncate slds-assistive-text" title={i18n.chooseRow}></div>
+                                </th>
+                                <th role="gridcell" scope="col" width="30%">
+                                    <div class="slds-truncate" title={i18n.mptName}>{i18n.mptName}</div>
+                                </th>
+                                <th role="gridcell" scope="col" width="50%">
+                                    <div class="slds-truncate" title={i18n.description}>{i18n.description}</div>
+                                </th>
+                                <th role="gridcell" scope="col" width="20%">
+                                    <div class="slds-truncate" title={i18n.active}>{i18n.active}</div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template if:true={maintenancePlanTemplates}>
+                                <template for:each={maintenancePlanTemplates} for:item="mptRecord" for:index="indexVar">
+                                    <tr key={mptRecord.id}>
+                                        <th role="gridcell" class="slds-truncate" scope="col">
+                                            <div>
+                                                <lightning-input
+                                                    type="checkbox-button"
+                                                    onchange={handleSelectMPT}
+                                                    checked={mptRecord.isSelected}
+                                                    value={mptRecord.id}
+                                                    data-name={mptRecord.name}
+                                                    class="svmx-offered-mpt-detail-checkbox_select">
+                                                </lightning-input>
+                                            </div>
+                                        </th>
+                                        <th role="gridcell" class="slds-truncate" scope="col" >
+                                            <div>{mptRecord.name}</div>
+                                        </th>
+                                        <th role="gridcell" class="slds-truncate slds-cell-wrap" scope="col" >
+                                            <div class="slds-line-clamp">
+                                                <lightning-formatted-text title={mptRecord.description} value={mptRecord.description}></lightning-formatted-text>                                        
+                                            </div>
+                                        </th>
+                                        <th role="gridcell" class="slds-truncate" scope="col" >
+                                            <div>
+                                                <lightning-input type="checkbox" disabled checked={mptRecord.isActive}></lightning-input>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </template>
+                            </template>
+                        </tbody>
+                    </table>
+                    <div if:true={apiInProgress} class="slds-is-relative">
+                        <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium">
+                        </lightning-spinner>
+                    </div>
+                    <template if:true={noRecordsFound}>
+                        <lightning-formatted-text class="slds-align_absolute-center slds-p-top_x-large no-data" value={i18n.noResults}>
+                        </lightning-formatted-text>
+                    </template>
+                </div>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                    onclick={handleCancelOfferedMPTModal} class="slds-p-right_x-small svmx-offerd-mpt-selection-modal-cancel_btn">
+                </lightning-button>
+                <lightning-button class="svmx-offered-mpt-detail-modal-add_btn" label={i18n.add}
+                    title={i18n.add} variant="brand" onclick={handleAddTemplate} disabled={disableAddTemplate}>
+                </lightning-button>
+            </div>
+        </c-modal-dialog>
+    </div>
+</template>

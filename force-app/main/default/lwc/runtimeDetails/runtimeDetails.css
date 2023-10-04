@@ -1,0 +1,33 @@
+.svmx-fab_container {
+	position: fixed;
+	bottom: 0px;
+	right: 1%;
+	text-align: right;
+}
+
+.svmx-fab_container.svmx-fab_container_flow {
+	right: 10vw;
+	bottom: 3vh;
+}
+
+.svmx-fab.slds-button {
+	background-color: #33bce7;
+	border-radius: 50%;
+	box-shadow: 0px 4px 4px 0px #00000040;
+}
+
+.svmx-record-title {
+    font-size: 18px;
+    font-weight: bold;
+    line-height: var(--lwc-lineHeightHeading, 1.25);
+    color: #006DCC;
+    display: block;
+}
+
+.svmx-record-field-label {
+	color: #514F4D;
+}
+
+.svmx-record_display_value {
+	font-weight:400;
+}

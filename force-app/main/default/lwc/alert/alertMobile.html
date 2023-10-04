@@ -1,0 +1,79 @@
+<template>
+    <template if:true={_isVisible}>
+        <div class="slds-notify_container slds-is-relative" style="z-index: inherit;">
+            <div class= {computedCssClass}
+                role="status" 
+                style="min-width: 95%; background-color: rgba(180, 68, 59, 1); padding-left: inherit;" >
+            <span class="slds-assistive-text">{alternativeText}</span>
+            <div class="slds-notify__content">
+                <div class="slds-text-align_left slds-var-m-left_small">
+                    <h2 class="svmx-alert_header-label slds-text-heading_small">
+                        <slot name="header" onslotchange={handleHeaderSlotChange}></slot>
+                        <!-- Fallback content if header slot unused -->
+                        <template if:false={_hasHeaderSlot}>{headerLabel}</template>
+                    </h2>
+                    <div class="svmx-alert-message-wrap">
+                        <h2 class="slds-text-heading_small" style="font-size: 15px;">{i18n.labelErrorEncountered}. 
+                            <a class="svmx-alert_details-link" onclick={handleMoreInformation} href="#">{i18n.labelMoreInformation}.</a>
+                        </h2>
+                        <!-- Fallback content if description slot unused -->
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </template>
+     <!-- Alert Details - Modal Overlay -->
+    <c-modal-dialog
+        class="svmx-alert_detail-modal" 
+        is-open={_detailsModalOpen}
+        modal-content-id="alertDetailsModalContent"
+        modal-header-id="alertDetailsModalHeader"
+        onmodalclosed={handleCloseModalClick}
+        title={detailsHeaderLabel}
+        relative-to-viewport
+    >
+        <div slot="header">
+            <lightning-layout horizontal-align="center">
+                <lightning-layout-item class="slds-text-align_left slds-truncate" size="7">
+                    <h2
+                        id="editModalHeader"
+                        class="slds-modal__title slds-hyphenate"
+                        style="padding-top: 10px;"
+                    >
+                        {headerLabel}
+                    </h2>
+                </lightning-layout-item>
+                <lightning-layout-item class="slds-text-align_right" size="5">
+                    <button 
+                        class="svmx-modal_button-confirm slds-button slds-button_brand" 
+                        style="min-width: 50px;"
+                        onclick={handleCloseModalClick}>
+                        {i18n.ok}
+                    </button>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+        <div class="slds-p-around_small" slot="body">
+            <lightning-formatted-text
+                value={errorMessage}
+                class="svmx-alert_detail-modal-label"
+            ></lightning-formatted-text>
+
+            <div class="slds-m-top_x-small">
+                <lightning-button
+                    class="svmx-alert_detail-modal-button-copy"
+                    label={i18n.copyToClipboard}
+                    onclick={handleCopyToClipboardClick}
+                    title={i18n.copyToClipboard}
+                    icon-name="utility:copy_to_clipboard"
+                    variant="base"
+                ></lightning-button>
+
+                <template if:true={_clipboardErrorVisible}>
+                    <div class="slds-text-color_destructive">{i18n.copyToClipboardError}</div>
+                </template>
+            </div>
+        </div>
+    </c-modal-dialog>
+</template>

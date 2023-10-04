@@ -1,0 +1,8 @@
+<aura:component implements="lightning:isUrlAddressable">
+<aura:attribute name="displayComponent" type="boolean" default ="true" />
+<aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+
+<aura:if isTrue="{!v.displayComponent}">
+    <c:pscConfigAdminDetail></c:pscConfigAdminDetail>
+</aura:if>
+</aura:component>

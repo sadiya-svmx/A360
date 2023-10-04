@@ -1,0 +1,12 @@
+.svmx-is-highlighted {
+    background-color:  rgba(166,213,248,.4)
+}
+
+.svmx-is-highlighted:hover {
+    background-color:  var(--lwc-colorBackground,rgb(243, 242, 242))
+}
+
+tbody tr.svmx-sub-grid:hover,
+tbody td.svmx-sub-grid:hover{
+    background-color: var(--lwc-colorBackgroundAlt,rgb(255, 255, 255))
+}

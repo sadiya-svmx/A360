@@ -1,0 +1,56 @@
+.pointer {
+    cursor: pointer;
+}
+
+.disable {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.maxHeight {
+    max-height: 12.5rem;
+    overflow: hidden;
+}
+
+.wizardHeader {
+    color: var(--svmx-lwc-headerColor, rgb(84, 105, 141));
+    font-size: 0.875rem;
+    font-weight: bold;
+    border-bottom: var(--lwc-borderWidthThin, 1px) solid var(--svmx-lwc-colorBorder, rgb(128, 128, 128));
+}
+
+.fixedmaxWidth {
+    max-width: var(--svmx-lwc-width, 20rem);
+}
+
+.fixedWidth {
+    min-width: var(--svmx-lwc-width, 20rem);
+}
+
+.SMALL {
+    max-height: var(--lwc-sizeXSmall, 12rem);
+    overflow: hidden;
+}
+
+.MEDIUM {
+    max-height: 24rem;
+    overflow: hidden;
+}
+
+.LARGE {
+    max-height: 36rem;
+    overflow: hidden;
+}
+
+.svmx-field-error-wrap_all {
+    word-break: break-all;
+}
+
+.svmx-wizard-section {
+    border: solid 1px rgb(221,219,218);
+    background-color: rgb(250, 250, 249);
+    padding: 0;
+    border-radius: 0.25rem;
+    min-width: var(--svmx-lwc-width, 20rem);
+    max-width: var(--svmx-lwc-width, 36rem);
+}

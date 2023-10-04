@@ -1,0 +1,231 @@
+<template>
+    <c-admin-layout>
+        <div class="svmx-pageStructure"> 
+            <div class="slds-card full-height">
+                <div class="slds-page-header list-view-header">
+                    <div class="slds-page-header__row">
+                        <div class="slds-page-header__col-title">
+                            <div class="slds-media">
+                                <div class="slds-media__figure">
+                                    <img src={logoUrl} width="40" height="40">
+                                </div>
+                                <div class="slds-media__body">
+                                    <div class="slds-page-header__name">
+                                        <div class="slds-page-header__name-title">
+                                            <h1>                                        
+                                                <span
+                                                    class="slds-page-header__title slds-truncate"
+                                                    title={i18n.templateRuleTitle}>
+                                                    {i18n.templateRuleTitle}
+                                                </span>
+                                            </h1>
+                                            <h4><span>{getMasterRecordData.ruleName}</span></h4>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-page-header__col-actions">
+                            <div class="slds-page-header__controls">
+                                <div class="slds-page-header__control">
+                                    <ul class="slds-button-group-list">
+                                        <li>
+                                            <lightning-button
+                                                label={i18n.cancel}
+                                                title={i18n.cancel}
+                                                class="slds-button_neutral slds-var-p-right_x-small svmx-save-cancel"
+                                                onclick={handleCancelButtonClick}>
+                                            </lightning-button>
+                                            <lightning-button 
+                                                variant="brand" 
+                                                label={i18n.save} 
+                                                title={i18n.save} 
+                                                onclick={handleSaveButtonclick} 
+                                                disabled={disableSave}
+                                                class="slds-var-p-right_x-small svmx-save-button">
+                                            </lightning-button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div if:true={apiInProgress} >
+                <lightning-spinner variant="brand" alternative-text={i18n.loading} style="padding-top:40%">
+                </lightning-spinner>
+            </div>
+            <template if:false={clearStateNeeded} >
+            <div class="slds-p-around_medium">
+                <template if:true={error}>
+                    <c-alert variant="error" class="svmx-error">{error}</c-alert>
+                </template>
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="6">
+                        <lightning-input 
+                                label={i18n.ruleName}
+                                class="svmx-NameInput slds-p-right_medium"
+                                data-field="ruleName"
+                                message-when-value-missing={i18n.enterValueMsg}
+                                required
+                                value={getMasterRecordData.ruleName}
+                                max-length="80" 
+                                onchange={handleMasterDataChange}
+                                oncommit={handleRuleNameCommit}
+                        ></lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="6">
+                        <lightning-input 
+                                label={i18n.object}
+                                class="slds-p-right_medium"
+                                data-field="object"
+                                disabled="true"
+                                value={objectAPIName}
+                                max-length="80"
+                        ></lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="6">
+                        <lightning-textarea 
+                                label={i18n.description}
+                                class="svmx-descInput slds-p-right_medium"
+                                data-field="description"
+                                max-length="255"
+                                value={getMasterRecordData.description} onchange={handleMasterDataChange}
+                        ></lightning-textarea>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="6">
+                        <lightning-input type="text" label={i18n.developerName}
+                        class="svmx-developerName slds-p-right_medium" 
+                        data-field="developerName" 
+                        required="true" 
+                        value={getMasterRecordData.developerName}
+                        message-when-value-missing={i18n.enterValueMsg} 
+                        onchange={handleMasterDataChange} max-length="80" disabled={editMode}
+                        ></lightning-input>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </div>
+            <div class="slds-p-around_medium slds-card__body_inner">
+                <div class="slds-section">
+                    <h3 class="slds-section__title slds-theme_shade">
+                        <span
+                            class="slds-truncate slds-p-horizontal_small"
+                            title={i18n.templateFieldMatching}
+                            >{i18n.templateFieldMatching}</span>
+                    </h3>
+                </div>
+                <span>{i18n.newTemplateAccordianMsg}</span>
+                <br>
+                <br>
+                <div class="slds-p-bottom_medium slds-grid" style="border-bottom: 1px solid rgb(229, 229, 229);">   
+                    <div style="width:40%" class="slds-form slds-p-top_large">
+                        <lightning-combobox
+                            name="conditionMenu"
+                            value={getMasterRecordData.selectionCondition}
+                            placeholder=""
+                            options={options} label={i18n.displayTemplateWhen}
+                            onchange={handleOnselect}  class="svmx-conditionSelection" variant="label-inline"></lightning-combobox>
+                    </div>
+                    <div style="width:50%" class="slds-p-left_x-large slds-p-top_xx-small">
+                        <template if:true={showCustomLogicField}>
+                            <lightning-input value={getMasterRecordData.advancedCriteria} type="text" 
+                            label={i18n.advancedExpressionEdit} 
+                            required={showCustomLogicField} 
+                            data-field="advancedCriteria"
+                            max-length="250" class="advancedExpressionInput"
+                            onblur={handleAdvancedValidation} onchange={handleMasterDataChange}></lightning-input> 
+                        </template>
+                    </div>
+                </div>
+                <div>
+                    <template for:each={detailRecordList} for:item="record" for:index="key">
+                        <lightning-layout key={record.id} style="border-bottom: 1px solid rgb(229, 229, 229);" class="svmx-row">
+                            <lightning-layout-item size="1" class="slds-p-around_large">{record.sequence}</lightning-layout-item>
+                            <lightning-layout-item size="4">
+                                <c-combobox
+                                    filterable
+                                    required
+                                    class="svmx-ObjectInput dataField svmx-timeline-config-detail_input-field svmx-timeline-config-field-selection_input-field"
+                                    variant="label-stacked"
+                                    data-field={record.id}
+                                    label={i18n.templateField}
+                                    message-when-value-missing={i18n.enterValueMissing}
+                                    value={record.operandFieldAPIName} 
+                                    items={getAvailableTemplateFields} onchange={handleDetailChange}
+                                ></c-combobox>
+                                </lightning-layout-item> 
+                            <lightning-layout-item size="1" class="slds-p-top_large slds-p-left_xx-large"> <span class="slds-p-around-small">{record.operator}</span></lightning-layout-item>
+                            <lightning-layout-item size="4">
+                                <div class="slds-form-element">
+                                    <section class="slds-is-relative ">
+                                        <template if:true={record.referenceFieldLabel}>
+                                            <lightning-input type="text" required
+                                            class="svmx-expression_relatedpicklistinput" 
+                                            placeholder={i18n.select}
+                                            value={record.referenceFieldLabel}
+                                            data-field="fieldAPIName" 
+                                            onclick={handleFieldChange}
+                                            data-name={record.id} label={i18n.assetField} 
+                                            ></lightning-input>
+                                        </template>
+                                        <template if:false={record.referenceFieldLabel}>
+                                            <lightning-input type="text" required
+                                            class="svmx-expression_relatedpicklistinput" 
+                                            placeholder={i18n.select}
+                                            value={record.referenceFieldLabel}
+                                            data-field="fieldAPIName" 
+                                            onclick={handleFieldChange}
+                                            data-name={record.id} label={i18n.assetField} 
+                                            ></lightning-input>
+                                        </template>
+                                    </section>
+                                    <template if:true={record.showRelatedPicklistDialog}>
+                                        <c-related-field-selector
+                                            object-api-name="Asset"
+                                            object-label-name="Asset"
+                                            onrelatedpicklistselected={handleRelatedPicklistSelected}
+                                            oncancelmodal={handleCancelRelatedPicklist} 
+                                            field-value={record.objectFieldAPIName}
+                                            related-object-details={record.relatedObjectDetails}
+                                            reference-label={record.referenceFieldLabel}
+                                            is-expression-selection="true"
+                                            remove-user-object={removeUserObjectFromRelatedField}
+                                            class="relatedPicklist">
+                                        </c-related-field-selector>
+                                    </template>
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="2" class="slds-p-top_large slds-p-left_large"><lightning-button-icon icon-name="utility:close" size="small" data-name={record.id} onclick={handleRemoveRow} variant="bare" class="svmx-removeRow slds-float_left slds-p-left_medium" disabled={getDeleteDisabled}></lightning-button-icon></lightning-layout-item>
+                        </lightning-layout>
+                    </template>
+                    <lightning-button label={i18n.addMacthBtn} 
+                    title={i18n.addMacthBtn} 
+                    onclick={handleAddRow} 
+                    icon-name="utility:add"
+                    class="svmx-addNewMatch slds-float_left slds-p-top_medium slds-m-right_small"></lightning-button>
+                </div> 
+            </div>
+            <c-modal-dialog title={i18n.cancelModalTitle} class="cancelModal"
+                is-open={cancelModalDialogOpen} modal-content-id="cancelModalContent"
+                modal-header-id="cancelModalHeader" onmodalclosed={handleCancelModal}>
+                <div slot="body">
+                    <span slot="body">
+                        <p>
+                            <lightning-formatted-text value={i18n.cancelModalContent}>
+                            </lightning-formatted-text>
+                        </p>
+                    </span>
+                </div>
+                <div slot="footer">
+                    <lightning-button label={i18n.goBack} title={i18n.goBack} variant="neutral"
+                        onclick={handleCancelModal} class="slds-p-right_x-small cancelButton"></lightning-button>
+                    <lightning-button class="confirmButton" label={i18n.continue} title={i18n.continue}
+                        variant="brand" onclick={handleCancelConfirmModal}></lightning-button>
+                </div>
+            </c-modal-dialog>
+            </template>
+        </div>
+    </c-admin-layout>
+</template>

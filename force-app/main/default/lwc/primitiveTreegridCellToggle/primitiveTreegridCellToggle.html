@@ -1,0 +1,20 @@
+<template>
+    
+    <template if:true={fetchOnly}>
+        <button type="button" class='slds-button slds-button_icon slds-m-right_x-small' tabindex={buttonTabIndex}
+            title={buttonTitle}
+            onclick={handleDownloadClick}>
+                <lightning-icon icon-name="utility:chevronright"
+                    size="xx-small" alternative-text={buttonTitle}>
+                </lightning-icon>
+        </button>
+    </template>
+    <template if:false={fetchOnly}>
+        <button type="button" class={computedButtonClass} tabindex={buttonTabIndex} title={buttonTitle}
+            onclick={handleChevronClick}>
+                <lightning-icon icon-name="utility:chevronright" class="slds-button__icon slds-button__icon_small"
+                    size="xx-small" alternative-text={buttonTitle}>
+                </lightning-icon>
+        </button>
+    </template>
+</template>

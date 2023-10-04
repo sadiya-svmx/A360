@@ -1,0 +1,36 @@
+<template>
+    <h1 class="slds-var-p-horizontal_medium slds-text-heading_medium slds-hyphenate slds-line-clamp">
+        {expressionName}
+    </h1>
+    <p
+        class="slds-var-p-horizontal_medium slds-var-m-top_x-small slds-text-heading_small slds-text-color_weak slds-hyphenate slds-line-clamp">
+        {expressionDevName}
+    </p>
+    <p class="slds-var-p-horizontal_medium slds-var-m-vertical_small slds-hyphenate slds-line-clamp">
+        {expressionDesc}
+    </p>
+    <p class="slds-var-m-bottom_small"></p>
+    <div class="slds-var-m-around_medium slds-box slds-box_x-small">
+        <div class="slds-grid slds-gutters">
+            <div class="slds-col slds-size_11-of-12 slds-hyphenate slds-line-clamp">
+                <c-expression-builder expression-data={selectedRecord} entity-definition={selectedEntityDefinition}
+                    edit-mode={editMode} edit-mode-type={editModeType}></c-expression-builder>
+            </div>
+            <template if:true={editable}>
+                <div class="slds-col slds-size_1-of-12">
+                    <div class="slds-clearfix">
+                        <div class="slds-float_right">
+                            <lightning-button-icon 
+                                class="svmx-expression-preview_open-in-new-window slds-var-m-left_xx-small" 
+                                icon-name="utility:new_window"
+                                variant="bare" alternative-text={i18n.settings} 
+                                title={i18n.settings}
+                                onclick={handleOpenInNewWindow}>
+                            </lightning-button-icon>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>

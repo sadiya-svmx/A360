@@ -1,0 +1,210 @@
+<template>
+    <c-modal-dialog
+        title={i18n.modalTitle}
+        is-open={modalOpen}
+        size="small"
+        modal-content-id="wizardConfigurationContent"
+        modal-header-id="wizardConfigurationHeader"
+        onmodalclosed={handleCancelModal}
+        relative-to-viewport
+    >
+        <div slot="body">
+            <template if:true={error}>
+                <c-alert variant="error">{error}</c-alert>
+            </template>
+            <div class="slds-form" role="list">
+                <div class="slds-form__row">
+                    <div class="slds-form__item" role="listitem">
+                        <div
+                            class="slds-form-element slds-form-element_stacked slds-is-editing"
+                        >
+                            <lightning-input
+                                class="required-field wizard-name"
+                                placeholder={i18n.wizardNamePlaceholder}
+                                label={i18n.wizardName}
+                                pattern=".*\S.*"
+                                message-when-pattern-mismatch={i18n.nameMissing}
+                                message-when-value-missing={i18n.nameMissing}
+                                required
+                                value={wizardRecord.name}
+                                max-length="80"
+                                onchange={handleWizardNameChanged}
+                                onblur={handleWizardNameBlur}
+                            ></lightning-input>
+                        </div>
+                    </div>
+                    <div class="slds-form__item" role="listitem">
+                        <div
+                            class="slds-form-element slds-form-element_stacked slds-is-editing"
+                        >
+                            <c-modal-lookup
+                                class="criteria-lookup"
+                                label={i18n.criteria}
+                                variant="label-stacked"
+                                placeholder={i18n.selectCriteria}
+                                onviewclick={handleViewCriteriaClick}
+                                onmodalrequest={handleCriteriaModalRequest}
+                                onvalueremoved={handleCriteriaRemoved}
+                                value={criteriaLookupValue}
+                            >
+                            </c-modal-lookup>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item" role="listitem">
+                            <template if:true={developerNameEditable}>
+                                <div
+                                    class="slds-form-element slds-form-element_stacked slds-is-editing"
+                                >
+                                    <lightning-input
+                                        class="required-field developer-name"
+                                        placeholder={i18n.developerName}
+                                        label={i18n.developerName}
+                                        pattern=".*\S.*"
+                                        message-when-pattern-mismatch={i18n.developerNameMissing}
+                                        message-when-value-missing={i18n.developerNameMissing}
+                                        required
+                                        value={wizardRecord.developerName}
+                                        max-length="40"
+                                        onchange={handleDeveloperNameChanged}
+                                    ></lightning-input>
+                                </div>
+                            </template>
+                            <template if:false={developerNameEditable}>
+                                <div class="slds-form-element slds-form-element_stacked">
+                                    <span class="slds-form-element__label">{i18n.developerName}</span>
+                                    <div class="slds-form-element__control">
+                                        <div class="slds-form-element__static">{wizardRecord.developerName}</div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                        <div class="slds-form__item" role="listitem">
+                            <div
+                                class="slds-form-element slds-form-element_stacked slds-is-editing"
+                            >
+                                <lightning-textarea
+                                    class="svmx-description"
+                                    label={i18n.description}
+                                    placeholder={i18n.description}
+                                    max-length="1000"
+                                    value={wizardRecord.description}
+                                    data-field="description"
+                                    onchange={handleWizardDescriptionChanged}
+                                ></lightning-textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item" role="listitem"></div>
+                        <div class="slds-form__item" role="listitem">
+                            <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                <div class="slds-form__row">
+                                    <div class="slds-form__item" role="listitem">
+                                        <lightning-input
+                                            class="svmx-step-type-checkbox"
+                                            name="stepDependencyCheckbox"
+                                            type="checkbox"
+                                            checked={stepDependencyTypeFlag}
+                                            label={i18n.stepDependencyType}
+                                            onchange={handleStepDependencyTypeChange} >
+                                        </lightning-input>
+                                        <lightning-helptext content={i18n.stepDepTooltip}></lightning-helptext>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item" role="listitem">
+                            <div
+                                class="slds-form-element slds-form-element_stacked slds-is-editing"
+                            >
+                                <c-profile-selector
+                                    class="svmx-profile-selector"
+                                    value={selectedProfiles}
+                                    onprofileselected={handleProfileSelected}
+                                ></c-profile-selector>
+                            </div>
+                        </div>
+                    </div>
+                    <template if:true={showExpressionSelector}>
+                        <c-expression-selector
+                            modal-size="large"
+                            object-api-name={objectApiName}
+                            selector-modal-title={i18n.selectExpression}
+                            selector-modal-open={showExpressionSelector}
+                            onexpressionselectorclosed={handleExpressionModalClosed}
+                            onexpressionselected={handleExpressionSelected}
+                        >
+                        </c-expression-selector>
+                    </template>
+                    <template if:true={showExpressionViewModal}>
+                        <c-wizard-expression-modal
+                            expression-id={expressionId}
+                            modal-open={showExpressionViewModal}
+                            onexpressionmodalclosed={handleExpressionViewModalClosed}
+                        >
+                        </c-wizard-expression-modal>
+                    </template>
+                </div>
+                <c-modal-dialog
+                    title={i18n.warningTitle}
+                    class="svmx-step-dep-confirm-modal"
+                    is-open={openStepDependencyConfirm}
+                    onmodalclosed={handleStepDepCancel}
+                >
+                    <div slot="body">
+                        <p>
+                            <lightning-formatted-text
+                                value={i18n.stepCompTypeWarningTitle}
+                            ></lightning-formatted-text>
+                        </p>
+                        <ul class="slds-var-m-around_medium">
+                            <template iterator:it={stepSwitchWarningMessageItems}>
+                                <li key={it.value.Id}>
+                                    <div if:true={it.first} class="svmx-list-first"></div>
+                                    {it.value.step} > {it.value.depStep}
+                                    <div if:true={it.last} class="svmx-list-last"></div>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                    <div slot="footer">
+                        <lightning-button
+                            label={i18n.cancel}
+                            title={i18n.cancel}
+                            variant="neutral"
+                            onclick={handleStepDepCancel}
+                            class="slds-var-p-right_x-small svmx-step-dep-cancel-btn"
+                        ></lightning-button>
+                        <lightning-button
+                            class="svmx-step-dep-confirm-btn"
+                            label={i18n.confirm}
+                            title={i18n.confirm}
+                            variant="brand"
+                            onclick={handleStepDepConfirm}
+                        ></lightning-button>
+                    </div>
+                </c-modal-dialog>
+            </div>
+        </div>
+        <div slot="footer">
+            <lightning-button
+                label={i18n.cancel}
+                title={i18n.cancel}
+                variant="neutral"
+                onclick={handleCancelModal}
+                class="slds-var-p-right_x-small svmx-cancel-button"
+            ></lightning-button>
+            <lightning-button
+                label={i18n.apply}
+                title={i18n.apply}
+                variant="brand"
+                onclick={handleApply}
+                class="svmx-apply-button"
+            ></lightning-button>
+        </div>
+    </c-modal-dialog>
+</template>

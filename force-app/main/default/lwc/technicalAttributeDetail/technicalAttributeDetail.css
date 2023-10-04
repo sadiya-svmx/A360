@@ -1,0 +1,10 @@
+.svmx-technical-attribute-detail_is-view {
+    border-bottom: var(--lwc-borderWidthThin,1px) solid var(--lwc-colorBorder,rgb(221, 219, 218));
+}
+.my-card {
+    display: block;
+    background-color: var(--lwc-colorBackgroundAlt,rgb(255, 255, 255));  
+}
+.pills-view {
+    border-bottom: var(--lwc-borderWidthThin,1px) solid var(--lwc-colorBorder,rgb(221, 219, 218));
+}

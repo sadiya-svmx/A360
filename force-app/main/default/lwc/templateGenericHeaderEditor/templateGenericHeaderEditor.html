@@ -1,0 +1,36 @@
+<template>
+    <template if:true={hasError}>
+        <c-alert variant="error">{error}</c-alert>
+    </template>
+    <c-combobox
+        filterable
+        required
+        placeholder={i18n.searchLayoutPlaceholder}
+        onchange={handleChangeDeveloperName}
+        value={developerName}
+        items={listDeveloperNames}
+        label={i18n.developerName}
+        variant="label-stacked"
+    ></c-combobox>
+
+    <template if:true={hasDeveloperName}>
+        <lightning-input
+            required
+            disabled
+            type="text"
+            value={sourceObjectH}
+            label={i18n.sourceObject}
+            data-field="sourceObjectH"
+        ></lightning-input>
+        <div class="slds-m-vertical_x-small slds-m-left_medium">
+            <lightning-combobox
+                class="svmx-resource_combobox"
+                variant="label-hidden"
+                value={headerRecordData}
+                placeholder={i18n.recordCollection}
+                options={resourcesAndElements}
+                onchange={handleChangeHeader}
+            ></lightning-combobox>
+        </div>
+    </template>
+</template>

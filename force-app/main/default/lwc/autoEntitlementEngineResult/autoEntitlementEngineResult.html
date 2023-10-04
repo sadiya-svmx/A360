@@ -1,0 +1,87 @@
+<template>
+    <lightning-card
+            variant="narrow"
+            icon-name="standard:service_contract">
+        <h1 slot="title"><b>{i18n.serviceCoverage}</b></h1>
+
+        <div class="slds-media slds-m-left_large slds-m-top_large">
+            <div class="slds-media__figure">
+                <template if:true={coverageFound}>
+                    <lightning-icon icon-name="action:approval" size="x-small"></lightning-icon>
+                </template>
+                <template if:true={serviceContractWarning}>
+                    <lightning-icon icon-name="utility:warning" size="x-medium"></lightning-icon>
+                </template>
+                <template if:true={multipleCoveragesFound}>
+                    <lightning-icon icon-name="action:clone" size="x-small"></lightning-icon>
+                </template>
+                <template if:true={noResultFound}>
+                    <lightning-icon icon-name="action:remove" size="x-small"></lightning-icon>
+                </template>
+            </div>
+            <div class="slds-media__body slds-m-left_x-small">
+                <div class="slds-page-header__name">
+                    <div class="slds-page-header__name-title">
+                        <h1>
+                            <span class="slds-text-heading_small AutoEntitlementEngineResult__header--color">{coveredBy}</span>
+                        </h1>
+                    </div>
+                </div>
+                <div>
+                    <template if:true={noResultFound}>
+                        <p class="slds-m-top_x-small">
+                            <lightning-formatted-text value={errorMessage}> </lightning-formatted-text>
+                        </p>
+                    </template>
+                    <template if:false={noResultFound}>
+                        <p class="slds-m-top_x-small svmx-result_record-name">
+                            <a href="#" onclick={viewSObjectRecord} target={resultRecordId}
+                            title={recordName} class="svmx-result_record-link"
+                            onmouseover={previewRecord} onmouseout={handleMouseOut}>{recordName}</a>
+                        </p>
+                        <template if:false={warrantyFound}>
+                                <div class="slds-grid slds-text-body_regular slds-m-top_xxx-small slds-gutters">
+                                    <div class="slds-col slds-size_2-of-8">
+                                        <lightning-formatted-text value={i18n.entitledService} class="AutoEntitlementEngineResult__widget-labels--color"> </lightning-formatted-text>
+                                    </div>
+                                    <div class="slds-col slds-size_6-of-8">
+                                        <template if:true={entitlementNotFound}>
+                                            <lightning-formatted-text value={serviceName} class={serviceCSS}> </lightning-formatted-text>
+                                        </template>
+                                        <template if:false={entitlementNotFound}>
+                                            <a href="#" class={serviceCSS} onclick={viewEntitlementRecord}
+                                            title={serviceName} onmouseover={previewEntitlementRecord} onmouseout={handleMouseOut}>{serviceName}</a>
+                                            <lightning-formatted-text value={serviceCount}
+                                                                    class="AutoEntitlementEngineResult__widget-labels--color slds-m-left_xx-small">
+                                            </lightning-formatted-text>
+                                        </template>
+                                    </div>
+                                </div>
+                        </template>
+                        <div class="slds-grid slds-text-body_regular slds-m-top_xxx-small slds-gutters">
+                            <div class="slds-col slds-size_2-of-8">
+                                <lightning-formatted-text value={i18n.coverageEnds} class="AutoEntitlementEngineResult__widget-labels--color"> </lightning-formatted-text>
+                            </div>
+                            <div class="slds-col slds-size_6-of-8">
+                                <lightning-formatted-date-time value={endDate} time-zone={i18n.timeZone}> </lightning-formatted-date-time>
+                                <lightning-formatted-text value={remainingHours} class={remainingHoursCSS}> </lightning-formatted-text>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+        <div class= "slds-m-top_medium slds-m-left_large slds-m-right_large">
+            <template if:true={showCoverageButton}>
+                <button class="slds-button slds-button_outline-brand slds-button_stretch" onclick={handleCoverageSection}>{i18n.selectServiceCoverage}</button>
+            </template>
+        </div>
+
+        <c-ever-interactive-entitlement is-open={isSelectCoverageScreen} account-info={accountInfo} asset-info={assetInfo} selected-record-id={selectedRecordId} source-record-id={recordId} source-object-name={objectApiName} entitlement-notes={notes} app-navigation-type={appNavigationType} billing-type={billingType}>
+        </c-ever-interactive-entitlement>
+        <template if:true={apiInProgress}>
+            <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+        </template>
+    </lightning-card>
+    <c-svmx-record-popover></c-svmx-record-popover>
+</template>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>A360 – Supplier Warranty Results</masterLabel>
+    <description>Lightning Component to view the Supplier Warranties selected for a Case, Work Order or Return Order.</description>
+    <targets>
+        <target>lightning__RecordPage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+            <objects>
+                <object>Case</object>
+                <object>WorkOrder</object>
+                <object>ReturnOrder</object>
+            </objects>
+        </targetConfig>
+        <targetConfig targets="lightningCommunity__Default">
+            <property default="{!recordId}" name="recordId" type="String" label="Record ID"
+                description="Should be set to {!recordId}" required="true"/>
+            <property name="objectApiName" type="String" label="Object API Name" required="true"
+                description="Should be set to API name of the object. Expected Values: Case, ReturnOrder or WorkOrder"/>
+            <property name="flexipageRegionWidth" label="Region" default="LARGE" required="true" type="String" datasource="SMALL,LARGE" description="Configure the region for Supplier Warranty."/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

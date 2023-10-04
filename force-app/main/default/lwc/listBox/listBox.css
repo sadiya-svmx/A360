@@ -1,0 +1,13 @@
+.cardBackground {
+    background-color: #fff;
+    padding: 0;
+}
+
+.table-container {
+    height: var(--lwc-sizeLarge, 400px);
+}
+
+.table-container .slds-table_bordered tbody tr:first-child th,
+.table-container .slds-table_bordered tbody tr:first-child td {
+    border-top: 0;
+}

@@ -1,0 +1,76 @@
+<template>
+    <template if:true={wizard}>
+        <div class="slds-var-p-vertical_x-small">
+            <lightning-accordion allow-multiple-sections-open active-section-name={expandedSections}>
+                <div class="slds-box wizardContainer">
+                    <lightning-accordion-section
+                        name={wizard.name}
+                        label={wizard.name}
+                    >
+                        <template if:true={wizard.steps}>
+                            <template iterator:step={orderedSteps}>
+                                <div
+                                    key={step.value.referenceId}
+                                    class="slds-var-m-bottom_small"
+                                >
+                                    <template if:true={step.value.isVisible}>
+                                        <c-wizard-step
+                                            search-key={searchKey}
+                                            step-name={step.value.name}
+                                            step-dev-name={step.value.target}
+                                            show-dev-name={showStepDevName}
+                                            step-id={step.value.referenceId}
+                                            step-type={step.value.type}
+                                            step-icon-name={step.value.iconName}
+                                            onpropertiesselected={handleStepPropertiesSelected}
+                                            onremoveselected={handleStepRemoved}
+                                        >
+                                        </c-wizard-step>
+                                    </template>
+                                </div>
+                            </template>
+                        </template>
+                        <div>
+                            <lightning-button-icon
+                                icon-name="utility:add"
+                                alternative-text={i18n.addStep}
+                                title={i18n.addStep}
+                                onclick={handleAddStep}
+                            ></lightning-button-icon>
+                        </div>
+                        <div slot="actions">
+                            <template if:true={showWizardDevName}>
+                                <div class="slds-float_left slds-var-p-right_medium slds-var-p-top_medium">
+                                    <div class="svmx-wizard_dev-name slds-text-body_regular slds-text-color_weak slds-list_horizontal">
+                                        <div class="slds-truncate slds-col">
+                                          <lightning-formatted-rich-text
+                                            value={wizardDevName} disable-linkify>
+                                          </lightning-formatted-rich-text>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                            <lightning-button-menu
+                                class="wizardContainerButton"
+                                alternative-text={i18n.menuAlText}
+                                variant="border-filled"
+                                menu-alignment="right"
+                                icon-name="utility:settings"
+                                onselect={handleSettingsMenuSelect}
+                            >
+                                <template for:each={menuItems} for:item="item">
+                                    <lightning-menu-item
+                                        label={item.label}
+                                        value={item.value}
+                                        key={item.id}
+                                    >
+                                    </lightning-menu-item>
+                                </template>
+                            </lightning-button-menu>
+                        </div>
+                    </lightning-accordion-section>
+                </div>
+            </lightning-accordion>
+        </div>
+    </template>
+</template>

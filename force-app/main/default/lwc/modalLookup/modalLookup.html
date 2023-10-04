@@ -1,0 +1,68 @@
+<template>
+    <div class="slds-grid">
+        <div class="slds-col slds-col_bump-right">
+            <label class="slds-form-element__label" for="modal-lookup-input">
+                <template if:true={required}>
+                    <abbr class="slds-required" title={i18n.required}>*</abbr>
+                </template>
+                {label}</label>
+            <lightning-helptext if:true={fieldLevelHelp} content={fieldLevelHelp}></lightning-helptext>
+        </div>
+        <template if:true={value}>
+            <template if:false={hideViewButton}>
+                <div>
+                    <button title={i18n.view} type="button" class="slds-button line-height-unset svmx-view" onclick={handleViewClick}>{i18n.view}</button>
+                </div>
+            </template>
+        </template>
+    </div>
+    <div class="slds-form-element__control">
+        <div class={computedComboContainerClass}>
+            <div class="slds-combobox slds-dropdown-trigger" role="combobox">
+                <div class={computedComboElementClass} role="none">
+                    <template if:true={valueIconName}>
+                        <template if:true={isCustomIcon}>
+                            <lightning-icon src={valueIconName} class="combobox-entity-icon" size="xx-small">
+                            </lightning-icon>
+                        </template>
+                        <template if:false={isCustomIcon}>
+                            <lightning-icon icon-name={valueIconName} class="combobox-entity-icon" size="xx-small">
+                            </lightning-icon>
+                        </template>
+                    </template>
+                    <input type="text" 
+                        class="modal-lookup-input slds-input slds-combobox__input slds-combobox__input-value" 
+                        id="modal-lookup-input" 
+                        autocomplete="off" 
+                        aria-autocomplete="none"
+                        role="textbox" 
+                        placeholder={placeholder} 
+                        readonly 
+                        value={valueLabel}
+                        onselect={handleInputSelect} 
+                        onclick={handleInputClick} 
+                        onchange={handleInputChange}
+                        disabled={disabled}
+                        />
+                    <template if:true={value}>
+                        <lightning-button-icon 
+                            icon-name="utility:close"
+                            variant="bare"
+                            alternative-text={i18n.closeAltText}
+                            icon-class="slds-button__icon" 
+                            class="slds-input__icon slds-input__icon_right pointer-events-unset svmx-remove"
+                            onclick={handleRemove}>
+                        </lightning-button-icon>
+                    </template>
+                    <template if:false={value}>
+                        <lightning-icon icon-name="utility:search" class="slds-input__icon" size="xx-small">
+                        </lightning-icon>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+    <template if:true={_helpMessage}>
+        <div id="help-text" data-help-text class="slds-form-element__help" aria-live="assertive">{_helpMessage}</div>
+    </template>    
+</template>

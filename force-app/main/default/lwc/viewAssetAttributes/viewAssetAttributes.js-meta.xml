@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>A360 – Technical Attributes</masterLabel>
+    <description>Lightning Component to view and capture asset technical attributes.</description>
+    <targets>
+        <target>lightning__RecordPage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+            <property name="assetField" label="Select Asset field to track attributes" type="String" datasource="apex://AMGT_TimeLineAssetFieldPicklist" required="true" description="Select asset field from the list. Technical Attributes for this asset will be displayed." />
+            <property name="showRecordName" type="Boolean" default="true" label="Show Asset Name" 
+                description="This option allows the user to display Asset Name."/>
+            <property name="title" label="Title" default="Technical Attributes" type="String" description="Enter custom title for the Asset Technical Attribute." />
+                <supportedFormFactors>
+                <supportedFormFactor type="Large" />
+                <supportedFormFactor type="Small" />
+            </supportedFormFactors>
+        </targetConfig>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="viewAttributeDetailsPageName" type="String" label="View Attribute Details Page API Name" description="provide the page name"/>
+            <property name="recordId" default="{!recordId}" type="String" label="Record ID" description="Asset Parent ID should be set to {!recordId}"/>
+            <property name="objectApiName" type="String" label="Object API Name" description="Should be set to the API name of the object."/>
+            <property name="title" label="Title" default="Technical Attributes" type="String" description="Enter custom title for the Asset Technical Attribute." />
+            <property name="assetField" label="Asset Field API Name" type="String" description="Enter the asset field API Name. Technical Attributes for this asset will be displayed." />
+            <property name="showRecordName" type="Boolean" default="true" label="Show Asset Record Name" 
+                description="This option allows the user to display Asset Name."/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

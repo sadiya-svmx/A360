@@ -1,0 +1,31 @@
+<template>
+    <fieldset class="slds-form-element">
+        <div class="slds-form-element__control">
+            <template for:each={steptypeslist} for:item='item'>
+                <span class="slds-radio" key={item.label}>
+                    <input type="radio" class="radio-input" id={item.value} onchange={handleCheckBoxChange} value={item.value} name="wizard" checked={item.checkedStatus} />
+                    <label class="slds-radio__label" for={item.value}>
+                        <div class="radio-card-box">
+                            <div class="left-icon__container">
+                                <span class="step-info__icon">
+                                    <lightning-icon
+                                        src={item.icon}
+                                        alternative-text={item.icon}
+                                        title={item.icon}
+                                    >
+                                    </lightning-icon>
+                                </span>
+                            </div>
+                            <div class="right-container">
+                                <div class="discription-title__text">
+                                    {item.label}
+                                </div>
+                                <div class="discription-info__text">{item.desc}</div>
+                            </div>
+                        </div>
+                    </label>
+                </span>
+            </template>
+        </div>
+      </fieldset>
+</template>

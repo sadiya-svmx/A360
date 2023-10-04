@@ -1,0 +1,36 @@
+<template>
+    <c-svmx-page-header title={i18n.label_featureSettings} sub-title={i18n.label_applicationConfiguration}
+            icon-name={srcIconName} icon-title={i18n.label_featureSettings} icon-size={iconSize}>
+             <div class="slds-page-header__control" slot="actions"></div>
+             <lightning-button-icon
+                slot="actions"
+                icon-name="utility:help"
+                variant="container"
+                alternative-text={i18n.help}
+                title={i18n.help}
+                onclick={handleHelpClick}
+                class="svmx-help-link-button"
+            ></lightning-button-icon>
+    </c-svmx-page-header>
+    <div class="slds-col slds-size_1-of-2 ">
+        <lightning-layout>
+            <lightning-layout-item flexibility="grow" padding="around-medium">
+                <div class="slds-text-align_left slds-text-heading_medium">{i18n.label_enableUsageTrackingTitle}</div>
+            </lightning-layout-item>
+            <template if:false={errorFlag}>
+                <lightning-layout-item size ="1" padding="around-small">
+                    <div class="slds-align_absolute-center">
+                        <lightning-input
+                            type="toggle"
+                            name="usagetracking" 
+                            message-toggle-active={i18n.label_enabledText}
+                            message-toggle-inactive={i18n.label_disabledText}
+                            onchange={handleChange}
+                            checked={enableTracking}>
+                        </lightning-input>
+                    </div>
+                </lightning-layout-item>
+            </template>
+        </lightning-layout>  
+    </div>
+</template>

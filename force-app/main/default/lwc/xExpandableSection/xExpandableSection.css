@@ -1,0 +1,23 @@
+:host {
+    --svmx-negative-margin: -1rem;
+}
+.svmx-expandableSection_noOutline button:hover,
+button:focus {
+	outline: none;
+	box-shadow: none;
+}
+
+.svmx-expandable-section_negative-margin {
+	margin-top: var(--svmx-negative-margin, 0);
+}
+
+.slds-section.svmx-is-closed .slds-section__content {
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+    height: 0;
+}
+
+.slds-section.svmx-is-closed .slds-section__title-action-icon {
+    transform: rotate(-90deg);
+}

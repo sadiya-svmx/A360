@@ -1,0 +1,19 @@
+.svmx-section {
+    background-color: var(--lwc-colorBackground, rgb(243, 242, 242));
+}
+
+.svmx-section_card {
+    background-color: var(--lwc-colorBackgroundAlt,rgb(255, 255, 255));  
+}
+
+.svmx-section-title {
+    font-size: 18px;
+    font-weight: bold;
+    line-height: var(--lwc-lineHeightHeading,1.25);
+    color: var(--lwc-colorTextDefault, rgb(8, 7, 7));
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

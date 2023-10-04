@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="urn:metadata.tooling.soap.sforce.com" fqn="mplnTemplateSelection">
+    <apiVersion>57.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>A360 - Maintenance Plan Template Selection</masterLabel>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="recordId" label="Record Id" type="String" required="true" role="inputOnly"/>
+            <property name="maintenancePlanRecord" label="Maintenance Plan Record" type="@salesforce/schema/MaintenancePlan"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

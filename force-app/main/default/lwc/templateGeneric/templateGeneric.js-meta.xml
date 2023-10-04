@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>A360 - SPM Advanced Screen</masterLabel>
+    <description>Configurable SPM Advanced Screen Template</description>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <!-- Configuring the design attributes -->
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen" configurationEditor="svmxa360-template-generic-editor">
+            <!-- layout name to retrive -->
+            <property name="developerName" type="String" role="inputOnly" label="Developer Name" />
+
+            <!-- Header Record Data  -->
+            <propertyType name="H" extends="SObject" label="Object for Source Records (Input)" />
+            <property name="headerRecordData" type="{H[]}" label="Source Record Collection" />
+
+            <!-- Child(ren) Record Read/ Modified and Non-Modified Collection -->
+            <propertyType name="A" extends="SObject" label="Object for Target Records Child-1 (Input)" />
+            <property name="child1Modified" type="{A[]}" label="Child-1 Records collection" />
+
+            <propertyType name="B" extends="SObject" label="Object for Target Records Child-2 (Input)" />
+            <property name="child2Modified" type="{B[]}" label="Child-2 Records collection" />
+
+            <propertyType name="C" extends="SObject" label="Object for Target Records Child-3 (Input)" />
+            <property name="child3Modified" type="{C[]}" label="Child-3 Records collection" />
+
+            <propertyType name="D" extends="SObject" label="Object for Target Records Child-4 (Input)" />
+            <property name="child4Modified" type="{D[]}" label="Child-4 Records collection" />
+
+            <!-- Child(ren) Records New Collection -->
+            <property name="child1New" type="{A[]}" role="outputOnly" />
+            <property name="child2New" type="{B[]}" role="outputOnly" />
+            <property name="child3New" type="{C[]}" role="outputOnly" /> 
+            <property name="child4New" type="{D[]}" role="outputOnly" />
+
+            <!-- Child(ren) Records Selected Collection -->
+            <property name="child1Selected" type="{A[]}" role="outputOnly" />
+            <property name="child2Selected" type="{B[]}" role="outputOnly" />
+            <property name="child3Selected" type="{C[]}" role="outputOnly" /> 
+            <property name="child4Selected" type="{D[]}" role="outputOnly" />
+
+            <!-- Child(ren) Records Deleted Collection -->
+            <property name="child1Deleted" type="{A[]}" role="outputOnly" />
+            <property name="child2Deleted" type="{B[]}" role="outputOnly" />
+            <property name="child3Deleted" type="{C[]}" role="outputOnly" /> 
+            <property name="child4Deleted" type="{D[]}" role="outputOnly" />
+
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

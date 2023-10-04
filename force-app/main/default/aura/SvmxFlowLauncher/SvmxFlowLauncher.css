@@ -1,0 +1,19 @@
+.THIS .svmx-modal-container.slds-modal__container {
+    transform: none;
+}
+
+.THIS .svmx-modal-min-height{
+    min-height: 100px;
+}
+
+.THIS .svmx-mobile-container.slds-modal__container {
+    transform: none;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.THIS .svmx-mobile-container.slds-modal__container > .slds-modal__content {
+    flex-grow: 1;
+    overflow-y: hidden;
+}

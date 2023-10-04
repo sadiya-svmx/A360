@@ -1,0 +1,33 @@
+.controls-top {
+    position: absolute;
+    right: 14px;
+    top: 0%;
+}
+.controls-bottom {
+    position: absolute;
+    right: 14px;
+    top: 0%;
+}
+.container {
+    position: relative;
+}
+.remove_padding {
+    padding: 0px;
+}
+.serverCallProgress {
+    top: 0%;
+    width: auto;
+}
+
+.applicableProductContainer {
+    margin-top: 70px;
+    position: relative;
+}
+
+.sectionHeight {
+    height:800px;
+}
+
+.appRecordPageOnlyContainer{
+    margin-top: 0px;
+}

@@ -1,0 +1,51 @@
+.EverInteractiveEntitlement__billingType--color {
+    color: var(--lwc-colorTextActionLabel);
+}
+
+.EverInteractiveEntitlement__change--button{
+    text-decoration : underline ;
+}
+
+.EverInteractiveEntitlement__remaininghours--font {
+    font-style: italic;
+}
+
+.EverInteractiveEntitlement__contract_enddate--popover {
+    position: absolute; 
+    right: 53%; 
+    bottom: 120%; 
+    width: 80%;
+}
+
+.EverInteractiveEntitlement__warranty_enddate--popover {
+    position: absolute; 
+    right: 53%; 
+    bottom: 120%; 
+    width: 80%;
+}
+
+.EverInteractiveEntitlement__servicethreshold--popover {
+    position: absolute;
+    bottom: 100%;
+    width: 90%;
+    right: 50%;
+}
+
+.EverInteractiveEntitlement__billingTypeModal{
+    width: 50%;
+}
+
+.EverInteractiveEntitlement__subtitle {
+    font-size: x-small;
+}
+
+.EverInteractiveEntitlement__title {
+    font-size: small;
+    font-weight: bold;
+    line-height: var(--lwc-lineHeightHeading,1.25);
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

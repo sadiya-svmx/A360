@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g id="spmwizard">
+        <rect width="24" height="24" rx="4" fill="#61C4BE" />
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M7 5C5.89543 5 5 5.89543 5 7V17C5 18.1046 5.89543 19 7 19H17C18.1046 19 19 18.1046 19 17V7C19 5.89543 18.1046 5 17 5H7ZM17 7H7V10H17V7ZM7 11H10V17H7V11ZM17 11H11V17H17V11Z" fill="white" />
+    </g>
+</svg>

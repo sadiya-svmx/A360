@@ -1,0 +1,294 @@
+<template>    
+    <!-- Product type selection modal-->
+    <div class="svmx-cli-plan-detail-product-type">
+        <c-modal-dialog title={i18n.title} class="svmx-cli-plan-detail-product-type_modal svmx-modal__container" size="SMALL"
+            is-open={newContractLinePlanModalOpen} modal-content-id="productTypeModalContent" modal-header-id="productTypeModalHeader"
+            onmodalclosed={handleCancelProductType}>
+            <div slot="body">
+                <lightning-radio-group label={i18n.productType} name="radioButtonGroup"
+                    class="svmx-cli-plan-detail-product-type_radio" onchange={handleChangeProductType}
+                    options={productTypeOptions} value={selectedProductType} type="radio">
+                </lightning-radio-group>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                    onclick={handleCancelProductType}
+                    class="slds-p-right_x-small svmx-cli-plan-detail-new-cancel_btn">
+                </lightning-button>
+                <lightning-button class="svmx-cli-plan-detail-confirm_btn" label={i18n.next}
+                    title={i18n.next} variant="brand" onclick={handleNextProductType} disabled={showNextButton}>
+                </lightning-button>
+            </div>
+        </c-modal-dialog>
+    </div>
+    <!-- Product Family selection modal-->
+    <div class="svmx-cli-plan-detail-product-family">
+        <c-modal-dialog title={i18n.title} class="svmx-cli-plan-detail-product-family_modal svmx-modal__container" size="SMALL"
+            is-open={contractLineProductFamilyModalOpen} modal-content-id="productFamilyModalContent" modal-header-id="productFamilyModalHeader"
+            onmodalclosed={handleCancelProductFamily}>
+            <div slot="body" style="height: 200px;">
+                <lightning-combobox
+                    data-field="productFamily"
+                    label={i18n.prouctFamilyTitle}
+                    value={cliplanRecordInfo.productFamily}
+                    options={productFamilyOptions}
+                    onchange={handleChangeProductFamily}
+                    class="svmx-cli-plan-detail-product-family_combobox">
+                </lightning-combobox>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                    onclick={handleCancelProductFamily}
+                    class="slds-p-right_x-small svmx-cli-plan-detail-product_family-cancel_btn">
+                </lightning-button>
+                <lightning-button class="svmx-cli-plan-detail-product_family-next_btn" label={i18n.next}
+                    title={i18n.next} variant="brand" onclick={handleNextProductFamily} disabled={showNextProductFamily}>
+                </lightning-button>
+            </div>
+        </c-modal-dialog>
+    </div>
+
+    <!--Products selection  modal-->
+    <div class="svmx-cli-plan-detail-products-selection">
+        <c-modal-dialog title={i18n.title} class="svmx-cli-plan-detail-products-selection_modal"
+            size="LARGE" is-open={contractLineProductModalOpen} modal-content-id="productModalContent"
+            modal-header-id="productModalHeader" onmodalclosed={handleCancelProductSelection}>
+            <div slot="body">
+                <template if:true={error}>
+                    <div class="slds-box slds-theme_error slds-p-left_medium slds-p-right_medium" role="alert">
+                        <p>{i18n.reviewError}</p>
+                    </div>
+                    <div
+                        class="slds-text-color_error slds-p-left_large slds-p-top_xx-small svmx-cli-plan-detail-products-modal_error">
+                        {error}
+                    </div>
+                </template> 
+                <lightning-input type="search" autocomplete="off" placeholder={i18n.placeholder}
+                    variant="label-hidden" title={i18n.placeholder}
+                    class="svmx-cli-plan-detail-text_search"
+                    onchange={handleSearchKeyChange}>
+                </lightning-input>
+                <template if:true={showPills}>
+                    <div class="slds-p-top_xxx-small">
+                        <lightning-pill-container items={selectedPills} onitemremove={handlePillRemove} ></lightning-pill-container>
+                    </div>
+                </template>
+                <div class="slds-p-top_large">
+                    {selectedProductCountInfo}
+                </div>
+                <div class="slds-p-top_x-large" style="height: 400px;">
+                    <table class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered slds-table_fixed-layout svmx-cli-plan-detail-products_table" role="grid">
+                        <thead>
+                            <tr class="slds-line-height_reset">
+                                <th class="slds-text-align_right" scope="col" style="width:4.25rem;height:2.3rem">
+                                    <div class="slds-truncate slds-assistive-text" title={i18n.chooseRow}></div>
+                                </th>
+                                <th role="gridcell" scope="col" width="15%">
+                                    <div class="slds-truncate" title={i18n.productName}>{i18n.productName}</div>
+                                </th>
+                                <th role="gridcell" scope="col" width="15%">
+                                    <div class="slds-truncate" title={i18n.productFamily}>{i18n.productFamily}</div>
+                                </th>
+                                <th role="gridcell" scope="col" width="10%">
+                                    <div class="slds-truncate" title={i18n.productCode}>{i18n.productCode}</div>
+                                </th>
+                                <th role="gridcell" scope="col" width="30%">
+                                    <div class="slds-truncate" title={i18n.productDescription}>{i18n.productDescription}</div>
+                                </th>
+                                <th role="gridcell" scope="col" width="15%">
+                                    <div class="slds-truncate" title={i18n.active}>{i18n.active}</div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template if:true={productList}>
+                                <template for:each={productList} for:item="product" for:index="indexVar">
+                                    <tr key={product.Id}>
+                                        <th role="gridcell" class="slds-truncate" scope="col">
+                                            <div>
+                                                <lightning-input
+                                                    type="checkbox-button"
+                                                    onchange={handleSelectProduct}
+                                                    checked={product.isSelected}
+                                                    value={product.Id}
+                                                    data-name={product.Name}
+                                                    class="svmx-cli-plan-detail-checkbox_select">
+                                                </lightning-input>
+                                            </div>
+                                        </th>
+                                        <th role="gridcell" class="slds-truncate" scope="col" >
+                                            <div>{product.Name}</div>
+                                        </th>
+                                        <th role="gridcell" class="slds-truncate" scope="col" >
+                                            <div>{product.Family}</div>
+                                        </th>
+                                        <th role="gridcell" class="slds-truncate" scope="col" >
+                                            <div>{product.ProductCode}</div>
+                                        </th>
+                                        <th role="gridcell" class="slds-truncate slds-cell-wrap" scope="col" >
+                                            <div class="slds-line-clamp">
+                                                <lightning-formatted-text title={product.Description} value={product.Description}></lightning-formatted-text>                                        
+                                            </div>
+                                        </th>
+                                        <th role="gridcell" class="slds-truncate" scope="col" >
+                                            <div>
+                                                <lightning-input type="checkbox" disabled checked={product.IsActive}></lightning-input>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </template>
+                            </template>
+                        </tbody>
+                    </table>
+                    <div if:true={apiInProgress} class="slds-is-relative">
+                        <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium">
+                        </lightning-spinner>
+                    </div>
+                    <template if:true={noRecordsFound}>
+                        <lightning-formatted-text class="slds-align_absolute-center slds-p-top_x-large no-data" value={i18n.noResults}>
+                        </lightning-formatted-text>
+                    </template>
+                </div>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.back} title={i18n.back} variant="neutral"
+                    onclick={handleBackProductSelection} class="slds-float_left svmx-cli-plan-detail-product-modal-back_btn">
+                </lightning-button>
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                    onclick={handleCancelProductSelection} class="slds-p-right_x-small svmx-cli-plan-detail-product-modal-cancel_btn">
+                </lightning-button>
+                <lightning-button class="svmx-cli-plan-detail-product-modal-next_btn" label={i18n.next}
+                    title={i18n.next} variant="brand" onclick={handleNextProductSelection} disabled={showNextProductSelection}>
+                </lightning-button>
+            </div>
+        </c-modal-dialog>
+    </div>
+
+    <!--CLI Plan Record create or edit modal-->
+    <div class="svmx-cli-plan-detail">
+        <c-modal-dialog title={i18n.editTitle} class="svmx-cli-plan-detail_modal"
+            size="LARGE" is-open={contractLinePlanModalOpen} modal-content-id="cliPlanModalContent"
+            modal-header-id="cliPlanModalHeader" onmodalclosed={handleCancelCLIPlan}>
+            <div slot="body">
+                <template if:true={error}>
+                    <div class="slds-box slds-theme_error slds-p-left_medium slds-p-right_medium" role="alert">
+                        <p>{i18n.reviewError}</p>
+                    </div>
+                    <div
+                        class="slds-text-color_error slds-p-left_large slds-p-top_xx-small svmx-cli-plan-edit_error">
+                        {error}
+                    </div>
+                </template>             
+                <div class="slds-p-around_x-small" style="height: 400px;">
+                    <table class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered slds-table_fixed-layout svmx-cli-plan-edit_table">
+                        <thead>
+                            <tr class="slds-line-height_reset">
+                                <th class="slds-size_3-of-10" scope="col" style="width:4.25rem;height:2.3rem">
+                                    <div class="slds-truncate slds-assistive-text" title={i18n.serialNumber}></div>
+                                </th>
+                                <th class="slds-size_3-of-10" scope="col">
+                                    <template if:true={isProductType}>
+                                        <div class="slds-truncate" title={i18n.productName}>{i18n.productName}</div>
+                                    </template>
+                                    <template if:false={isProductType}>
+                                        <div class="slds-truncate" title={i18n.productFamily}>{i18n.productFamily}</div>
+                                    </template>
+                                </th>
+                                <th class="slds-size_3-of-10" scope="col">
+                                    <div class="slds-truncate" title={i18n.duration}>{i18n.duration}</div>
+                                </th>
+                                <th class="slds-size_3-of-10" scope="col">
+                                    <div class="slds-truncate" title={i18n.unitTime}>{i18n.unitTime}</div>
+                                </th>
+                                <th class="slds-size_3-of-10" scope="col">
+                                    <div class="slds-truncate" title={i18n.discount}>{i18n.discount}</div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={cliPlanRecords} for:item="cliPlan" for:index="indexVar">
+                                <tr key={cliPlan.sNo} class="slds-hint-parent">
+                                    <td class="slds-size_3-of-10">
+                                        <div  title={cliPlan.sNo}>{cliPlan.sNo}</div>
+                                    </td>
+                                    <td class="slds-size_3-of-10">
+                                        <template if:true={isProductType}>
+                                            <div  title={cliPlan.item.productName}>{cliPlan.item.productName}</div>
+                                        </template>
+                                        <template if:false={isProductType}>
+                                            <div  title={cliPlan.item.productFamily}>{cliPlan.item.productFamily}</div>
+                                        </template>                                        
+                                    </td>
+                                    <td class="slds-size_3-of-10">
+                                        <div  title={cliPlan.item.duration}>
+                                            <lightning-input
+                                                data-field="duration"
+                                                data-id={cliPlan.item.productId}
+                                                type="number"
+                                                label="Contract Line Duration"
+                                                value={cliPlan.item.duration}
+                                                variant="label-hidden"
+                                                onchange={handleChange}
+                                                autocomplete="off"
+                                                max="9999"                                         
+                                                message-when-range-overflow="Duration cannot have more than 9999."
+                                                class="svmx-cli-plan-detail_duration required-input">
+                                            </lightning-input>
+                                        </div>
+                                    </td>
+                                    <td class="slds-size_3-of-10">
+                                        <div  title={cliPlan.item.unitOfTime}>
+                                            <lightning-combobox
+                                                data-field="unitOfTime"
+                                                data-id={cliPlan.item.productId}
+                                                label="Contract Line Unit of Time"
+                                                value={cliPlan.item.unitOfTime}
+                                                options={unitOfTimeOptions}
+                                                variant="label-hidden"
+                                                onchange={handleChange}
+                                                class="svmx-cli-plan-detail_unit-time required-input">
+                                            </lightning-combobox> 
+                                        </div>
+                                    </td>
+                                    <td class="slds-size_3-of-10">
+                                        <div  title={cliPlan.item.discount}>
+                                            <lightning-input
+                                                data-field="discount"
+                                                type="number"
+                                                autocomplete="off"
+                                                data-id={cliPlan.item.productId}
+                                                label="Discount"
+                                                value={cliPlan.item.discount}
+                                                variant="label-hidden"
+                                                onchange={handleChange}
+                                                formatter="percent-fixed"
+                                                step="0.01"
+                                                min="0"
+                                                max="100"
+                                                message-when-step-mismatch={percentStepMismatchMessage} 
+                                                message-when-range-overflow="Discount must be 0 to 100"
+                                                message-when-range-underflow="Discount must be 0 to 100"
+                                                class="svmx-cli-plan-detail_discount required-input">
+                                            </lightning-input>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.back} title={i18n.back} variant="neutral"
+                    onclick={handleBackCLIPlan} class="slds-float_left svmx-cli-plan-edit_modal-back_btn">
+                </lightning-button>
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                    onclick={handleCancelCLIPlan} class="slds-p-right_x-small svmx-cli-plan-edit_modal-cancel_btn">
+                </lightning-button>
+                <lightning-button class="svmx-cli-plan-edit_modal-confirm_btn" label={i18n.save}
+                    title={i18n.save} variant="brand" onclick={handleSave}>
+                </lightning-button>
+            </div>
+        </c-modal-dialog>
+    </div>
+</template>

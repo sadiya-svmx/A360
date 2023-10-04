@@ -1,0 +1,21 @@
+<template>
+    <header class="slds-modal__header">
+        <h2 class="slds-modal__title slds-hyphenate">{i18n.title}</h2>
+    </header>
+
+    <template if:true={apiInProgress}>
+        <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+    </template>
+    <div class="slds-modal__content slds-p-around_medium">
+        {i18n.deleteServiceContractConfirm}
+    </div>
+
+    <footer class="slds-modal__footer">
+        <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+        class="slds-p-right_x-small svmx-delete-service-contract_cancel_btn"
+        onclick={handleCancelDelete}></lightning-button>
+        <lightning-button label={i18n.confirm} title={i18n.confirm} variant="brand"
+        class="svmx-delete-service-contract_confirm_btn"
+        onclick={handleConfirmDelete}></lightning-button>
+    </footer>
+</template>

@@ -1,0 +1,13 @@
+<template>
+    <div class="slds-grid slds-wrap">
+        <div class="slds-col slds-size_11-of-12">
+            <slot></slot>
+        </div>
+        <div class="slds-col slds-size_1-of-12">
+            <lightning-button-icon class={computeClass} icon-class="slds-button__icon_hint"
+                icon-name="utility:copy_to_clipboard" alternative-text={i18n.lblCopytoClipboard} size={computeSize}
+                onclick={handleClick} title={i18n.lblCopytoClipboard}>
+            </lightning-button-icon>
+        </div>
+    </div>
+</template>

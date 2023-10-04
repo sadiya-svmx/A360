@@ -1,0 +1,32 @@
+.info {
+    opacity: 0;
+}
+
+li:hover .info {
+    opacity: 1;
+}
+
+.svmx-expression_option:hover,
+.svmx-expression_option:focus {
+    box-shadow: var(--lwc-colorBorder,rgb(221, 219, 218)) 0 calc(-1 * var(--lwc-borderWidthThin,1px)) 0 inset,var(--lwc-colorBorder,rgb(221, 219, 218)) 0 1px 0 inset;
+    background-color: var(--lwc-colorBackground,rgb(243, 242, 242));
+}
+
+.svmx-expression_option-name {
+    width: 35%; 
+    max-width: 35%;
+}
+
+.svmx-expression_option-developer-name {
+    width: 65%;
+    max-width: 65%;
+}
+
+.svmx-expression_card-background,
+.svmx-expression_editor-background {
+    background-color: var(--lwc-colorBackgroundAlt, rgb(255, 255, 255));
+}
+
+.svmx-expression_editor-background {
+    border: 1px solid var(--lwc-colorBorderSeparatorAlt,rgb(221, 219, 218));
+}

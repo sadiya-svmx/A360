@@ -1,0 +1,13 @@
+<template>
+    <span class={cellClassnames}>
+        <div class="svmx-truncate slds-truncate"
+            title={label}>
+            {label}
+        </div>
+
+        <!-- Provide the edit icon to trigger opening the Modal -->
+        <template if:true={editable}>
+            <c-svmx-cell-edit-icon onclick={handleClick}></c-svmx-cell-edit-icon>
+        </template>
+    </span>
+</template>

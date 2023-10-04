@@ -1,0 +1,95 @@
+<template>
+    <div class="full-height slds-grid slds-grid_vertical slds-card">
+        <template if:true={error}>
+            <c-alert
+                variant="error"
+                class=""
+            >
+                {error}
+            </c-alert>
+        </template>
+        <div class="slds-page-header list-view-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <c-service-max-logo-icon
+                                title-text={i18n.labelAppConfig}
+                                alternative-text={i18n.labelAppConfig}
+                                icon-size="large"
+                            ></c-service-max-logo-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span>
+                                            {i18n.labelAppConfig}
+                                        </span>
+                                        <span
+                                            class="slds-page-header__title slds-truncate" 
+                                            title={i18n.debugTransaction}
+                                        >
+                                            {i18n.debugTransaction}
+                                        </span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-page-header__col-actions">
+                    <div class="slds-page-header__controls">
+                        <div class="slds-page-header__control">
+                            <lightning-button-group>
+                                <lightning-button
+                                    label={i18n.save}
+                                    title={i18n.save}
+                                    variant="brand"
+                                    onclick={handleSave}
+                                    class="svmx-entitlement-common-settings_save-btn"
+                                    disabled={disableSaveBtn}
+                                ></lightning-button>
+                            </lightning-button-group>
+                            <lightning-button-icon
+                                icon-name="utility:help"
+                                variant="bare"
+                                alternative-text={i18n.help}
+                                title={i18n.help}
+                                onclick={handleHelpClick}
+                                class="svmx-help-link-button slds-m-left_x-small"
+                            ></lightning-button-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slds-col slds-size_1-of-2">
+            <lightning-layout multiple-rows="true">
+                <lightning-layout-item padding="around-medium">
+                    <lightning-input 
+                        type="toggle"
+                        label={i18n.allowDebug}
+                        message-toggle-active="" 
+                        message-toggle-inactive="" 
+                        onchange={handleToggleChange}
+                        checked={allowDebug}>
+                    </lightning-input>
+                </lightning-layout-item>
+
+                <lightning-layout-item padding="around-medium" class="svmx-profile-selector">
+                    <template if:true={showProfileSelector}>
+                        <c-profile-selector
+                            label={i18n.profileSelectionLabel}
+                            assigned-profiles={assignedProfileIds}
+                            value={selectedProfileIds}
+                            onprofileselected={handleProfileSelected}
+                        ></c-profile-selector>
+                    </template>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+
+    </div>
+</template>

@@ -1,0 +1,13 @@
+.svmx-deliverConfirmation {
+    border:solid 1px var(--lwc-colorBorderInputDisabled,rgb(201, 199, 197));
+    height: 100px;
+    width: 120px;
+    display: flex;
+    flex-direction:column;
+    justify-content:space-evenly;
+    flex-wrap: wrap;
+}
+
+.svmx-deliverConfirmation .slds-page-header__title {
+    font-size:45px;
+}

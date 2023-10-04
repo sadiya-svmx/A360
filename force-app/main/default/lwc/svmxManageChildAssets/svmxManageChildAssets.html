@@ -1,0 +1,242 @@
+<template>
+  <article class="svmx-manage-child-assets">
+    <template if:true={error}>
+        <c-alert variant="error">{error}</c-alert>
+      </template>
+        <lightning-layout>
+            <lightning-layout-item flexibility="grow" padding="horizontal-small">
+                <div class="slds-page-header" style="border: 0;
+                box-shadow: none;
+                border-radius: var(--lwc-borderRadiusMedium,0.25rem);">
+                    <div class="slds-page-header__row">
+                        <div class="slds-page-header__col-title">
+                            <div class="slds-media">
+                                <div class="slds-media__figure">
+                                    <lightning-icon icon-name="standard:asset_object" alternative-text={i18n.manageChildAssets} title={i18n.manageChildAssets}>
+                                    </lightning-icon>
+                                </div>
+                                <div class="slds-media__body">
+                                    <div class="slds-page-header__name">
+                                      <div class="slds-page-header__name-title">
+                                        <h1>
+                                          <span>{i18n.manageChildAssets}</span>
+                                          <span class="slds-page-header__title slds-truncate" title={childAssetTitle}>{childAssetTitle}</span>
+                                        </h1>
+                                      </div>
+                                    </div>
+                                  </div>
+                            </div>
+                        </div>
+                        <div class="slds-page-header__col-actions">
+                            <div class="slds-page-header__controls">
+                                <div class="slds-page-header__control">
+                                    <lightning-button label={i18n.backButton} class="svmx-manage-child-asset_back" title={i18n.backButton} onclick={handleBack}></lightning-button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-page-header__row slds-page-header__row_gutters">
+                        <div class="slds-page-header__col-details">
+                            <ul class="slds-page-header__detail-row">
+                                <li class="slds-p-left_small slds-size_2-of-8">
+                                    <div class="slds-truncate">
+                                        <div class="slds-input-has-icon slds-input-has-icon--left">
+                                            <lightning-icon icon-name="utility:search" class="slds-input__icon" size="xx-small">
+                                            </lightning-icon>
+                                            <lightning-input value={searchTerm}
+                                                onchange={handleSearchTermChange}
+                                                variant="label-hidden"
+                                                autocomplete="off"
+                                                placeholder={i18n.labelSearch}
+                                                title={i18n.labelSearch}>
+                                            </lightning-input>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="slds-align_absolute-center" if:true={isDirty} >
+                                    <lightning-button variant="brand"
+                                        class="slds-p-right_medium"
+                                        label="Save"
+                                        title="Save"
+                                        onclick={handleUpdateInlineEdit}></lightning-button>
+                                    <lightning-button variant="base" 
+                                        class="slds-p-right_medium"
+                                        label="Reset"
+                                        title="Reset"
+                                        onclick={handleResetInlineEdit}></lightning-button>
+                                </li>
+
+                                <li class="slds-col_bump-left">
+                                    <lightning-button variant="brand"
+                                        if:false={hasNoneSelected} 
+                                        class="slds-p-right_medium"
+                                        label={i18n.deleteAssetsButton}
+                                        title={i18n.deleteAssetsButton}
+                                        onclick={openDeleteModal}
+                                        disabled={hasNoneSelected}></lightning-button>
+                                    <lightning-button variant="base" class="svmx-manage-child-assets_new" icon-name="utility:add" label={i18n.addChildAssetsButton} title={i18n.addChildAssetsButton} onclick={handleAddChildAssets}></lightning-button>
+                                </li>
+                                
+                            </ul>
+                        </div>
+
+                    </div>  
+                </div>
+            </lightning-layout-item>
+        </lightning-layout>
+        <div class="slds-card">
+            <div if:true={isShowDataTable} class="svmx-runtime-datatable slds-p-horizontal_medium">
+                <c-x-paginated-datatable 
+                    key-field="Id"
+                    records={assetRecordsView}
+                    columns={displayColumns}
+                    draft-values={draftValues}
+                    onpaginatedrowselection={handleRowSelection}
+                    onpaginatedrowaction={handleRowAction}
+                    ondynamicfieldchange={handleDynamicFieldChange}
+                    oncellchange={handleCellChange}
+                    oncheckboxchange={handleCellChange}
+                    show-info-header="true"
+                    errors={tableErrors}
+                    suppress-bottom-bar
+                    show-row-number-column
+                    >
+                </c-x-paginated-datatable>
+            </div>
+            <div class="slds-align_absolute-center" if:false={assetRecordsView}>
+                <div class="spinner slds-p-vertical_x-small slds-p-left_x-small slds-is-relative slds-float_left">
+                    <div class="slds-spinner slds-spinner_large">
+                        <div class="slds-spinner__dot-a"></div>
+                        <div class="slds-spinner__dot-b"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+
+<c-modal-dialog title={i18n.removeConfirmTitle} is-open={showSpinner} 
+    modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={handleCancelModal} 
+    size="SMALL" relative-to-viewport class="svmx-createChildAsset__delete_modal">
+    <div slot="body">
+        <div class="slds-align_absolute-center">
+            <div class="spinner slds-p-vertical_x-small slds-p-left_x-small slds-is-relative slds-float_left">
+                <div class="slds-spinner slds-spinner_large">
+                    <div class="slds-spinner__dot-a"></div>
+                    <div class="slds-spinner__dot-b"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</c-modal-dialog>
+<c-modal-dialog title={i18n.labelSave} is-open={showUpdateProgress} 
+    modal-content-id="updateRecordContent" modal-header-id="updateRecordHeader" onmodalclosed={handleCancelModal} 
+    size="SMALL" relative-to-viewport class="svmx-manageChildAsset__updateRecord_modal">
+    <div slot="body">
+        <div class="slds-align_absolute-center" if:false={hasError}>
+            {i18n.labelProcessing}
+         </div>
+        <template if:true={hasError}>
+            <div class="slds-align_absolute-center slds-text-color_error">{saveErrorMessage}</div>
+        </template>
+        <template if:false={hasError}>
+            <template if:true={hasBatches}>
+                <lightning-progress-indicator current-step={currentBatch} type="base"  variant="base">
+                    <template for:each={batches} for:item="batch" for:index="index">
+                        <lightning-progress-step key={batch.index} label={batch.label} value={batch.index}></lightning-progress-step>
+                    </template>
+                </lightning-progress-indicator>
+            </template>
+            <template if:false={hasBatches}>
+                <div class="slds-align_absolute-center">
+                    <div class="spinner slds-p-vertical_x-small slds-p-left_x-small slds-is-relative slds-float_left">
+                        <div class="slds-spinner slds-spinner_large">
+                            <div class="slds-spinner__dot-a"></div>
+                            <div class="slds-spinner__dot-b"></div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </template>
+    </div>
+    <div slot="footer" if:true={hasError}>
+        <lightning-button label={i18n.cancel}    title={i18n.cancel} variant="neutral" onclick={handleIngoreError}
+            class="slds-p-right_x-small"></lightning-button>
+        <lightning-button label={i18n.labelShowErrorRecords} title={i18n.labelShowErrorRecords} variant="brand" class="svmx-createChildAsset__delete_modal_confirm"
+            onclick={handleDisplayErrors}></lightning-button>
+    </div>
+</c-modal-dialog>
+<c-modal-dialog title={i18n.removeConfirmTitle} is-open={deleteModalDialogOpen} 
+    modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={handleCancelModal} 
+    size="SMALL" relative-to-viewport class="svmx-createChildAsset__delete_modal">
+    <div slot="body">
+        <p>
+            <lightning-formatted-text 
+                value={i18n.labelRemoveConfirmMsg}>
+            </lightning-formatted-text>
+        </p>
+    </div>
+    <div slot="footer">
+        <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal}
+            class="slds-p-right_x-small"></lightning-button>
+        <lightning-button label={i18n.confirm} title={i18n.confirm} variant="brand" class="svmx-createChildAsset__delete_modal_confirm"
+            onclick={handleDeleteConfirmModal}></lightning-button>
+    </div>
+</c-modal-dialog>
+
+    <c-modal-dialog title="" is-open={showConfirmLeave} 
+    modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={handleCancelModal} 
+    size="SMALL" relative-to-viewport class="svmx-createChildAsset__delete_modal">
+    <div slot="body">
+        <p>
+            <lightning-formatted-text
+                value={i18n.labelConfirmLeave}>
+            </lightning-formatted-text>
+        </p>
+    </div>
+    <div slot="footer">
+        <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal}
+            class="slds-p-right_x-small"></lightning-button>
+        <lightning-button label={i18n.confirm} title={i18n.confirm} variant="brand" class="svmx-createChildAsset__delete_modal_confirm"
+            onclick={handleConfirmLeave}></lightning-button>
+    </div>
+</c-modal-dialog>
+
+    <c-modal-dialog title={editActionTitle} is-open={showCloneRecordModal}
+    modal-content-id="cloneWizardModalContent" modal-header-id="cloneWizardModalHeader" onmodalclosed={handleCloneCancelRecordModal}>
+        <div slot="body">
+            <template if:true={cloneError}>
+                <c-alert variant="error">{cloneError}</c-alert>
+            </template>    
+            <lightning-record-form 
+                class="clonemodel"
+                data-id="clone"
+                record-id={editRecordId} 
+                object-api-name={editRecordObjectApiName} 
+                layout-type="Full"
+                columns="2"
+                onsubmit={handleCloneSubmitModal}
+                oncancel={handleCloneCancelRecordModal}
+                mode="edit" >
+            </lightning-record-form>
+            <template if:true={isCloning}>
+                <lightning-spinner variant="brand"></lightning-spinner>
+            </template>
+        </div>
+    </c-modal-dialog>
+    
+    
+    <c-modal-dialog title={addActionTitle} is-open={showAddRecordModal} no-footer relative-to-viewport size={addAssetModalSize}
+    modal-content-id="addWizardModalContent" modal-header-id="addWizardModalHeader" onmodalclosed={handleAddCancelRecordModal}>
+        <div slot="body">
+            <c-x-create-record
+            object-api-name="Asset"
+            prefill-values={assetPrefillValues}
+            no-header
+            onrecordcreated={handleSuccess}
+            onmodalclosed={handleAddCancelRecordModal}
+            onrecordtypeselected={handleOnRecordTypeSelected}
+            ></c-x-create-record>
+        </div>
+    </c-modal-dialog>
+    </article> 
+</template>

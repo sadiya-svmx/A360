@@ -1,0 +1,62 @@
+<template>
+    <c-modal-dialog title={header} class="svmx-where_used_modal" is-open={whereUsedModalDialogOpen} onmodalclosed={handleCancelModal}>
+        <div slot="body">
+            <p><lightning-formatted-text value={headerMessage} class="svmx-header_message"></lightning-formatted-text></p>
+                <template if:true={whereUsedDetails}>
+                    <ul class="slds-list_dotted">
+                        <template for:each={whereUsedDetails} for:item="whereUsed" class="svxm-where_used_modules"> 
+                            <template if:true={whereUsed.moduleDisplay}>
+                                <li key = {whereUsed.moduleName}> {whereUsed.moduleName} </li>
+                            </template>
+                            <ul key={whereUsed.moduleName} class="slds-list_dotted">
+                                <li key = {whereUsed.subModuleName}> {whereUsed.subModuleName} </li>
+                                    <template if:true={whereUsed.configurationTemplates}>
+                                        <ul key ={whereUsed.subModuleName} class="slds-list_dotted">
+                                            <template for:each={whereUsed.configurationTemplates} for:item="config">
+                                                <li key = {config.configurationId}> 
+                                                    <a href={config.url} target="_blank">{config.configurationName}</a>
+                                                </li>
+                                                <template if:true={config.sectionTemplates}>
+                                                    <ul key ={config.subModuleName} class="slds-list_dotted">
+                                                        <template for:each={config.sectionTemplates} for:item="section">
+                                                            <template if:false={section.isMappingAtHeaderSection}>
+                                                                <li key = {section.sectionName}> {section.sectionType} - {section.sectionName} </li>
+                                                            </template>
+                                                            <template if:true={section.isMappingAtHeaderSection}>
+                                                                <li key = {section.sectionName}> {section.sectionType} </li>
+                                                            </template>
+                                                        </template>  
+                                                    </ul>                                            
+                                                </template>  
+                                            </template>
+                                        </ul>
+                                    </template>
+                            </ul>        
+                        </template>
+                    </ul>
+                </template>
+            <p><lightning-formatted-text class="svmx-footer_message" value={footerMessage}></lightning-formatted-text></p>
+        </div>
+        <template if:true={isUpdate}>
+            <div slot="footer">
+                <lightning-button label={i18n.save} title={i18n.save} variant="neutral" onclick={handleSaveModal} class="slds-p-right_x-small svmx-whereUsedModalSave"></lightning-button>
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal} class="slds-p-right_x-small svmx-deleteExpressionCancel"></lightning-button>
+            </div>
+        </template>
+        <template if:true={isDelete}>
+            <div slot="footer">
+                <template if:true={enableDelete}>
+                    <lightning-button label={i18n.delete} title={i18n.delete} variant="brand" onclick={handleDeleteModal}></lightning-button>
+                </template>
+                <template if:false={enableDelete}>
+                    <lightning-button label={i18n.delete} title={i18n.delete} variant="brand" disabled></lightning-button>
+                </template>
+            </div>
+        </template>
+        <template if:true={isWhereUsed}>
+            <div slot="footer">
+                <lightning-button label={i18n.close} title={i18n.close} variant="neutral" onclick={handleCloseModal} class="slds-p-right_x-small svmx-viewExpressionClose"></lightning-button>
+            </div>
+        </template>
+    </c-modal-dialog>    
+</template>

@@ -1,0 +1,159 @@
+<template>
+    <lightning-layout-item flexibility="grow">
+        <div class="slds-card">
+            <div class="slds-page-header">
+                <div class="slds-page-header__row">
+                    <div class="slds-page-header__col-title">
+                        <div class="slds-media">
+                            <div class="slds-media__figure">
+                                <img src={pscLogoUrl} width="40" height="40">
+                            </div>
+                            <div class="slds-media__body">
+                                <div class="slds-page-header__name">
+                                    <div class="slds-page-header__name-title">
+                                        <h1>
+                                            <span>{i18n.titlePSCName}</span>
+                                            <span class="slds-page-header__title"
+                                                title={i18n.titlePSCName}>{i18n.titleSetting}</span>
+                                        </h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-page-header__col-actions">
+                        <div class="slds-page-header__controls">
+                            <div class="slds-page-header__control">
+                                <ul class="slds-button-group-list">
+                                    <template if:false={editMode}>
+                                        <li>
+                                            <lightning-button label={i18n.btnEdit} title={i18n.btnEdit}
+                                                onclick={handleEdit} class="svmx-modal_edit-btn slds-var-p-right_x-small"></lightning-button>
+                                            <lightning-button-icon
+                                                icon-name="utility:help"
+                                                variant="bare"
+                                                alternative-text={i18n.help}
+                                                title={i18n.help}
+                                                onclick={handleHelpClick}
+                                            ></lightning-button-icon>
+                                        </li>
+                                    </template>
+                                    <template if:true={editMode}>
+                                        <li>
+                                            <lightning-button label={i18n.btnCancel} class="slds-var-p-right_x-small"
+                                                title={i18n.btnCancel} onclick={handleCancel}></lightning-button>
+                                            <lightning-button label={i18n.btnSave} class="slds-var-p-right_x-small svmx-modal_save-btn"
+                                                variant="brand" title={i18n.btnSave} onclick={handleSave}>
+                                            </lightning-button>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <template if:true={apiInProgress}>
+            <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+        </template>
+        <div class="slds-card svmx-psc-setting-body">
+            <div class="slds-card__body slds-card__body_inner">
+                <div class="slds-form" role="list">
+                    <c-x-expandable-section title={i18n.lblExpandingSection}>
+                        <div class="slds-form__row">
+                            <div class="slds-form__item">
+                                <div
+                                    class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent">
+                                    <div class="slds-form-element__control">
+                                        <template if:false={editMode}>
+                                            <span class="slds-form-element__label">{i18n.lblBatchSearchResult}</span>
+                                            <div class="slds-form-element__static">
+                                                {batchSearchNewVal}
+                                            </div>
+                                            <lightning-layout-item flexibility="auto"
+                                                class="slds-text-align_right action-col">
+                                                <lightning-button-icon icon-name="utility:edit" variant="bare"
+                                                    size="medium" alternative-text={i18n.btnEdit} title={i18n.btnEdit}
+                                                    onclick={handleEdit}></lightning-button-icon>
+                                            </lightning-layout-item>
+                                        </template>
+                                        <template if:true={editMode}>
+                                            <div class="slds-form-element__label fullwidth">
+                                                {i18n.lblBatchSearchResult}
+                                            </div>
+                                            <lightning-combobox label={i18n.lblBatchSearchResult}
+                                                value={batchSearchNewVal}
+                                                options={batchSearchOptions} onchange={handleBatchSearchChange}
+                                                variant="label-hidden" class="svmx-psc_handle-batch-search"></lightning-combobox>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-form__row">
+                            <div class="slds-form__item">
+                                <div
+                                    class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent">
+                                    <div class="slds-form-element__control">
+                                        <template if:false={editMode}>
+                                            <span class="slds-form-element__label">{i18n.lblBatchOutput}</span>
+                                            <div class="slds-form-element__static">
+                                                {batchOutputNewVal}
+                                            </div>
+                                            <lightning-layout-item flexibility="auto"
+                                                class="slds-text-align_right action-col">
+                                                <lightning-button-icon icon-name="utility:edit" variant="bare"
+                                                    size="medium" alternative-text={i18n.btnEdit} title={i18n.btnEdit}
+                                                    onclick={handleEdit}></lightning-button-icon>
+                                            </lightning-layout-item>
+                                        </template>
+                                        <template if:true={editMode}>
+                                            <div class="slds-form-element__label fullwidth">
+                                                {i18n.lblBatchOutput}
+                                            </div>
+                                            <lightning-combobox label={i18n.lblBatchOutput}
+                                                value={batchOutputNewVal}
+                                                options={batchOutputOptions} onchange={handleBatchOutputChange}
+                                                variant="label-hidden" class="svmx-psc_handle-batch-output"></lightning-combobox>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-form__row">
+                            <div class="slds-form__item">
+                                <div
+                                    class="slds-form-element slds-form-element_edit slds-form-element_readonly slds-is-editing slds-form-element_stacked slds-hint-parent">
+                                    <div class="slds-form-element__control">
+                                        <template if:false={editMode}>
+                                            <span class="slds-form-element__label">{i18n.lblMaxSearchResult}</span>
+                                            <div class="slds-form-element__static">
+                                                {maxSearchNewVal}
+                                            </div>
+                                            <lightning-layout-item flexibility="auto"
+                                                class="slds-text-align_right action-col">
+                                                <lightning-button-icon icon-name="utility:edit" variant="bare"
+                                                    size="medium" alternative-text={i18n.btnEdit} title={i18n.btnEdit}
+                                                    onclick={handleEdit}></lightning-button-icon>
+                                            </lightning-layout-item>
+                                        </template>
+                                        <template if:true={editMode}>
+                                            <div class="slds-form-element__label fullwidth">
+                                                {i18n.lblMaxSearchResult}
+                                            </div>
+                                            <lightning-combobox label={i18n.lblMaxSearchResult}
+                                                value={maxSearchNewVal}
+                                                options={maxSearchOptions} onchange={handleMaxSearchChange}
+                                                variant="label-hidden" class="svmx-psc_handle-max-search"></lightning-combobox>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </c-x-expandable-section>
+                </div>
+            </div>
+        </div>
+    </lightning-layout-item>
+</template>

@@ -1,0 +1,29 @@
+<template>
+    <template if:false={loading}>
+        <button
+            class="svmx-fab slds-button slds-button_icon slds-button_icon-border slds-button_icon-small slds-var-m-around_x-small slds-var-p-around_large"
+            title="Add New Record"
+            onclick={_handleFAButtonClick}
+        >
+            <lightning-icon
+                icon-name="utility:threedots"
+                alternative-text="Add New Record"
+                title="Add New Record"
+                variant="inverse"
+            ></lightning-icon>
+            <span class="slds-assistive-text">Custom Actions</span>
+        </button>
+        <div class="svmx-fab-dropdown_overlay">
+            <ul class={fabDropdownClass}>
+                <template
+                for:each={_visibleActions}
+                for:item="action"
+                >
+                    <li class="slds-item" key={action.name} data-action-name={action.name} onclick={_handleActionClick}>
+                        {action.label}
+                    </li>
+                </template>
+            </ul>
+        </div>
+    </template>
+</template>

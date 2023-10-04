@@ -1,0 +1,162 @@
+<template>
+    <div class="slds-card full-height svmx-pageStructure">
+        <div class="slds-page-header list-view-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                        <img src={logoUrl} width="40" height="40">
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>                                        
+                                        <span
+                                            class="slds-page-header__title slds-truncate"
+                                            title={i18n.configTemplatesLabel}>
+                                            <!--Header-->
+                                            {i18n.attributeHistoryTitle}
+                                            &nbsp; <lightning-helptext content={i18n.labelAttributeHistoryHelpText} class="svmx-attributehistory-helptext"></lightning-helptext>
+                                        </span>
+                                        <span class="slds-p-top_medium">
+                                            <a onclick={viewAssetDetail} data-value="Asset Detail View"
+                                            class="svmx-assetLabel slds-p-left_xx-small">{assetName}</a>
+                                        </span><!--Link to the asset record-->
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-page-header__col-actions">
+                    <div class="slds-page-header__controls">
+                        <div class="slds-page-header__control">
+                            <ul class="slds-button-group-list">
+                                <li>
+                                    <lightning-button-icon
+                                        icon-name="utility:help"
+                                        variant="bare"
+                                        alternative-text={i18n.help}
+                                        title={i18n.help}
+                                        class="svmx-ta-help_icon slds-var-p-right_x-small"
+                                        onclick={handleHelpClick}
+                                    ></lightning-button-icon>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div if:true={apiInProgress} >
+            <lightning-spinner variant="brand" style="padding-top:40%">
+            </lightning-spinner>
+        </div>
+        <div>
+            <template if:true={error}>
+                <c-alert variant="error" class="svmx-error">{error}</c-alert>
+            </template>
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="2" class="slds-p-left_medium">
+                    <lightning-button
+                    label={i18n.selectAttribute}
+                    icon-name="utility:table_settings"
+                    class="svmx-ta-selectAttribute_icon slds-var-p-right_x-small"
+                    onclick={handleSelectAttributeClick} style="line-height: 7;"
+                    disabled={dateError}
+                    ></lightning-button>
+                </lightning-layout-item>
+                <lightning-layout-item size="2"></lightning-layout-item>
+                
+                <lightning-layout-item size="2" class="slds-p-around_x-small">
+                    <lightning-input type="date" name="fromDate" label={i18n.startDate} value={startDate} 
+                    onchange={handleDateChange} 
+                    class="svmx-startDate" 
+                    required="true"
+                    message-when-value-missing={i18n.labelRequiredFieldMsg}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item size="2" class="slds-p-around_x-small">
+                    <lightning-input type="date" name="toDate" label={i18n.endDate} value={endDate} 
+                    onchange={handleDateChange} 
+                    class="svmx-endDate" 
+                    required="true"
+                    message-when-value-missing={i18n.labelRequiredFieldMsg}	></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item size="1" class="slds-p-top_x-large slds-p-right_small">
+                    <lightning-button label={i18n.applyBtn} onclick={handleApply} disabled={disableApplyBtn} class="slds-float_left"></lightning-button>
+                </lightning-layout-item>
+                <lightning-layout-item size="2" class="slds-p-right_medium">
+                    <!--<lightning-button label={i18n.applyBtn} onclick={handleApply} disabled={disableApplyBtn} class="slds-float_left"></lightning-button>-->
+                    <lightning-input type="checkbox" label={i18n.highlightOutOfBound} checked={isHighlightOutOfBound} onchange={handleOnChangeOutOfBound} class="slds-float_left slds-p-top_x-large "></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item size="1" class="slds-p-top_x-large slds-p-right_medium">
+                    <lightning-button-icon
+                                        icon-name="utility:download"
+                                        variant="bare"
+                                        title={i18n.labelAttributeHistoryDownload}
+                                        tooltip={i18n.labelAttributeHistoryDownload}
+                                        class="svmx-download slds-float_right"
+                                        onclick={handleDownloadClick}
+                                        disabled={isDownloadDisabled}
+                                    ></lightning-button-icon>
+                </lightning-layout-item>
+            </lightning-layout>
+            <div if:true={noRecordsFound} class="slds-text-align_center"><span>{i18n.labelAttributeHistoryNoRecords}</span></div>
+            <div if:false={noRecordsFound} class="slds-p-around_small svmx-datatable">
+                <lightning-datatable
+                data={getData}
+                columns={getColumns}
+                key-field="id"
+                hide-checkbox-column
+                min-column-width="100"
+                class="svmx-historyDatatable"
+                ></lightning-datatable>
+            </div>
+        </div>
+        <div class="svmx-attr-list-dialog">
+            <c-modal-dialog
+                title={i18n.selectAttribute}
+                is-open={showModal}
+                size="MEDIUM_FIXED"
+                modal-content-id="techAttrListContent"
+                modal-header-id="techAttrListHeader"
+                onmodalclosed={handleCancelModal}
+                relative-to-viewport>
+                <div slot="body">
+                    <template if:true={error}>
+                        <c-alert variant="error" class="svmx-error">{error}</c-alert>
+                    </template>
+                    <lightning-dual-listbox 
+                        id="selectOptions"
+                        class="svmx-dualList"
+                        label={i18n.selectAttributeModalLabel}
+                        source-label={i18n.available}
+                        selected-label={i18n.selected}
+                        options={getAllAssetAttribute}
+                        value={getSelectedAttribute}
+                        max="10"
+                        disable-reordering
+                        message-when-range-overflow={i18n.labelAttributeSelectionError}
+                        onchange={handleSelectChange}></lightning-dual-listbox> 
+                </div>
+                <div slot="footer">
+                    <lightning-button
+                        label={i18n.cancel}
+                        title={i18n.cancel}
+                        variant="neutral"
+                        onclick={handleCancelModal}
+                        class="slds-var-p-right_x-small svmx-tech-attr-list-cancelbtn"
+                    ></lightning-button>
+                    <lightning-button
+                        class="svmx-tech-attr-list-applybtn"
+                        label={i18n.apply}
+                        title={i18n.apply}
+                        variant="brand"
+                        onclick={handleApply}
+                        disabled={hasEmptySelectedId}
+                    ></lightning-button>
+                </div>
+            </c-modal-dialog>
+        </div>
+    </div>
+</template>

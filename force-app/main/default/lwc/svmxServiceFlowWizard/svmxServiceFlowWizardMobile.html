@@ -1,0 +1,82 @@
+<template>
+    <article>
+        <div data-id="sfmBody">
+            <c-svmx-form-footer
+                is-sticky
+                alignment="center"
+                title={title}
+                sub-title={recordName}
+                oncancel={handleBackClick}
+                is-confirm-hidden
+            ></c-svmx-form-footer>
+            <div>
+                <template if:true={hasFieldAccessError}>
+                    <div class="slds-m-around_small slds-text-color_error svmx_wizardAccessError">
+                        <p class="slds-text-heading_small">{i18n.fieldAccessErrorMessage}</p>
+                        <ul class="slds-list_dotted">
+                            <template for:each={error} for:item="errorItem">
+                                <li key={errorItem} class="svmx-field-error-wrap_all">
+                                    <lightning-formatted-text value={errorItem}>
+                                    </lightning-formatted-text>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </template>
+                <template if:false={hasFieldAccessError}>
+                    <template if:true={wizardAvailable}>
+                        <div>
+                            <lightning-accordion
+                                active-section-name={activeSections}
+                                allow-multiple-sections-open
+                            >
+                                <template for:each={filteredWizardView} for:item="wizard">
+                                    <template if:true={wizard.isVisible}>
+                                        <lightning-accordion-section
+                                            key={wizard.name}
+                                            name={wizard.name}
+                                            label={wizard.name}
+                                        >
+                                            <template if:true={wizard.showQCError}>
+                                                <span class="slds-text-color_error">{i18n.messageQCNotValid}</span>
+                                            </template>
+
+                                            <template iterator:wizarditem={wizard.steps}>
+                                                <div key={wizarditem.value.name}>
+                                                    <template if:true={wizarditem.first}>
+                                                        <lightning-menu-divider variant="compact"></lightning-menu-divider>
+                                                    </template>
+
+                                                    <c-svmx-wizard-item
+                                                        key={wizarditem.value.name}
+                                                        wizard-item={wizarditem.value}
+                                                        show-icons={showIcons}
+                                                        curr-rec-id={recordId}
+                                                        curr-record={objRec}
+                                                        object-api-name={objectApiName}
+                                                        onlaunchaction={handleActionLaunch}
+                                                        oncompletionstatuschange={handleCompletionStatusChange}
+                                                        is-tracking-on={isTrackingOn}
+                                                        step-dependency-type={wizard.stepDependencyType}
+                                                    ></c-svmx-wizard-item>
+
+                                                    <template if:false={wizarditem.last}>
+                                                        <lightning-menu-divider variant="compact"></lightning-menu-divider>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                        </lightning-accordion-section>
+                                    </template>
+                                </template>
+                            </lightning-accordion>
+                        </div>
+                    </template>
+                    <template if:false={wizardAvailable}>
+                        <c-svmx-illustrator image-name="custom:no_task" heading={i18n.messageNoServiceWizard}>
+                        </c-svmx-illustrator>
+                    </template>
+                </template>
+            </div>
+        </div>
+    </article>   
+</template>

@@ -1,0 +1,292 @@
+<template>
+    <lightning-card title={i18n.title} icon-name="standard:maintenance_plan" >
+    <div class="slds-m-around_medium" >
+        <template if:true={hasError}>
+            <c-alert variant="error">{error}</c-alert>
+        </template>
+        <lightning-accordion allow-multiple-sections-open active-section-name={activeSections} >
+            <lightning-accordion-section name="generalInformation" label={i18n.generalInformation} >
+                    <lightning-layout horizontal-align="spread">
+                        <lightning-layout-item size="6" padding="around-small">
+                            <lightning-input label={i18n.maintenancePlanTitle}
+                                type = "text"
+                                value={maintenancePlanRecord.MaintenancePlanTitle} 
+                                onchange={handleMaintenancePlanData} 
+                                data-fieldname={fieldApis.maintenancePlanTitle}
+                                class ="inputfield"
+                                variant ="label-stacked"> 
+                            </lightning-input>
+                            <template if:true={isSourceSContract}>
+                                <lightning-input label={i18n.serviceContractId}
+                                    type = "text"
+                                    value={sourceRecordName} 
+                                    data-fieldname={fieldApis.serviceContractId}
+                                    read-only="true"
+                                    class ="inputfield"
+                                    variant ="label-stacked"
+                                >
+                                </lightning-input>
+                            </template>
+                            <template if:true={isSourceAccount}>
+                                <lightning-input label={i18n.accountId}
+                                    type = "text"
+                                    value={sourceRecordName} 
+                                    data-fieldname={fieldApis.accountId}
+                                    read-only="true"
+                                    class ="inputfield"
+                                    variant ="label-stacked"
+                                >
+                                </lightning-input>
+                            </template>
+                            <template if:false={isSourceAccount}>
+                                <c-svmx-lookup
+                                    label={i18n.accountId}
+                                    icon-name="standard:account"
+                                    target-object-api-name="Account"
+                                    target-label-api-name={fieldApis.accountName}
+                                    value={maintenancePlanRecord.AccountId} 
+                                    onlookupselect={handleMaintenancePlanData}
+                                    onerror={handleLookupError}
+                                    data-fieldname={fieldApis.accountId}
+                                    class ="inputfield"
+                                    variant ="label-stacked"
+                                    disabled={isAccountDisabled}
+                                    filters={accountFilter}>
+                                </c-svmx-lookup>
+                            </template>
+                            <template if:true={isSourceLocation}>
+                                <lightning-input label={i18n.locationId}
+                                    type = "text"
+                                    value={sourceRecordName} 
+                                    data-fieldname={fieldApis.locationId}
+                                    read-only="true"
+                                    class ="inputfield"
+                                    variant ="label-stacked"
+                                >
+                                </lightning-input>
+                            </template>
+                            <template if:false={isSourceLocation}>
+                                <c-svmx-lookup
+                                    icon-name="standard:location"
+                                    label={i18n.locationId}
+                                    target-object-api-name="Location"
+                                    target-label-api-name={fieldApis.locationName}
+                                    value={maintenancePlanRecord.LocationId}
+                                    onlookupselect={handleMaintenancePlanData}
+                                    onerror={handleLookupError}
+                                    data-fieldname={fieldApis.locationId}
+                                    class ="inputfield"
+                                    variant ="label-stacked"
+                                    disabled={isLocationDisabled}>
+                                </c-svmx-lookup>
+                            </template>
+                            <lightning-textarea
+                                label={i18n.description}
+                                value={maintenancePlanRecord.Description}
+                                onchange={handleMaintenancePlanData}
+                                data-fieldname={fieldApis.description}
+                                class ="inputfield"
+                                max-length="32000"
+                                variant ="label-stacked">
+                            </lightning-textarea>
+                            <template if:true={isSourceAsset}>
+                                <lightning-input 
+                                label={i18n.includeChildAssets}
+                                type ="checkbox"
+                                checked={includeChildAssets}
+                                onchange={handleIncludeChildChange}
+                                class="includeChildAssetsClass"
+                                variant="label-stacked">
+                                </lightning-input>
+                            </template>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" padding="around-small">
+                            <!--icon to be updated for template -->
+                           <c-svmx-lookup
+                                icon-name="standard:record_lookup"
+                                target-object-api-name="SVMXA360__MaintenancePlanTemplate__c"
+                                target-label-api-name={fieldApis.maintenancePlanTemplateName}
+                                label={i18n.maintenancePlanTemplateId}
+                                value={maintenancePlanRecord.SVMXA360__MaintenancePlanTemplateId__c}
+                                data-fieldname={fieldApis.maintenancePlanTemplateId}
+                                onerror={handleLookupError}
+                                class ="inputfield"
+                                required="true"
+                                disabled ="true"
+                                variant ="label-stacked">
+                            </c-svmx-lookup>
+                            <lightning-input
+                                label={i18n.startDate}
+                                type = "date"
+                                value={maintenancePlanRecord.StartDate}
+                                onchange={handleMaintenancePlanData}
+                                data-fieldname={fieldApis.startDate}
+                                message-when-bad-input ={i18n.invalidDataType}
+                                class ="inputfield"
+                                required = "true"
+                                variant ="label-stacked">
+                            </lightning-input>
+                            <lightning-input
+                                label={i18n.endDate}
+                                type = "date"
+                                value={maintenancePlanRecord.EndDate}
+                                onchange={handleMaintenancePlanData}
+                                data-fieldname={fieldApis.endDate}
+                                message-when-bad-input ={i18n.invalidDataType}
+                                class ="inputfield"
+                                variant ="label-stacked">
+                            </lightning-input>
+                            <c-svmx-lookup
+                                icon-name="standard:work_type"
+                                target-object-api-name="WorkType"
+                                target-label-api-name={fieldApis.workTypeName}
+                                label={i18n.workTypeId}
+                                value={maintenancePlanRecord.WorkTypeId}
+                                onlookupselect={handleMaintenancePlanData}
+                                onerror={handleLookupError}
+                                data-fieldname={fieldApis.workTypeId}
+                                class ="inputfield"
+                                variant ="label-stacked">
+                            </c-svmx-lookup>
+                            <c-combobox
+                                variant="label-stacked"
+                                onchange={handleAssetStatusChange}
+                                label={i18n.includeAssetStatus}
+                                value={selectedAssetOption}
+                                items={assetStatusOptions}
+                                class ="inputfield assetStatusClass"
+                                multiple
+                                filterable>
+                            </c-combobox>
+                        </lightning-layout-item>
+                    </lightning-layout>
+            </lightning-accordion-section>
+            <lightning-accordion-section name="workOrderGeneration" label={i18n.workOrderGeneration}>
+                    <lightning-layout horizontal-align="spread">
+                        <lightning-layout-item size="6" padding="around-small">
+                            <lightning-combobox
+                                label={i18n.workOrderGenerationMethod}
+                                options={workOrderGenerationMethodPickListOption}
+                                value={maintenancePlanRecord.WorkOrderGenerationMethod}
+                                onchange={handleMaintenancePlanData}
+                                data-fieldname={fieldApis.workOrderGenerationMethod}
+                                class ="inputfield"
+                                variant ="label-stacked">
+                            </lightning-combobox>
+                            <lightning-input 
+                                label={i18n.maintenanceWindowStartDays}
+                                type = "number"
+                                value={maintenancePlanRecord.MaintenanceWindowStartDays}
+                                onblur={handleMaintenancePlanData}
+                                data-fieldname={fieldApis.maintenanceWindowStartDays}
+                                class ="inputfield"
+                                variant ="label-stacked">
+                            </lightning-input>
+                            <lightning-input 
+                                label={i18n.maintenanceWindowEndDays}
+                                type = "number"
+                                value={maintenancePlanRecord.MaintenanceWindowEndDays}
+                                onblur={handleMaintenancePlanData}
+                                data-fieldname={fieldApis.maintenanceWindowEndDays}
+                                class ="inputfield"
+                                variant ="label-stacked">
+                            </lightning-input>
+                            <lightning-input 
+                                label={i18n.generationHorizon}
+                                type = "number"
+                                value={maintenancePlanRecord.GenerationHorizon}
+                                onblur={handleMaintenancePlanData}
+                                data-fieldname={fieldApis.generationHorizon}
+                                class ="inputfield"
+                                variant ="label-stacked">
+                            </lightning-input>
+                        </lightning-layout-item> 
+                        <lightning-layout-item size="6" padding="around-small">
+                            <lightning-combobox
+                                label={i18n.svcApptGenerationMethod}
+                                options={svcApptGenerationMethodPickListOption}
+                                value={maintenancePlanRecord.SvcApptGenerationMethod}
+                                onchange={handleMaintenancePlanData}
+                                data-fieldname={fieldApis.svcApptGenerationMethod}
+                                data-id="svcApptGenerationMethod"
+                                class ="inputfield"
+                                variant ="label-stacked">
+                            </lightning-combobox>
+                            <lightning-input 
+                                label={i18n.generationTimeframe}
+                                type = "number"
+                                value={maintenancePlanRecord.GenerationTimeframe}
+                                onblur={handleMaintenancePlanData}
+                                data-fieldname={fieldApis.generationTimeframe}
+                                class ="inputfield"
+                                required="true"
+                                variant ="label-stacked">
+                             </lightning-input>
+                            <lightning-combobox
+                                label={i18n.generationTimeframeType}
+                                options={generationTimeFrameTypePickListOption}
+                                value={maintenancePlanRecord.GenerationTimeframeType}
+                                onchange={handleMaintenancePlanData}
+                                data-fieldname={fieldApis.generationTimeframeType}
+                                class ="inputfield"
+                                required="true"
+                                variant ="label-stacked">
+                            </lightning-combobox>
+                            <lightning-input 
+                                label={i18n.nextSuggestedMaintenanceDate}
+                                type = "date"
+                                value={maintenancePlanRecord.NextSuggestedMaintenanceDate}
+                                onchange={handleMaintenancePlanData}
+                                data-fieldname={fieldApis.nextSuggestedMaintenanceDate}
+                                message-when-bad-input ={i18n.invalidDataType}
+                                class ="inputfield"
+                                required="true"
+                                variant ="label-stacked">
+                            </lightning-input>
+                            <lightning-input 
+                                label={i18n.doesAutoGenerateWorkOrders}
+                                type = "checkbox"
+                                checked={maintenancePlanRecord.DoesAutoGenerateWorkOrders}
+                                onchange={handleMaintenancePlanData}
+                                data-fieldname={fieldApis.doesAutoGenerateWorkOrders}
+                                class ="inputfield"
+                                variant="label-stacked">
+                            </lightning-input>
+                            <lightning-input 
+                                label={i18n.doesGenerateUponCompletion}
+                                type ="checkbox"
+                                checked={maintenancePlanRecord.DoesGenerateUponCompletion}
+                                onchange={handleMaintenancePlanData}
+                                data-fieldname={fieldApis.doesGenerateUponCompletion}
+                                class="inputfield"
+                                variant="label-stacked">
+                            </lightning-input>
+                        </lightning-layout-item> 
+                    </lightning-layout>
+            </lightning-accordion-section>
+        </lightning-accordion>
+</div>
+<c-svmx-form-footer
+    is-sticky
+    errors={popoverErrorMessages}
+    is-in-modal=true
+    alignment="right"
+    has-error={showFormErrorsIcon}
+    >
+    <lightning-button
+        variant="neutral"
+        label={i18n.previous}
+        title={i18n.previous}
+        onclick={handlePrevious}
+        class="slds-m-left_xx-small slds-m-right_xx-small previous"
+    ></lightning-button>
+    <lightning-button
+        variant="brand"
+        label={i18n.next}
+        title={i18n.next}
+        onclick={handleNext}
+        class="slds-m-left_xx-small slds-m-right_xx-small next"
+    ></lightning-button> 
+</c-svmx-form-footer>
+</lightning-card>
+</template>

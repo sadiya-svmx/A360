@@ -1,0 +1,163 @@
+.svmx-recordPopover_timeline-container {
+	background-color: var(--lwc-colorBackgroundAlt, rgb(255, 255, 255));
+}
+
+.svmx-recordPopover_summary-verbose.SMALL {
+	display: none;
+}
+
+.svmx-recordPopover_illustration-wrapper {
+	background-color: var(--lwc-colorBackgroundAlt, rgb(255, 255, 255));
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+}
+
+.svmx-recordPopover_timeline-wrapper {
+	border: 1px solid var(--lwc-colorBorder, rgb(221, 219, 218));
+	border-radius: var(--lwc-borderRadiusMedium, .25rem);
+	position: relative;
+}
+
+.svmx-recordPopover_canvas {
+	overflow-y: auto;
+	border-bottom: 1px solid var(--lwc-colorBorder, rgb(221, 219, 218));
+	overflow-x: hidden;
+}
+
+.svmx-recordPopover_canvas-axis {
+	background-color: #fff;
+	border-bottom: 1px solid var(--lwc-colorBorder, rgb(221, 219, 218));
+	height: 25px;
+}
+
+.svmx-recordPopover_canvas-axis line {
+	stroke: #72a8e0;
+}
+
+.svmx-recordPopover_map-wrapper {
+	background-color: #f8fcff;
+	padding: 10px;
+	overflow: hidden;
+}
+
+.svmx-recordPopover_map {
+	background-color: #fff;
+	border: 1px solid var(--lwc-colorBorderBrand, rgb(21, 137, 238));
+	border-radius: var(--lwc-borderRadiusMedium, .25rem);
+	height: 40px;
+}
+
+.svmx-recordPopover_map svg {
+	height: 100%;
+	width: 100%;
+}
+
+.svmx-recordPopover_map-axis {
+	height: 20px;
+}
+
+.svmx-recordPopover_map-axis svg {
+	overflow: visible;
+}
+
+.svmx-recordPopover_map-axis .tick line {
+	stroke: #72a8e0;
+}
+
+.svmx-recordPopover_map-axis .tick text {
+	fill: #72a8e0;
+	height: 10px;
+	color: #92bce4;
+	font-size: 0.7rem;
+}
+
+.svmx-recordPopover_filter-panel {
+	position: absolute;
+	top: 0;
+	right: 0;
+	overflow: scroll;
+	width: 30%;
+}
+
+.timeline-canvas-record {
+	stroke-width: 6;
+	cursor: default;
+	pointer-events: true;
+}
+
+.timeline-canvas-record-line {
+	stroke: #d5dbe4;
+	stroke-width: 1;
+}
+
+.timeline-canvas-record-label {
+	fill: rgb(63, 66, 71);
+	shape-rendering: crispEdges;
+	color: #080707;
+	cursor: pointer;
+}
+
+.axis-ticks path {
+	stroke: none;
+}
+
+.axis-ticks text {
+	display: none;
+}
+
+.axis-label-LARGE path,
+.axis-label-MEDIUM path,
+.axis-label-SMALL path {
+	stroke: none;
+}
+
+.axis-label-LARGE text,
+.axis-label-MEDIUM text,
+.axis-label-SMALL text {
+	color: var(--lwc-colorTextLabel, rgb(62, 62, 60));
+	font-size: 0.7rem;
+}
+
+.brush .selection {
+	stroke: #61adfc;
+	fill: #61adfc;
+	fill-opacity: 0.3;
+}
+
+.svmx-recordPopover_tooltip .svmx-recordPopover_tooltip-header {
+	padding: var(--lwc-spacingSmall, 0.75rem);
+	transition: 0.25s all ease;
+}
+
+.svmx-recordPopover_event-preview-assignedto-button,
+.svmx-recordPopover_event-preview-assignedto-button,
+.svmx-recordPopover_task-preview-name-button,
+.svmx-recordPopover_task-preview-relatedto-button {
+	text-align: left;
+	line-height: var(--lwc-lineHeightText, 1.5);
+}
+
+.svmx-recordPopover_tooltip.slds-nubbin_top:before,
+.svmx-recordPopover_tooltip.slds-nubbin_top:after,
+.svmx-recordPopover_tooltip.slds-nubbin_bottom:before,
+.svmx-recordPopover_tooltip.slds-nubbin_bottom:after,
+.svmx-recordPopover_tooltip.slds-nubbin_bottom-left:before,
+.svmx-recordPopover_tooltip.slds-nubbin_bottom-left:after,
+.svmx-recordPopover_tooltip.slds-nubbin_bottom-right:before,
+.svmx-recordPopover_tooltip.slds-nubbin_bottom-right:after {
+	background: var(--lwc-colorBackground, rgb(243, 242, 242));
+}
+
+.svmx-recordPopover_tooltip.slds-transition-hide {
+	pointer-events: none;
+}
+
+.svmx-recordPopover_tooltip.slds-transition-show {
+	pointer-events: auto;
+}
+
+.svmx-recordPopover_record-preview .slds-col {
+	flex-grow: 1 !important;
+}

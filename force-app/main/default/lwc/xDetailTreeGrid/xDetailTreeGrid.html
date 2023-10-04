@@ -1,0 +1,25 @@
+<template>
+    <c-x-custom-datatable
+        columns={normalizedColumns}
+        detail-grid-config={detailGridConfig}
+        table-data={normalizedData}
+        hide-table-header={hideTableHeader}
+        key-field={keyField}
+        hide-checkbox-column={hideCheckboxColumn}
+        max-column-width={maxColumnWidth}
+        min-column-width={minColumnWidth}
+        resize-column-disabled={resizeColumnDisabled}
+        row-number-offset={rowNumberOffset}
+        selected-rows={selectedRows}
+        highlighted-rows={highlightedRows}
+        show-row-number-column={showRowNumberColumn}
+        onrowselection={handleRowSelection}
+        onheaderaction={handleHeaderAction}
+        onrowaction={handleRowAction}
+        is-loading={isLoading}
+        table-class={tableClass}
+        column-widths-mode={columnWidthsMode}
+        lazy-load={lazyLoad}
+    >
+    </c-x-custom-datatable>
+</template>

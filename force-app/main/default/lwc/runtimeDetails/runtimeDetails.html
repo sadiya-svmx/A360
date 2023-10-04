@@ -1,0 +1,163 @@
+<template>
+    <template for:each={displayRows} for:item="row">
+        <lightning-layout 
+            key={row.key}
+            data-key={row.key}
+            class="svmx-display-row slds-p-top_small slds-p-bottom_small slds-border_bottom"
+            multiple-rows="true"
+            onclick={handleRowSelect}>
+                <lightning-layout-item
+                    class="svmx-record-title slds-truncate"
+                    padding="horizontal-small">
+                    <template if:true={row.hasError}>
+                        <lightning-icon 
+                            icon-name="utility:error" 
+                            variant="error"
+                            class="slds-m-right_x-small">
+                        </lightning-icon>
+                    </template>
+                    <template if:true={row.value}>
+                        <template if:true={row.lookupType}>
+                            <c-svmx-lookup-cell-selected
+                                engine-id={row.meta.engineId}
+                                icon-name={row.meta.icon}
+                                obj-name={row.meta.object}
+                                reference-name-fields={row.meta.referenceNameFields}
+                                value={row.value}
+                            ></c-svmx-lookup-cell-selected>
+                        </template>
+                    </template>
+                    <template if:true={row.dateTimeType}>
+                        <lightning-formatted-date-time
+                            value={row.value}
+                            year={row.typeAttributes.year}
+                            month={row.typeAttributes.month}
+                            day={row.typeAttributes.day}
+                            hour={row.typeAttributes.hour}
+                            minute={row.typeAttributes.minute}
+                            time-zone={row.typeAttributes.timeZone}>
+                        </lightning-formatted-date-time>
+                    </template>
+                    <template if:true={row.numberType}>
+                        <lightning-formatted-number 
+                            value={row.value}
+                            format-style={row.type}
+                            currency-code={row.typeAttributes.currencyCode}
+                            minimum-integer-digits={row.typeAttributes.minimumFractionDigits}>
+                        </lightning-formatted-number>
+                    </template>
+                    <template if:true={row.phoneType}>
+                        <lightning-formatted-phone value={row.value}></lightning-formatted-phone>
+                    </template>
+                    <template if:true={row.textType}>
+                        <lightning-formatted-text value={row.value}></lightning-formatted-text>
+                    </template>
+                </lightning-layout-item>
+                <template for:each={row.displayElements} for:item="element">
+                    <lightning-layout-item key={element.id} size="12" padding="horizontal-small">
+                        <lightning-layout horizontal-align="spread">
+                            <lightning-layout-item 
+                                class="svmx-record-field-label slds-truncate" size="4">
+                                    {element.label}:
+                            </lightning-layout-item>
+                            <lightning-layout-item 
+                                class="svmx-record_display_value slds-truncate" size="8">
+                                <template if:true={element.value}>
+                                    <template if:true={element.lookupType}>
+                                        <c-svmx-lookup-cell-selected
+                                            engine-id={element.meta.engineId}
+                                            obj-name={element.meta.object}
+                                            reference-name-fields={element.meta.referenceNameFields}
+                                            value={element.value}
+                                        ></c-svmx-lookup-cell-selected>
+                                    </template>
+                                </template>
+                                <template if:true={element.dateTimeType}>
+                                    <lightning-formatted-date-time
+                                        value={element.value}
+                                        year={element.typeAttributes.year}
+                                        month={element.typeAttributes.month}
+                                        day={element.typeAttributes.day}
+                                        hour={element.typeAttributes.hour}
+                                        minute={element.typeAttributes.minute}
+                                        time-zone={element.typeAttributes.timeZone}>
+                                    </lightning-formatted-date-time>
+                                </template>
+                                <template if:true={element.numberType}>
+                                    <lightning-formatted-number 
+                                        value={element.value}
+                                        format-style={element.type}
+                                        currency-code={element.typeAttributes.currencyCode}
+                                        minimum-integer-digits={element.typeAttributes.minimumFractionDigits}>
+                                    </lightning-formatted-number>
+                                </template>
+                                <template if:true={element.phoneType}>
+                                    <lightning-formatted-phone value={element.value}></lightning-formatted-phone>
+                                </template>
+                                <template if:true={element.textType}>
+                                    <lightning-formatted-text value= {element.value}></lightning-formatted-text>
+                                </template>
+                            </lightning-layout-item>
+                        </lightning-layout>    
+                    </lightning-layout-item>
+                </template>
+        </lightning-layout>
+    </template>
+    <div class={fabContainerClass}>
+        <template if:true={tab.addRow}>
+            <template if:true={tab.enableMultiAdd}>
+                <c-svmx-lookup
+                    engine-id={tab.multiAddConfig.engineId}
+                    advanced-search-config={tab.multiAddConfig.advancedSearchConfig}
+                    enable-advanced-search={tab.multiAddConfig.enableAdvancedSearch}
+                    filters={tab.multiAddConfig.filters}
+                    form-fill-mapping-id={tab.multiAddConfig.formFillMappingId}
+                    label={tab.labelMultiAddItem}
+                    debug-label={tab.multiAddConfig.debugLabel}
+                    target-object-api-name={tab.multiAddConfig.objectApiName}
+                    target-label-api-name={tab.multiAddConfig.referenceNameFields}
+                    multiple={tab.enableMultiAdd}
+                    onlookupselect={applyMultiSelect}
+                    enable-event-property-interface={tab.multiAddConfig.enableEventPropertyInterface} 
+                    class="svmx-button_multiadd_item"  
+                ></c-svmx-lookup>
+            </template>
+        </template>
+        <template if:true={tab.addRow}>
+            <button
+                class="svmx-fab slds-button slds-button_icon slds-button_icon-border slds-button_icon-small slds-var-m-around_x-small slds-var-p-around_large"
+                title="Add New Record"
+                onclick={handleAddLineItem}
+            >
+                <lightning-icon
+                    icon-name="utility:add"
+                    alternative-text="Add New Record"
+                    title="Add New Record"
+                    variant="inverse"
+                ></lightning-icon>
+                <span class="slds-assistive-text">Add New Record</span>
+            </button>
+        </template>
+        <template if:true={hasCustomActions}>
+            <c-svmx-actions
+                slot="actions"
+                report-validity={reportValidity}
+            ></c-svmx-actions>
+        </template>
+    </div>
+    <template if:true={extendedEdit.showExtendedEdit}>
+        <c-runtime-extended-edit
+            title={extendedEdit.title}
+            row-index={extendedEdit.rowIndex}
+            tab-index={extendedEdit.tabIndex}
+            onextendededitcancel={handleExtendedEditCancel}
+            edit-record={extendedEdit.editRecord}
+            first-record={extendedEdit.firstRecord}
+            last-record={extendedEdit.lastRecord}
+            apply-next={handleNext}
+            apply-previous={handlePrevious}
+            apply-delete={handleDelete}
+            apply-clone={handleClone}>
+        </c-runtime-extended-edit>
+    </template>
+</template>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>A360 - SPM Transaction</masterLabel>
+    <description>Configurable SPM Transaction</description>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <!-- Configuring the design attributes -->
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen" configurationEditor="svmxa360-runtime-transaction-for-flow-editor">
+            <!-- layout name to retrive -->
+            <property name="recordId" type="String" role="inputOnly" label="Source Record Id" />
+            <property name="developerName" type="String" role="inputOnly" label="Developer Name" />
+
+            <propertyType name="H" extends="SObject" label="Object for Source Records (Output)" />
+            <property name="headerRecordData" type="{H[]}" role="outputOnly" label="Source Record Collection" />
+
+            <!-- Child(ren) Record Read/ Modified, Non-Modified and Selected Collection -->
+            <propertyType name="A" extends="SObject" label="Object for Target Records Child-1 (Output)" />
+            <property name="child1Modified" type="{A[]}" role="outputOnly" label="Child-1 Records collection" />
+            <property name="child1Selected" type="{A[]}" role="outputOnly" label="Child-1 Selected Records collection" />
+
+            <propertyType name="B" extends="SObject" label="Object for Target Records Child-2 (Output)" />
+            <property name="child2Modified" type="{B[]}" role="outputOnly" label="Child-2 Records collection" />
+            <property name="child2Selected" type="{B[]}" role="outputOnly" label="Child-2 Selected Records collection" />
+
+            <propertyType name="C" extends="SObject" label="Object for Target Records Child-3 (Output)" />
+            <property name="child3Modified" type="{C[]}" role="outputOnly" label="Child-3 Records collection" />
+            <property name="child3Selected" type="{C[]}" role="outputOnly" label="Child-3 Selected Records collection" />
+
+            <propertyType name="D" extends="SObject" label="Object for Target Records Child-4 (Output)" />
+            <property name="child4Modified" type="{D[]}" role="outputOnly" label="Child-4 Records collection" />
+            <property name="child4Selected" type="{D[]}" role="outputOnly" label="Child-4 Selected Records collection" />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

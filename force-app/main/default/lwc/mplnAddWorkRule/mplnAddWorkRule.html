@@ -1,0 +1,889 @@
+<template>
+    <div if:true={apiInProgress}>
+        <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium">
+        </lightning-spinner>
+    </div>
+    <!--Add Asset Modal-->
+    <c-modal-dialog title={workRuleTitle} size="MEDIUM" is-open={showWorkRuleModal}
+        class="svmx-add-work-rule_modal" modal-content-id="workRuleModalContent"
+        modal-header-id="workRuleModalHeader" onmodalclosed={handleCancel}>
+        <div if:true={apiInProgress}>
+            <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium">
+            </lightning-spinner>
+        </div>
+    
+        <div slot="body" style="height: 500px;">
+
+            <lightning-layout multiple-rows class="slds-p-around_small">
+                <lightning-layout-item size="5">
+                    <lightning-input type="text" label={i18n.workRuleTemplateTitle} data-field="workRuleTitle" class="workRuleTitle svmx-required-inputfld"
+                        value={workRule.workRuleTitle} onchange={handleWorkRuleInputChange} required message-when-value-missing={i18n.requiredFieldMsg}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item size="1"></lightning-layout-item>
+                <!--disable work ordertype for add workrule on location and asset-->
+                <!--template if:true={applicableProductInfo}>
+                    <template if:true={applicableProductInfo.show}>
+                        <lightning-layout-item size="5">
+                            <lightning-input type="text" label={i18n.maintenanceWorkOrderType} data-field="workOrderType" class="workOrderType"
+                            value={i18n.conditionBased} disabled></lightning-input>    
+                        </lightning-layout-item>
+                    </template>
+                </template-->
+                <lightning-layout-item size="5">
+                    <c-svmx-lookup target-object-api-name={apiNameWorkType} value={workRule.workTypeId} icon-name={lookupIcon}
+                        label={i18n.workType} onlookupselect={handleWorkRuleInputChange} target-label-api-name="Name" class="workType"
+                        advanced-search-config={advancedSearchConfig} data-field="workType"></c-svmx-lookup>    
+                </lightning-layout-item>
+                <lightning-layout-item size="1"></lightning-layout-item>
+                <lightning-layout-item size="5">
+                    <lightning-input type="number" label={i18n.sortOrder} data-field="sortOrder" class="sortOrder svmx-required-inputfld"
+                        value={workRule.sortOrder} onchange={handleWorkRuleInputChange} required message-when-value-missing={i18n.requiredFieldMsg}></lightning-input>    
+                </lightning-layout-item>
+                <!--show applicable product field-->
+                <template if:true={applicableProductInfo}>
+                    <template if:true={applicableProductInfo.show}>
+                        <lightning-layout-item size="1"></lightning-layout-item>
+                        <lightning-layout-item size="5">
+                            <lightning-input type="text" label={i18n.applicableProduct} data-field="applicableproduct" class="workOrderType"
+                            value={applicableProductInfo.selectedProduct.productName} disabled></lightning-input>    
+                        </lightning-layout-item>
+                    </template>
+                </template>
+                <lightning-layout-item size="1"></lightning-layout-item>
+                <lightning-layout-item size="5">
+                  
+                    <c-combobox
+                        filterable
+                        field-level-help={i18n.attributeTemplateHelpText}
+                        variant="label-stacked"
+                        class="attributeTemplate"
+                        data-field="attributeTemplate"
+                        label={i18n.attributeTemplate}
+                        value={workRule.attributeTemplate}
+                        items={attibuteTemplates}
+                        onchange={handleAttributeTemplateChange}
+                    >
+                    </c-combobox>  
+                </lightning-layout-item>
+                <lightning-layout-item size="7"></lightning-layout-item>
+            </lightning-layout>
+            
+
+            <c-x-expandable-section title={i18n.conditionDefinition} class="parentContainer">
+                
+                <template if:true={conditionDefinitions}>
+                    <template for:each={conditionDefinitions} for:item="conditionType">
+                        <div class="slds-var-p-top_medium" key={conditionType.index}>                    
+                            <lightning-layout multiple-rows class="svmx-row">
+                                <lightning-layout-item size="1" class="slds-p-left_medium slds-p-top_xx-small"><b>{conditionType.index}</b></lightning-layout-item>
+                                <lightning-layout-item size="10">
+                                    <template if:true={conditionType.conditionTypes}>
+                                        <lightning-combobox name="Condition Type" field-level-help={i18n.conditionTypeHelpText} label={i18n.conditionType} value={conditionType.conditionType}
+                                            options={conditionType.conditionTypes} data-field='conditionType' data-id={conditionType.index} 
+                                            class="conditionType svmx-required-inputfld" onchange={handleInputChange} required message-when-value-missing={i18n.requiredFieldMsg}>
+                                        </lightning-combobox>
+                                    </template>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="1" class="slds-p-left_large">
+                                    <lightning-button-icon size="x-small" icon-name="utility:delete" alternative-text="Delete" data-id={conditionType.index} title={conditionType.conditionType} class="delete-cls" onclick={handleDelete}></lightning-button-icon>
+                                </lightning-layout-item>
+                            </lightning-layout>
+
+                            <!--if Condition Type is Frequency-->
+                            <div if:true={conditionType.isFrequency}>
+                                <div if:true={conditionType.frequency}>
+                                    <lightning-layout multiple-rows>
+                                        <!--       Row 1      -->
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+                                        <lightning-layout-item size="10">
+                                            <c-combobox
+                                                filterable
+                                                required
+                                                field-level-help={i18n.categoryHelpText}
+                                                message-when-value-missing={i18n.requiredFieldMsg}
+                                                variant="label-stacked"
+                                                data-field="attributeCategory"
+                                                data-id={conditionType.index}
+                                                label={i18n.attributeCategory}
+                                                value={conditionType.frequency.attributeCategory}
+                                                items={attributeCategories}
+                                                class="attributeCategory svmx-required-inputfld"
+                                                onchange={handleInputChange}
+                                            >
+                                            </c-combobox>  
+                                        </lightning-layout-item>
+                                    <lightning-layout-item size="1"></lightning-layout-item>
+
+                                    <!--       Row 2      -->
+                                    <lightning-layout-item size="1"></lightning-layout-item>
+                                        <lightning-layout-item size="4">
+                                            <template if:false={conditionType.frequency.attributes}>
+                                                <c-combobox
+                                                filterable
+                                                required
+                                                field-level-help={i18n.attributeHelpText}
+                                                variant="label-stacked"
+                                                label={i18n.attribute}
+                                                class="attribute svmx-required-inputfld"
+                                                ></c-combobox>   
+                                            </template>
+                                            <template if:true={conditionType.frequency.attributes}>
+                                            <c-combobox
+                                                filterable
+                                                required
+                                                field-level-help={i18n.attributeHelpText}
+                                                message-when-value-missing={i18n.requiredFieldMsg}
+                                                variant="label-stacked"
+                                                data-field="attribute"
+                                                data-id={conditionType.index}
+                                                label={i18n.attribute}
+                                                value={conditionType.frequency.attribute}
+                                                items={conditionType.frequency.attributes}
+                                                class="attribute svmx-required-inputfld"
+                                                onchange={handleInputChange}
+                                            >
+                                            </c-combobox> 
+                                            </template> 
+                                    </lightning-layout-item>
+
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+                                        <lightning-layout-item size="5">
+                                            <template if:false={conditionType.frequency.operators}>
+                                                <c-combobox
+                                                filterable
+                                                required
+                                                variant="label-stacked"
+                                                label={i18n.operator}
+                                                class="operator svmx-required-inputfld"
+                                                ></c-combobox>   
+                                            </template>
+                                            <template if:true={conditionType.frequency.operators}>
+                                            <c-combobox
+                                                filterable
+                                                required
+                                                message-when-value-missing={i18n.requiredFieldMsg}
+                                                variant="label-stacked"
+                                                data-field="operator"
+                                                data-id={conditionType.index}
+                                                label={i18n.operator}
+                                                value={conditionType.frequency.operator}
+                                                class="operator svmx-required-inputfld"
+                                                items={conditionType.frequency.operators}
+                                                onchange={handleInputChange}
+                                            >
+                                            </c-combobox>  
+                                        </template>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+
+                                        <!--       Row 3      -->
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+                                        <lightning-layout-item size="4">
+                                        
+                                            <template if:true={conditionType.isText}>
+                                                <lightning-input type="text" label={i18n.attributeValue} value={conditionType.frequency.attributeValue} 
+                                                data-field='attributeValue' data-id={conditionType.index} class="attributeValue svmx-required-inputfld" required 
+                                                message-when-value-missing={i18n.requiredFieldMsg} onchange={handleInputChange}></lightning-input>
+                                            </template>
+                                            <template if:true={conditionType.isNumber}>
+                                                <lightning-input type="number" label={i18n.attributeValue} value={conditionType.frequency.attributeValue} 
+                                                data-field='attributeValue' data-id={conditionType.index} class="attributeValue svmx-required-inputfld" required 
+                                                message-when-value-missing={i18n.requiredFieldMsg} onchange={handleInputChange}></lightning-input>
+                                            </template>
+                                            <template if:true={conditionType.isBoolean}>
+                                                <lightning-input type="checkbox" label={i18n.attributeValue} value={conditionType.frequency.attributeValue}  checked={conditionType.frequency.attributeValue} 
+                                                data-field='attributeValue' data-id={conditionType.index} class="attributeValue svmx-required-inputfld"  
+                                                message-when-value-missing={i18n.requiredFieldMsg} onchange={handleInputChange} variant="label-stacked"></lightning-input>
+                                            </template>
+                                            <template if:true={conditionType.isDate}>
+                                                <lightning-input type="date" label={i18n.attributeValue} value={conditionType.frequency.attributeValue} 
+                                                data-field='attributeValue' data-id={conditionType.index} class="attributeValue svmx-required-inputfld" required 
+                                                message-when-value-missing={i18n.requiredFieldMsg} onchange={handleInputChange}></lightning-input>
+                                            </template>
+                                            <template if:true={conditionType.isDatetime}>
+                                                <lightning-input type="datetime" label={i18n.attributeValue} value={conditionType.frequency.attributeValue} 
+                                                data-field='attributeValue' data-id={conditionType.index} class="attributeValue svmx-required-inputfld" required 
+                                                message-when-value-missing={i18n.requiredFieldMsg} onchange={handleInputChange}></lightning-input>
+                                            </template>
+                                            <template if:true={conditionType.isPicklist}>
+                                                <template if:false={conditionType.frequency.picklistValues}>
+                                                    <c-combobox
+                                                    filterable
+                                                    required
+                                                    variant="label-stacked"
+                                                    label={i18n.attributeValue}
+                                                    class="operator svmx-required-inputfld"
+                                                    ></c-combobox>  
+                                                </template>
+                                                <template if:true={conditionType.frequency.picklistValues}>
+                                                    <lightning-combobox
+                                                    required
+                                                    message-when-value-missing={i18n.requiredFieldMsg}
+                                                    label={i18n.attributeValue}
+                                                    value={conditionType.frequency.attributeValue}
+                                                    class="attributeValue svmx-required-inputfld"
+                                                    data-field="attributeValue"
+                                                    data-id={conditionType.index}
+                                                    options={conditionType.frequency.picklistValues} 
+                                                    onchange={handleInputChange}   
+                                                    >
+
+                                                </lightning-combobox>
+                                                </template>
+                                          </template>
+                                            
+                                            <template if:true={conditionType.isReference}>
+                                                <c-svmx-lookup target-object-api-name={conditionType.frequency.referenceTo} value={conditionType.frequency.attributeValue}
+                                                label={i18n.attributeValue} data-id={conditionType.index} onlookupselect={handleInputChange} target-label-api-name="Name" class="attributeValue svmx-required-inputfld" required
+                                                    message-when-value-missing={i18n.requiredFieldMsg} advanced-search-config={advancedSearchConfig} data-field="attributeValue"></c-svmx-lookup> 
+                                            </template>
+                                        </lightning-layout-item>
+
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+                                        <lightning-layout-item size="5">
+                                            <lightning-input type="number" label={i18n.threshold} value={conditionType.frequency.threshold} 
+                                            data-field='threshold' data-id={conditionType.index} class="threshold" onchange={handleInputChange}></lightning-input>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+
+                                        <!--       Row 4     -->
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+                                        <lightning-layout-item size="4">
+                                            <lightning-input type="number" label={i18n.startAt} value={conditionType.frequency.startAt} 
+                                            data-field='startAt' data-id={conditionType.index} class="startAt" onchange={handleInputChange}></lightning-input>
+                                        </lightning-layout-item>
+
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+
+                                        <lightning-layout-item size="5">
+                                            <lightning-input type="number" label={i18n.stopAt} value={conditionType.frequency.stopAt} 
+                                            data-field='stopAt' data-id={conditionType.index} class="stopAt" onchange={handleInputChange}></lightning-input>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+                                    </lightning-layout>
+                                </div>
+                            </div>
+
+                            <!--if Condition Type is Criteria-->
+                            <div if:true={conditionType.isCriteria}>
+                                <div if:true={conditionType.criteria}>
+                                    <lightning-layout multiple-rows>
+                                        <!--       Row 1      -->
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+                                        <lightning-layout-item size="10">
+                                            <c-combobox
+                                                filterable
+                                                required
+                                                field-level-help={i18n.categoryHelpText}
+                                                message-when-value-missing={i18n.requiredFieldMsg}
+                                                variant="label-stacked"
+                                                data-field="attributeCategory"
+                                                data-id={conditionType.index}
+                                                label={i18n.attributeCategory}
+                                                value={conditionType.criteria.attributeCategory}
+                                                items={attributeCategories}
+                                                class="attributeCategory svmx-required-inputfld"
+                                                onchange={handleInputChange}
+                                            ></c-combobox>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+
+                                        <!--       Row 2     -->
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+                                        <lightning-layout-item size="4">
+                                            <template if:false={conditionType.criteria.attributes}>
+                                                <c-combobox
+                                                filterable
+                                                required
+                                                field-level-help={i18n.attributeHelpText}
+                                                variant="label-stacked"
+                                                label={i18n.attribute}
+                                                class="attribute svmx-required-inputfld"
+                                                ></c-combobox>   
+                                            </template>
+                                            <template if:true={conditionType.criteria.attributes}>
+                                                <c-combobox
+                                                    filterable
+                                                    required
+                                                    field-level-help={i18n.attributeHelpText}
+                                                    message-when-value-missing={i18n.requiredFieldMsg}
+                                                    variant="label-stacked"
+                                                    data-field="attribute"
+                                                    data-id={conditionType.index}
+                                                    label={i18n.attribute}
+                                                    value={conditionType.criteria.attribute}
+                                                    items={conditionType.criteria.attributes}
+                                                    class="attribute svmx-required-inputfld"
+                                                    onchange={handleInputChange}
+                                                ></c-combobox>
+                                            </template>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+
+                                        
+                                        <lightning-layout-item size="5">
+                                            <template if:false={conditionType.criteria.operators}>
+                                                <c-combobox
+                                                filterable
+                                                required
+                                                variant="label-stacked"
+                                                label={i18n.operator}
+                                                class="operator svmx-required-inputfld"
+                                                ></c-combobox>   
+                                            </template>
+                                            <template if:true={conditionType.criteria.operators}>
+                                                <c-combobox
+                                                        filterable
+                                                        required
+                                                        message-when-value-missing={i18n.requiredFieldMsg}
+                                                        variant="label-stacked"
+                                                        data-field="operator"
+                                                        data-id={conditionType.index}
+                                                        label={i18n.operator}
+                                                        value={conditionType.criteria.operator}
+                                                        class="operator svmx-required-inputfld"
+                                                        items={conditionType.criteria.operators}
+                                                        onchange={handleInputChange}
+                                                >
+                                                </c-combobox> 
+                                            </template>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+
+                                        <!--       Row 3      -->
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+                                        <lightning-layout-item size="4">
+                                            <template if:true={conditionType.isText}>
+                                                <lightning-input type="text" label={i18n.attributeValue} value={conditionType.criteria.attributeValue} 
+                                                data-field='attributeValue' data-id={conditionType.index} class="attributeValue svmx-required-inputfld" required 
+                                                message-when-value-missing={i18n.requiredFieldMsg} onchange={handleInputChange}></lightning-input>
+                                            </template>
+                                            <template if:true={conditionType.isNumber}>
+                                                <lightning-input type="number" label={i18n.attributeValue} value={conditionType.criteria.attributeValue} 
+                                                data-field='attributeValue' data-id={conditionType.index} class="attributeValue svmx-required-inputfld" required 
+                                                message-when-value-missing={i18n.requiredFieldMsg} onchange={handleInputChange}></lightning-input>
+                                            </template>
+                                            <template if:true={conditionType.isBoolean}>
+                                                <lightning-input type="checkbox" label={i18n.attributeValue} value={conditionType.criteria.attributeValue} checked={conditionType.criteria.attributeValue} 
+                                                data-field='attributeValue' data-id={conditionType.index} class="attributeValue svmx-required-inputfld"  
+                                                message-when-value-missing={i18n.requiredFieldMsg} onchange={handleInputChange} variant="label-stacked"></lightning-input>
+                                            </template>
+                                            <template if:true={conditionType.isDate}>
+                                                <lightning-input type="date" label={i18n.attributeValue} value={conditionType.criteria.attributeValue} 
+                                                data-field='attributeValue' data-id={conditionType.index} class="attributeValue svmx-required-inputfld" required 
+                                                message-when-value-missing={i18n.requiredFieldMsg} onchange={handleInputChange}></lightning-input>
+                                            </template>
+                                            <template if:true={conditionType.isDatetime}>
+                                                <lightning-input type="datetime" label={i18n.attributeValue} value={conditionType.criteria.attributeValue} 
+                                                data-field='attributeValue' data-id={conditionType.index} class="attributeValue svmx-required-inputfld" required 
+                                                message-when-value-missing={i18n.requiredFieldMsg} onchange={handleInputChange}></lightning-input>
+                                            </template>
+                                            <template if:true={conditionType.isPicklist}>
+                                                <template if:false={conditionType.criteria.picklistValues}>
+                                                    <c-combobox
+                                                    filterable
+                                                    required
+                                                    variant="label-stacked"
+                                                    label={i18n.attributeValue}
+                                                    class="operator svmx-required-inputfld"
+                                                    ></c-combobox>  
+                                                </template>
+                                                <template if:true={conditionType.criteria.picklistValues}>
+                                                    <lightning-combobox
+                                                    required
+                                                    message-when-value-missing={i18n.requiredFieldMsg}
+                                                    label={i18n.attributeValue}
+                                                    value={conditionType.criteria.attributeValue}
+                                                    class="attributeValue svmx-required-inputfld"
+                                                    data-field="attributeValue"
+                                                    data-id={conditionType.index}
+                                                    options={conditionType.criteria.picklistValues} 
+                                                    onchange={handleInputChange}   
+                                                    >
+
+                                                </lightning-combobox>
+                                                </template>
+                                            </template>
+                                            
+                                            <template if:true={conditionType.isReference}>
+                                                <c-svmx-lookup target-object-api-name={conditionType.criteria.referenceTo} value={conditionType.criteria.attributeValue}
+                                                label={i18n.attributeValue} data-id={conditionType.index} onlookupselect={handleInputChange} target-label-api-name="Name" class="attributeValue svmx-required-inputfld" required
+                                                    message-when-value-missing={i18n.requiredFieldMsg} advanced-search-config={advancedSearchConfig} data-field="attributeValue"></c-svmx-lookup> 
+                                            </template>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+
+                                        <lightning-layout-item size="5">
+                                            <lightning-input type="number" label={i18n.threshold} value={conditionType.criteria.threshold}
+                                            data-field='threshold' data-id={conditionType.index} class="threshold" onchange={handleInputChange}></lightning-input>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+                                    </lightning-layout>
+                                </div>
+                            </div>
+
+                            <!--if Condition Type is Time show recurrence pattren-->
+                            <div if:true={conditionType.isTime}>
+                            <lightning-layout multiple-rows>
+                                <!--            Row 1           -->
+                                <lightning-layout-item size="1"></lightning-layout-item>
+                                <lightning-layout-item size="4">
+                                    <div class="slds-form-element">
+                                        <div class="inlineContainer workRuleInterval">
+                                        <lightning-input 
+                                            type="number" 
+                                            value={interval} 
+                                            class="interval svmx-required-inputfld"
+                                            min="1"
+                                            message-when-range-underflow={i18n.labelErrorLowNumber}
+                                            required 
+                                            onchange={onIntervalChange}
+                                            name="frequencyCount" 
+                                            label={i18n.labelScheduleEvery}
+                                            data-field="interval"
+                                            data-id={conditionType.index}
+                                            
+                                            >
+                                        </lightning-input>
+                                        </div>
+                                        <div class="comboboxContainer freqContainer">
+                                        <lightning-combobox name="Frequency" value={editFrequencyValue} class="frequency"
+                                            options={frequencyOptions} onchange={handleFrequencyChange} data-field="frequency" data-id={conditionType.index}>
+                                        </lightning-combobox>
+                                        </div>
+                                    </div>    
+                                </lightning-layout-item>
+                                <lightning-layout-item size="1"></lightning-layout-item>
+                                
+                                <lightning-layout-item size="4" class="slds-p-top_small">
+                                    <div class="slds-form-element">
+                                    <fieldset class="slds-form-element">
+                                        <label class="slds-form-element__label slds-no-flex">
+                                          <abbr title="required" class="slds-required">*</abbr>{i18n.labelEndSchedule}
+                                        </label>
+                                        <div class="slds-form-element__control">
+                                            <span class="slds-radio slds-m-top_xx-small slds-m-bottom_xx-large nvrCntnr">
+                                                <input type="radio" id={enumEndScheduleOptions.never} checked={endScheduleRadioButton.never}
+                                                    class="endSchd-neverRadio"
+                                                    onchange={onEndScheduleRadioChange} value={enumEndScheduleOptions.never} name="endschedule" 
+                                                    data-field="endschedule"
+                                                    data-id={conditionType.index}/>
+                                                <label class="slds-radio__label" for={enumEndScheduleOptions.never}>
+                                                    <span class="slds-radio_faux"></span>
+                                                    <span class="slds-form-element__label">{i18n.labelNever}</span>
+                                                </label>
+                                            </span> 
+                                        </div>
+                                    </fieldset> 
+                                    </div>  
+                                </lightning-layout-item>
+                                <lightning-layout-item size="2"></lightning-layout-item>
+                            </lightning-layout>
+                                <!--         Day        -->
+                                <div if:true={isFrequencyDay}>
+                                    <lightning-layout multiple-rows>
+                                        <lightning-layout-item size="6"></lightning-layout-item>
+                                        <lightning-layout-item size="4">
+                                            <span class="slds-radio slds-m-top_medium cntnOccurences">
+                                                    
+                                                <input type="radio" id={enumEndScheduleOptions.after} onchange={onEndScheduleRadioChange}
+                                                class="endSchd-afterRadio"
+                                                checked={endScheduleRadioButton.after} value={enumEndScheduleOptions.after} name="endschedule" 
+                                                data-field="endschedule" 
+                                                data-id={conditionType.index}></input>
+                                                <label class="slds-radio__label" for={enumEndScheduleOptions.after}>
+                                                <span class="slds-radio_faux"></span>
+                                                <span class="slds-form-element__label">{i18n.labelAfter}</span>
+                                                </label>
+                                                <div class="comboboxContainer endSched_occurence">
+                                                <span class="occLabel">{i18n.labelOccurences}</span>
+                                                <lightning-input 
+                                                    type="number"
+                                                    class="qryOccurences"  
+                                                    min="1"
+                                                    message-when-range-underflow={i18n.labelErrorLowNumber}
+                                                    disabled={endScheduleRadioSelection.disableOccurence}
+                                                    value={endScheduleValues.after} 
+                                                    name="occurences"
+                                                    data-field="occurences" 
+                                                    data-id={conditionType.index}
+                                                    onchange={onEndScheduleChange}>
+                                                </lightning-input>
+                                                </div>
+                                            </span>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                    
+                                    <lightning-layout>
+                                        <lightning-layout-item size="6"></lightning-layout-item>
+                                        <lightning-layout-item size="4">
+                                            <span class="slds-radio slds-m-top_medium dateSpan"> 
+                                                <input type="radio" id={enumEndScheduleOptions.on} onchange={onEndScheduleRadioChange}
+                                                class="endSchd-onRadio"
+                                                checked={endScheduleRadioButton.on} value={enumEndScheduleOptions.on} name="endschedule"
+                                                data-field="endschedule" 
+                                                data-id={conditionType.index}></input>
+                                                <label class="slds-radio__label" for={enumEndScheduleOptions.on}>
+                                                <span class="slds-radio_faux"></span>
+                                                <span class="slds-form-element__label">{i18n.labelOn}</span>
+                                                </label>
+                                                <div class="comboboxContainer endSched_date">
+                                                <lightning-input type="date" value={endScheduleValues.on}
+                                                    class="endScheduleDate"
+                                                    disabled={endScheduleRadioSelection.disableDate}
+                                                    data-field="endScheduleDate" 
+                                                    data-id={conditionType.index}
+                                                    onchange={onEndScheduleChange}
+                                                    name={enumEndScheduleOptions.on}></lightning-input>
+                                                </div>
+                                            </span>
+                                        </lightning-layout-item>
+                                    </lightning-layout> 
+                                </div>
+                                <!--         Week     -->
+                                <div if:true={isFrequencyWeek}>
+                                    <lightning-layout multiple-rows class="svmx-week-row">
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+                                        <lightning-layout-item size="5">
+                                            <fieldset class="slds-form-element svmx-weekday">
+                                                <div class="slds-form-element__control">
+                                                <div class="slds-checkbox_button-group weekdayContainer">
+                                                    <template for:each={weekDayNameList} for:item="item">
+                                                    <span key={item.weekDay} class="weekday-option slds-button slds-checkbox_button">
+                                                        <input onchange={onWeekChange} checked={item.selected} type="checkbox" id={item.weekDay}
+                                                        class="weekdayOption"
+                                                        value={item.weekDay} name="checkbox"
+                                                        data-field="weekDay" 
+                                                        data-id={conditionType.index}/>
+                                                        <label class="slds-checkbox_button__label" for={item.weekDay}>
+                                                        <span class="slds-checkbox_faux weekDayLabel">{item.label}</span>
+                                                        </label>
+                                                    </span>
+                                                    </template>
+                                                </div>
+                                                </div>
+                                            </fieldset>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4">
+                                            <span class="slds-radio slds-m-top_medium cntnOccurences">
+                                                    
+                                                <input type="radio" id={enumEndScheduleOptions.after} onchange={onEndScheduleRadioChange}
+                                                class="endSchd-afterRadio"
+                                                checked={endScheduleRadioButton.after} value={enumEndScheduleOptions.after} name="endschedule" 
+                                                data-field="endschedule" 
+                                                data-id={conditionType.index}></input>
+                                                <label class="slds-radio__label" for={enumEndScheduleOptions.after}>
+                                                <span class="slds-radio_faux"></span>
+                                                <span class="slds-form-element__label">{i18n.labelAfter}</span>
+                                                </label>
+                                                <div class="comboboxContainer endSched_occurence">
+                                                <span class="occLabel">{i18n.labelOccurences}</span>
+                                                <lightning-input 
+                                                    type="number"
+                                                    class="qryOccurences"  
+                                                    min="1"
+                                                    message-when-range-underflow={i18n.labelErrorLowNumber}
+                                                    disabled={endScheduleRadioSelection.disableOccurence}
+                                                    value={endScheduleValues.after} 
+                                                    name="occurences"
+                                                    data-field="occurences" 
+                                                    data-id={conditionType.index}
+                                                    onchange={onEndScheduleChange}>
+                                                </lightning-input>
+                                                </div>
+                                            </span>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                    
+                                    <lightning-layout>
+                                        <lightning-layout-item size="6"></lightning-layout-item>
+                                        <lightning-layout-item size="4">
+                                            <span class="slds-radio slds-m-top_medium dateSpan"> 
+                                                <input type="radio" id={enumEndScheduleOptions.on} onchange={onEndScheduleRadioChange}
+                                                class="endSchd-onRadio"
+                                                checked={endScheduleRadioButton.on} value={enumEndScheduleOptions.on} name="endschedule"
+                                                data-field="endschedule" 
+                                                data-id={conditionType.index}></input>
+                                                <label class="slds-radio__label" for={enumEndScheduleOptions.on}>
+                                                <span class="slds-radio_faux"></span>
+                                                <span class="slds-form-element__label">{i18n.labelOn}</span>
+                                                </label>
+                                                <div class="comboboxContainer endSched_date">
+                                                <lightning-input type="date" value={endScheduleValues.on}
+                                                    class="endScheduleDate"
+                                                    disabled={endScheduleRadioSelection.disableDate} onchange={onEndScheduleChange}
+                                                    name={enumEndScheduleOptions.on}
+                                                    data-field="endScheduleDate" 
+                                                    data-id={conditionType.index}></lightning-input>
+                                                </div>
+                                            </span>
+                                        </lightning-layout-item>
+                                    </lightning-layout> 
+                                </div>
+                                <!--         Month     -->
+                                <div if:true={isFrequencyMonth} class="monthContainer">
+                                    <lightning-layout multiple-rows>
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+                                        <lightning-layout-item size="5">
+                                            <span class="slds-radio">
+                                                <input type="radio" id="radio-43" class="radio-43 mnth-monthDayRadio" checked={monthRadioButton.monthDay}
+                                                    onchange={onRadioChangeForMonthSelection} value={enumMonthRadioValues.monthDay} name="months"
+                                                    data-field="dayPosition" 
+                                                    data-id={conditionType.index}></input>
+                                                <label class="slds-radio__label" for="radio-43">
+                                                    <span class="slds-radio_faux"></span>
+                                                    <span class="slds-form-element__label">{i18n.labelOnDay}</span>
+                                                </label>
+                                                <div class="comboboxContainer monthDay">
+                                                    <lightning-combobox onchange={onMonthComboboxChange} 
+                                                    name={enumMonthRadioValues.monthDay}
+                                                    class="monthDay-month-cmbx"
+                                                    value={monthSubOptionValues.monthDay} disabled={monthRadioSelection.disableMonthDay}
+                                                    options={monthControlOptions.monthDay}
+                                                    data-field="monthDay" 
+                                                    data-id={conditionType.index}></lightning-combobox>
+                                                </div>
+                            
+                                                </span>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4">
+                                            <span class="slds-radio slds-m-top_medium cntnOccurences">
+                                                    
+                                                <input type="radio" id={enumEndScheduleOptions.after} onchange={onEndScheduleRadioChange}
+                                                class="endSchd-afterRadio"
+                                                checked={endScheduleRadioButton.after} value={enumEndScheduleOptions.after} name="endschedule" 
+                                                data-field="endschedule" 
+                                                data-id={conditionType.index}></input>
+                                                <label class="slds-radio__label" for={enumEndScheduleOptions.after}>
+                                                <span class="slds-radio_faux"></span>
+                                                <span class="slds-form-element__label">{i18n.labelAfter}</span>
+                                                </label>
+                                                <div class="comboboxContainer endSched_occurence">
+                                                <span class="occLabel">{i18n.labelOccurences}</span>
+                                                <lightning-input 
+                                                    type="number"
+                                                    class="qryOccurences"  
+                                                    min="1"
+                                                    message-when-range-underflow={i18n.labelErrorLowNumber}
+                                                    disabled={endScheduleRadioSelection.disableOccurence}
+                                                    value={endScheduleValues.after} 
+                                                    name="occurences"
+                                                    onchange={onEndScheduleChange}
+                                                    data-field="occurences" 
+                                                    data-id={conditionType.index}>
+                                                </lightning-input>
+                                                </div>
+                                            </span>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                    
+                                    <lightning-layout>
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+                                        <lightning-layout-item size="5">
+                                            <span class="slds-radio slds-m-top_large">
+                                                <input type="radio" id="radio-44" onchange={onRadioChangeForMonthSelection}
+                                                    class="mnth-dayPositionRadio"
+                                                    checked={monthRadioButton.dayPosition} value={enumMonthRadioValues.dayPosition} name="months" 
+                                                    data-field="dayPosition" 
+                                                    data-id={conditionType.index}
+                                                    ></input>
+                                                <label class="slds-radio__label" for="radio-44">
+                                                    <span class="slds-radio_faux"></span>
+                                                    <span class="slds-form-element__label">{i18n.labelOnThe}</span>
+                                                </label>
+                                                <div class="comboboxContainer setpos">
+                                                    <lightning-combobox onchange={onMonthComboboxChange} name={subOptionKeyNames.setPos}
+                                                    value={monthSubOptionValues.setPos} disabled={monthRadioSelection.disableDayPosition}
+                                                    class="setPos-month-cmbx"
+                                                    options={monthControlOptions.setPos}
+                                                    data-field="setPos" 
+                                                    data-id={conditionType.index}></lightning-combobox>
+                                                </div>
+                                                <div class="comboboxContainer setpos slds-m-left_x-small">
+                                                    <lightning-combobox onchange={onMonthComboboxChange} value={monthSubOptionValues.weekDay}
+                                                    class="weekDay-month-cmbx"
+                                                    name={subOptionKeyNames.weekDay} disabled={monthRadioSelection.disableDayPosition}
+                                                    options={monthControlOptions.weekDay}
+                                                    data-field="weekDay" 
+                                                    data-id={conditionType.index}></lightning-combobox>
+                                                </div>
+                                                </span>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4">
+                                            <span class="slds-radio slds-m-top_medium dateSpan"> 
+                                                <input type="radio" id={enumEndScheduleOptions.on} onchange={onEndScheduleRadioChange}
+                                                class="endSchd-onRadio"
+                                                checked={endScheduleRadioButton.on} value={enumEndScheduleOptions.on} name="endschedule"
+                                                data-field="endschedule" 
+                                                data-id={conditionType.index}></input>
+                                                <label class="slds-radio__label" for={enumEndScheduleOptions.on}>
+                                                <span class="slds-radio_faux"></span>
+                                                <span class="slds-form-element__label">{i18n.labelOn}</span>
+                                                </label>
+                                                <div class="comboboxContainer endSched_date">
+                                                <lightning-input type="date" value={endScheduleValues.on}
+                                                    class="endScheduleDate"
+                                                    data-field="endScheduleDate" 
+                                                    data-id={conditionType.index}
+                                                    disabled={endScheduleRadioSelection.disableDate} onchange={onEndScheduleChange}
+                                                    name={enumEndScheduleOptions.on}></lightning-input>
+                                                </div>
+                                            </span>
+                                        </lightning-layout-item>
+                                    </lightning-layout> 
+                                </div>
+                                <!--         Year     -->
+                                <div if:true={isFrequencyYear} class="yearContainer">
+                                    <lightning-layout multiple-rows>
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+                                        <lightning-layout-item size="5">
+                                            <span class="slds-radio">
+                                                <input onchange={onradioChangeForYearSection} type="radio" id="radio-45"
+                                                    class="radio-45 onMonthDayRadio"
+                                                    checked={yearRadioButton.monthDay} value={enumYearRadioValues.monthAndDay} name="years" 
+                                                    data-field="yearsPos" 
+                                                    data-id={conditionType.index}></input>
+                                                <label class="slds-radio__label" for="radio-45">
+                                                    <span class="slds-radio_faux"></span>
+                                                    <span class="slds-form-element__label">{i18n.labelOn}</span>
+                                                </label>
+                                                <div class="comboboxContainer yearCombobx yearMonthFirstCbx">
+                                                    <lightning-combobox disabled={yearRadioSelection.disableMonthDay} onchange={onYearComboboxChange}
+                                                    name={subOptionKeyNames.month} value={yearSubOptionValues.monthDayMonth}
+                                                    options={yearControlOptions.month}
+                                                    data-field="monthDayMonth"
+                                                    class="monthDayMonth" 
+                                                    data-id={conditionType.index}></lightning-combobox>
+                            
+                                                </div>
+                                                <div class="comboboxContainer yearCombobx yearMarginCbxFix">
+                                                    <lightning-combobox disabled={yearRadioSelection.disableMonthDay} onchange={onYearComboboxChange}
+                                                    name={subOptionKeyNames.day} value={yearSubOptionValues.day}
+                                                    options={yearControlOptions.day}
+                                                    data-field="day" 
+                                                    data-id={conditionType.index}></lightning-combobox>
+                                                </div>
+                            
+                                            </span>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4">
+                                            <span class="slds-radio slds-m-top_medium cntnOccurences">
+                                                    
+                                                <input type="radio" id={enumEndScheduleOptions.after} onchange={onEndScheduleRadioChange}
+                                                class="endSchd-afterRadio"
+                                                checked={endScheduleRadioButton.after} value={enumEndScheduleOptions.after} name="endschedule" 
+                                                data-field="endschedule" 
+                                                data-id={conditionType.index}></input>
+                                                <label class="slds-radio__label" for={enumEndScheduleOptions.after}>
+                                                <span class="slds-radio_faux"></span>
+                                                <span class="slds-form-element__label">{i18n.labelAfter}</span>
+                                                </label>
+                                                <div class="comboboxContainer endSched_occurence">
+                                                <span class="occLabel">{i18n.labelOccurences}</span>
+                                                <lightning-input 
+                                                    type="number"
+                                                    class="qryOccurences"  
+                                                    min="1"
+                                                    message-when-range-underflow={i18n.labelErrorLowNumber}
+                                                    disabled={endScheduleRadioSelection.disableOccurence}
+                                                    value={endScheduleValues.after} 
+                                                    name="occurences"
+                                                    data-field="occurences" 
+                                                    data-id={conditionType.index}
+                                                    onchange={onEndScheduleChange}>
+                                                </lightning-input>
+                                                </div>
+                                            </span>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                    
+                                    <lightning-layout>
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+                                        <lightning-layout-item size="5">
+                                            <span class="slds-radio yearSecondRow">
+                                                <input onchange={onradioChangeForYearSection} type="radio" id="radio-46"
+                                                    class="monthWeekDayRadioBtn"
+                                                    checked={yearRadioButton.monthWeekDay} value={enumYearRadioValues.monthAndWeekdayAndPos}
+                                                    name="years"
+                                                    data-field="yearsPos" 
+                                                    data-id={conditionType.index}></input>
+                                                <label class="slds-radio__label" for="radio-46">
+                                                    <span class="slds-radio_faux"></span>
+                                                    <span class="slds-form-element__label">{i18n.labelOnThe}</span>
+                                                </label>
+                                                <div class="comboboxContainer yearCombobx yearSetPos">
+                                                    <lightning-combobox disabled={yearRadioSelection.disableMonthWeekDay}
+                                                    name={subOptionKeyNames.setPos} value={yearSubOptionValues.setPos}
+                                                    onchange={onYearComboboxChange} options={yearControlOptions.setPos}
+                                                    data-field="setPos" 
+                                                    class="setPos"
+                                                    data-id={conditionType.index}></lightning-combobox>
+                                                </div>
+                            
+                                                <div class="comboboxContainer yearCombobx yearMarginCbxFix">
+                                                    <lightning-combobox disabled={yearRadioSelection.disableMonthWeekDay}
+                                                    name={subOptionKeyNames.weekDay} value={yearSubOptionValues.weekDay}
+                                                    onchange={onYearComboboxChange} options={yearControlOptions.weekDay}
+                                                    data-field="weekDay" 
+                                                    class="week-Day"
+                                                    data-id={conditionType.index}></lightning-combobox>
+                                                </div>
+                                                <span class="yearMonthCbxLbl">{i18n.labelOf}</span>
+                                                <div class="comboboxContainer yearCombobx yearMonthCbx">
+                                                    <lightning-combobox disabled={yearRadioSelection.disableMonthWeekDay}
+                                                    name={subOptionKeyNames.month} value={yearSubOptionValues.month} onchange={onYearComboboxChange}
+                                                    options={yearControlOptions.month}
+                                                    data-field="month" 
+                                                    data-id={conditionType.index}></lightning-combobox>
+                                                </div>
+                            
+                                                </span>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="1"></lightning-layout-item>
+                                        <lightning-layout-item size="5">
+                                            <span class="slds-radio slds-m-top_medium dateSpan"> 
+                                                <input type="radio" id={enumEndScheduleOptions.on} onchange={onEndScheduleRadioChange}
+                                                class="endSchd-onRadio"
+                                                checked={endScheduleRadioButton.on} value={enumEndScheduleOptions.on} name="endschedule"
+                                                data-field="endschedule" 
+                                                data-id={conditionType.index}></input>
+                                                <label class="slds-radio__label" for={enumEndScheduleOptions.on}>
+                                                <span class="slds-radio_faux"></span>
+                                                <span class="slds-form-element__label">{i18n.labelOn}</span>
+                                                </label>
+                                                <div class="comboboxContainer endSched_date">
+                                                <lightning-input type="date" value={endScheduleValues.on}
+                                                    class="endScheduleDate"
+                                                    disabled={endScheduleRadioSelection.disableDate} onchange={onEndScheduleChange}
+                                                    name={enumEndScheduleOptions.on}
+                                                    data-field="endScheduleDate" 
+                                                data-id={conditionType.index}></lightning-input>
+                                                </div>
+                                            </span>
+                                        </lightning-layout-item>
+                                        
+                                    </lightning-layout> 
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </template>
+                    <div class="slds-p-around_small">
+                        <lightning-button icon-name="utility:add" label={i18n.addCondition} class="addCondition"  onclick={handleAddConditionType}></lightning-button>
+                    </div>
+                    <lightning-layout>
+                        <lightning-layout-item size="12" class="slds-p-around_medium">
+                        <lightning-input label={i18n.advancedExpression} max-length="250" field-level-help={i18n.advancedExpression} value={workRule.advancedExpression} onchange={handleWorkRuleInputChange} 
+                        onblur={validateAdvancedExpression} data-field="advancedExpression" class="advancedExpression"></lightning-input>
+                    </lightning-layout-item>
+                    </lightning-layout>
+                </template>
+            </c-x-expandable-section>
+        </div>
+
+        <div slot="footer">
+            <lightning-button label={i18n.cancel} onclick={handleCancel} variant="neutral" class="cancel slds-p-right_small"></lightning-button>
+            <lightning-button label={i18n.save} onclick={handleSave} variant="brand" class="save"></lightning-button>
+        </div>
+    </c-modal-dialog>
+</template>

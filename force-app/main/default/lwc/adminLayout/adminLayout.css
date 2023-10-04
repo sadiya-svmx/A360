@@ -1,0 +1,23 @@
+.main-content {
+    display: flex;
+    align-items: stretch;
+    flex: 1 1 auto;
+    overflow: auto;
+}
+
+.main-content :first-child {
+    width: 100%;
+}
+
+.split-container {
+    width: 310px;
+    flex: none;
+}
+
+.splitter-button {
+    display: inline-flex;
+}
+
+.no-scroll {
+    overflow: hidden;
+}

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>A360 - Maintenance Plan Detail</masterLabel>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="maintenancePlanRecord" type="@salesforce/schema/MaintenancePlan" label="Maintenance Plan Record" required="true"/>
+            <property name="recordId" type="String" label="Source Record Id" role ="inputOnly" required="true"/>
+            <property name="assetStatus" type="String[]" label="Asset Status values"/>
+            <property name="includeChildAssets" type="Boolean" label="Include Child Asset (For Asset use case only)"/>
+        </targetConfig>
+    </targetConfigs>   
+</LightningComponentBundle>

@@ -1,0 +1,21 @@
+.svmx-recordPopover_record-preview .slds-col {
+	flex-grow: 1 !important;
+}
+.svmx-recordPopover_tooltip-header div {
+	white-space: normal !important;
+}
+.svmx-recordPopover_tooltip-header div {
+	white-space: normal !important;
+}
+.svmx-recordPopover_tooltip-header .slds-truncate {
+	white-space: normal !important;
+	overflow: visible !important;
+}
+
+.svmx-recordPopover_tooltip-header .slds-table tbody tr.slds-is-selected a, .slds-table:not(.slds-no-row-hover) tr.slds-is-selected:hover a {
+    color: rgba(1, 118, 211, 1) !important;
+}
+
+.svmx-recordPopover_record-action .slds-button__icon {
+    transform: rotate(0deg) !important;
+}

@@ -1,0 +1,75 @@
+<template>
+    <div class="slds-card full-height">
+        <c-svmx-page-header 
+            title={i18n.hierarchy}
+            icon-name={srcIconName}  
+            sub-title={i18n.pageHeader}
+            icon-title={i18n.hierarchy}
+            meta-title={rowCountPhrase}
+            icon-size={iconSize}
+            is-object-home = "Object">      
+                <lightning-button
+                    slot="actions"
+                    label={i18n.new}
+                    title={i18n.new}
+                    icon-name="utility:add"
+                    class="svmx-hierarchy-config-list-view_addnew-btn"
+                    onclick={handleNewHirearchyConfig}
+                ></lightning-button>
+                <lightning-button-icon
+                            icon-name="utility:question"
+                            variant="bare"
+                            alternative-text={i18n.help}
+                            class="svmx-help-link-button slds-m-left_x-small"
+                            title={i18n.help}
+                            size="larges"
+                            slot="actions"
+                            onclick={handleHelpClick}
+                        ></lightning-button-icon>
+                <div class="slds-page-header__controls" slot="object-controls">
+                    <div class="slds-page-header__control">
+                        <lightning-input
+                            type="search"
+                            autocomplete="off"
+                            placeholder={i18n.searchPlaceholder}
+                            variant="label-hidden"
+                            class="slds-size_large svmx-hierarchy-config-list-view_search-input"
+                            onchange={handleSearchKeyChange}
+                        ></lightning-input> 
+                    </div>
+                </div>  
+        </c-svmx-page-header>
+        <template if:true={error}>
+            <c-alert variant="error">
+                {error}
+            </c-alert>
+        </template>
+        <div style={computedDataTableHeight}>
+            <c-x-datatable
+                class="assetHierarchyListViewTable"
+                key-field="id"
+                columns={columns}
+                data={listViewData}
+                onrowaction={handleRowAction}
+                hide-checkbox-column="true"
+                sorted-by={sortBy} 
+                sorted-direction={sortDirection} 
+                default-sort-direction="asc"
+                onsort={handleColumnSort}
+            >
+            </c-x-datatable>
+            <template if:true={apiInProgress}>
+                <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+            </template>
+        </div>
+        <c-modal-dialog title={i18n.deleteModalTitle} class="svmx-hierarchy-config-list-view_delete-modal" is-open={deleteModalDialogOpen} modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={handleCancelModal}>
+            <div slot="body">
+                <p><lightning-formatted-text value={i18n.deleteModalContent}></lightning-formatted-text></p>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal} class="slds-p-right_x-small svmx-delete-hirearchy-config-cancel"></lightning-button>
+                <lightning-button class="confirmButton svmx-delete-hirearchy-config-confirm" label={i18n.confirm} title={i18n.confirm} variant="brand" onclick={handleDeleteConfirmModal}></lightning-button>
+            </div>
+        </c-modal-dialog>        
+    </div>
+</template>

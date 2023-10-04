@@ -1,0 +1,70 @@
+h3 {
+    background: var(--lwc-colorBackground,rgb(243, 242, 242));
+}
+.svmx-card {
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 2px 0 rgb(0 0 0 / 10%);
+    white-space: normal;
+    word-break: break-word;
+}
+
+.svmx-card a:hover {
+    text-decoration: none;
+}
+
+.svmx-card lightning-button-icon {
+    position: relative;
+    top: -2px;
+}
+
+.svmx-card .applied-badge {
+    --sds-c-badge-color-background: #E9F3FC;
+}
+
+.svmx-card .slds-col {
+    margin-bottom: var(--lwc-varSpacingVerticalXxSmall, 0.25rem);
+}
+
+.svmx-card_mapping-values {
+    width: 100%;
+    display: unset;
+    color: #706E6B
+}
+
+.svmx-field_label {
+	color: #706E6B;
+}
+
+.svmx-field_label-black {
+	color: #080707;
+}
+
+.detail-item {
+    padding: var(--lwc-varSpacingVerticalXxxSmall, 0.125rem) var(--lwc-varSpacingVerticalXSmall, 0.5rem);
+}
+
+.detail-item .action-col {
+    opacity: 0;
+}
+
+.detail-item:hover {
+    background-color: #ecebea;
+    cursor: pointer;
+}
+
+.detail-item:hover .action-col {
+    opacity: 1;
+}
+
+.header-item {
+    font-weight: 700;
+    background-color: var(--lwc-colorBackground, rgb(243, 242, 242));
+    border-top: 1px solid var(--lwc-colorBorder,rgb(221, 219, 218));
+}
+
+.svmx-autofill-spinner-container {
+    position: relative;
+    height: 2em;
+    display: inline-block;
+}

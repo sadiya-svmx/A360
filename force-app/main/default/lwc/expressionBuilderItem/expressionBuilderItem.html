@@ -1,0 +1,526 @@
+<template>
+  <template if:true={showView}>
+    <li class={computedLineItemClass}>
+      <fieldset class="flexOverflowContain">
+        <div class={computedContainerClass}>
+          <template if:false={isReadOnly}>
+            <div class="slds-col slds-size-1-of-1 slds-large-size_1-of-12"> 
+              <legend
+                class="slds-p-right_medium slds-p-left_medium slds-float_left expression-row-legend"
+              >
+                <span>{conditionNumber}</span>
+                <span class="slds-assistive-text"
+                  >{i18n.condition} {conditionNumber}</span
+                >
+              </legend>
+            </div>
+            <template if:true={apiInProgress}>
+              <lightning-spinner
+                  variant="brand"
+                  alternative-text={i18n.loading}
+              ></lightning-spinner>
+            </template>
+            <!--  Edit Mode -->
+            <template if:true={editMode}>
+              <div class="slds-col slds-size-1-of-1 slds-large-size_3-of-12">
+                <div class="slds-form-element">
+                  <section class="slds-is-relative ">
+                    <input type="text" 
+                      readonly
+                      class="disabled slds-input slds-combobox__input slds-combobox__input-value value-truncate svmx-expression_relatedpicklistinput" 
+                      placeholder={i18n.select}
+                      value={referenceFieldLabel}
+                      data-field="fieldAPIName" 
+                      onclick={handleFieldChange}
+                      onmouseover={handleMouseOver} 
+                      onmouseout={handleMouseOut}
+                      title={referenceFieldTitle}
+                      />
+                      <template if:true={showTooltip}>
+                        <div class="svmx-expression_tooltip 
+                                slds-popover 
+                                slds-popover_tooltip
+                                slds-nubbin_bottom-left" role="tooltip">
+                            <div class="slds-popover__body slds-p-vertical_xx-small">
+                              {referenceFieldLabel}
+                            </div>
+                        </div>
+                      </template>
+                    </section>
+                    <template if:true={showRelatedPicklistDialog}>
+                      <c-related-field-selector
+                        object-api-name={objectApiName}
+                        source-object-name={detail.sourceObjectName}
+                        object-label-name={objectLabel} 
+                        onrelatedpicklistselected={handleRelatedPicklistSelected}
+                        oncancelmodal={handleCancelRelatedPicklist} 
+                        is-expression-selection="true"
+                        field-value={detail.fieldAPIName}
+                        reference-label={referenceFieldLabel}
+                        related-object-details={detail.relatedObjectDetails}
+                        class="relatedPicklist">
+                      </c-related-field-selector>
+                    </template>
+                </div>
+              </div>
+              <div class="slds-col slds-size-1-of-1 slds-large-size_2-of-12">
+                <div class="slds-form-element">
+                  <div class="slds-form-element__control">
+                    <lightning-combobox
+                      data-field="operator"
+                      class="dataField svmx-expression-edit_item-input_operator"
+                      placeholder={i18n.select}
+                      value={detail.operator}
+                      label={i18n.operator}
+                      options={detail.operatorOptions}
+                      variant="label-hidden"
+                      onchange={handleOperatorChange}
+                      message-when-value-missing={i18n.operatorValidation}
+                      required
+                    ></lightning-combobox>
+                  </div>
+                </div>
+              </div>
+              <template if:true={canHaveOperand}>
+                <div class="slds-col slds-size-1-of-1 slds-large-size_1-of-12">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <lightning-combobox
+                        class="dataField svmx-expression-edit_item-input_value-type"
+                        data-field="operandType"
+                        placeholder={i18n.select}
+                        value={detail.operandType}
+                        label={i18n.operandType}
+                        options={operandTypeOptions}
+                        disabled={detail.operandTypeDisabled}
+                        variant="label-hidden"
+                        onchange={handleOperandTypeChange}
+                        required
+                      ></lightning-combobox>
+                    </div>
+                  </div>
+                </div>
+                <div class="slds-col slds-size-1-of-1 slds-large-size_2-of-12">
+                  <template if:false={isLiteral}>
+                    <template if:false={rowEditMode}>
+                      <template if:true={isOperandExist}>
+                        <div class="slds-form-element__static">
+                          <template if:true={isValue}>
+                            <div class="slds-form-element slds-p-top_xx-small">
+                              <template if:true={viewIsText}>
+                                <lightning-formatted-text
+                                  class="slds-p-right_small svmx-expression-edit_item_value-text"
+                                  value={detail.operand}
+                                ></lightning-formatted-text>
+                              </template>
+                              <template if:true={viewIsDate}>
+                                <lightning-formatted-text
+                                  class="slds-p-right_small svmx-expression-edit_item_value-datetime"
+                                  value={formattedDateTime}
+                                ></lightning-formatted-text>
+                              </template>
+                              <template if:true={viewIsTime}>
+                                <lightning-formatted-time
+                                  class="slds-p-right_small"
+                                  value={detail.operand}
+                                ></lightning-formatted-time>
+                              </template>
+                              <template if:true={viewIsBoolean}>
+                                <lightning-formatted-text
+                                  class="slds-p-right_small svmx-expression-edit_item_value-boolean"
+                                  value={formattedBoolean}
+                                ></lightning-formatted-text>
+                              </template>
+                              <lightning-button-icon
+                                  class="svmx-expression-edit_item_edit slds-float_right"
+                                  title={i18n.editCondition}
+                                  onclick={handleRowEdit}
+                                  icon-class="slds-button__icon_hint"
+                                  icon-name="utility:edit"
+                                  variant="bare"
+                              ></lightning-button-icon>
+                            </div>
+                          </template>
+                          <template if:true={isFunction}>
+                              <div class="slds-form-element slds-p-top_xx-small">
+                                <lightning-formatted-text
+                                  class="slds-p-right_small svmx-expression-edit_item_value-function"
+                                  value={operandLabel}
+                                ></lightning-formatted-text>
+                                <lightning-button-icon
+                                  class="svmx-expression-edit_item_edit slds-float_right"
+                                  title={i18n.editCondition}
+                                  onclick={handleRowEdit}
+                                  icon-class="slds-button__icon_hint"
+                                  icon-name="utility:edit"
+                                  variant="bare"
+                              ></lightning-button-icon>
+                              </div>
+                          </template>
+                        </div>
+                      </template>
+                    </template>
+                    <template if:true={rowEditMode}>
+                      <template if:true={isValue}>
+                        <div class="slds-form-element">
+                          <c-value-input
+                            required
+                            class="dataField svmx-expression-edit_item-input_value"
+                            data-field="operand"
+                            field-definition={detail.fieldDefinition}
+                            meta={lookupConfig}
+                            operator={detail.operator}
+                            variant="label-hidden"
+                            value={detail.operand}
+                            data-line-field="detail.fieldApiName"
+                            data-row-key={detail.fieldApiName}
+                            onvalueinputchange={handleValueChange}
+                          ></c-value-input>
+                        </div>
+                      </template>
+                      <template if:true={isFunction}>
+                        <lightning-combobox
+                          required
+                          class="dataField svmx-expression-edit_item-input_operand"
+                          placeholder={i18n.select}
+                          message-when-value-missing={i18n.enterValueMissing}
+                          data-line-field="detail.operand"
+                          value={detail.operand}
+                          options={functionOptions}
+                          onchange={handleValueChange}
+                          variant="label-hidden"
+                        ></lightning-combobox>
+                      </template>   
+                    </template>
+                </template>
+                <template if:true={isLiteral}>
+                  <template if:true={isFunction}>
+                    <lightning-combobox
+                      required
+                      class="dataField svmx-expression-edit_item-input_operand"
+                      placeholder={i18n.select}
+                      message-when-value-missing={i18n.enterValueMissing}
+                      data-line-field="detail.operand"
+                      value={detail.operand}
+                      options={functionOptions}
+                      onchange={handleValueChange}
+                      variant="label-hidden"
+                    ></lightning-combobox>
+                  </template>  
+                </template>
+                </div>
+                <div class="slds-col slds-size-1-of-1 slds-large-size_2-of-12">
+                    <template if:true={isUserLiteral}>
+                      <div class="slds-form-element">
+                        <section class="slds-is-relative ">
+                          <input type="text" 
+                            readonly
+                            class="disabled slds-input slds-combobox__input slds-combobox__input-value value-truncate svmx-exp_user_relatedpicklistinput" 
+                            placeholder={i18n.select}
+                            value={literalFieldLabel}
+                            data-field="literalParameterAPIName" 
+                            onclick={handleLiteralFieldChange}
+                            onmouseover={handleLiteralMouseOver} 
+                            onmouseout={handleLiteralMouseOut}
+                            />
+                            <template if:true={showLiteralTooltip}>
+                              <div class="svmx-expression_tooltip 
+                                      slds-popover 
+                                      slds-popover_tooltip
+                                      slds-nubbin_bottom-left" role="tooltip">
+                                  <div class="slds-popover__body slds-p-vertical_xx-small">
+                                    {literalFieldLabel}
+                                  </div>
+                              </div>
+                            </template>
+                          </section>
+                          <template if:true={showLiteralRelatedPicklistDialog}>
+                            <c-related-field-selector
+                              object-api-name="User"
+                              object-label-name="User"
+                              onrelatedpicklistselected={handleLiteralRelatedPicklistSelected}
+                              oncancelmodal={handleLiteralCancelRelatedPicklist}
+                              is-compatibility-fields-required="true"
+                              target-field={targetFieldDefinition}
+                              field-value={detail.literalParameterAPIName}
+                              reference-label={literalFieldLabel}
+                              related-object-details={detail.literalRelatedObjectDetails}
+                              class="userLiteralRelatedPicklist">
+                            </c-related-field-selector>
+                          </template>
+                      </div>
+                    </template>
+                    <template if:true={isRecordHeaderLiteral}>
+                      <div class="slds-form-element">
+                        <section class="slds-is-relative ">
+                          <input type="text" 
+                            readonly
+                            class="disabled slds-input slds-combobox__input slds-combobox__input-value value-truncate svmx-exp_header_relatedpicklistinput" 
+                            placeholder={i18n.select}
+                            value={literalFieldLabel}
+                            data-field="literalParameterAPIName" 
+                            onclick={handleLiteralFieldChange}
+                            onmouseover={handleLiteralMouseOver} 
+                            onmouseout={handleLiteralMouseOut}
+                            />
+                            <template if:true={showLiteralTooltip}>
+                              <div class="svmx-expression_tooltip 
+                                      slds-popover 
+                                      slds-popover_tooltip
+                                      slds-nubbin_bottom-left" role="tooltip">
+                                  <div class="slds-popover__body slds-p-vertical_xx-small">
+                                    {recordHeaderLiteralTooltip}
+                                  </div>
+                              </div>
+                            </template>
+                          </section>
+                          <template if:true={showLiteralRelatedPicklistDialog}> 
+                            <c-related-field-selector
+                              object-api-name={headerRecordObject}
+                              source-object-name={sourceObjectName}
+                              object-label-name={headerRecordObjectLabel} 
+                              onrelatedpicklistselected={handleLiteralRelatedPicklistSelected}
+                              oncancelmodal={handleLiteralCancelRelatedPicklist}
+                              is-header-record-selected={isHeaderRecordSelected}
+                              is-compatibility-fields-required="true"
+                              is-expression-selection="true"
+                              target-field={targetFieldDefinition}
+                              field-value={detail.literalParameterAPIName}
+                              reference-label={literalFieldLabel}
+                              related-object-details={detail.literalRelatedObjectDetails}
+                              class="headerLiteralRelatedPicklist">
+                            </c-related-field-selector>
+                          </template>
+                      </div>
+                    </template>
+              </div>
+              </template>
+              <div class="slds-text-align_right slds-col slds-grow-none">
+                <div class="slds-form-element">
+                  <div class="slds-form-element__control">
+                    <lightning-button-icon
+                      class="svmx-expression-edit_item-input_delete"
+                      title={i18n.deleteCondition}
+                      icon-name="utility:delete"
+                      onclick={handleDeleteCondition}
+                      disabled={deleteDisabled}
+                    ></lightning-button-icon>
+                  </div>
+                </div>
+              </div>
+            </template>
+            <!-- View Mode -->
+            <template if:false={editMode}>
+              <div class="slds-col slds-size-1-of-1 slds-large-size_3-of-12">
+                <div class="slds-form-element">
+                  <section class="slds-is-relative ">
+                    <div class="value-truncate">
+                      <lightning-formatted-text
+                        class="slds-p-right_small svmx-expression-edit_item_field-name"
+                        value={referenceFieldLabel} title={referenceFieldTitle} onmouseover={handleMouseOver} onmouseout={handleMouseOut}
+                      ></lightning-formatted-text>
+                    </div>
+                    <template if:true={showTooltip}>
+                      <div class="svmx-expression_tooltip 
+                              slds-popover 
+                              slds-popover_tooltip
+                              slds-nubbin_bottom-left" role="tooltip">
+                          <div class="slds-popover__body slds-p-vertical_xx-small">
+                            {referenceFieldLabel}
+                          </div>
+                      </div>
+                    </template>
+                </section>
+                </div>
+              </div>
+              <div
+                class="slds-col slds-grow-none slds-size-1-of-1 slds-large-size_2-of-12"
+              >
+                <div class="slds-form-element">
+                  <div class="slds-form-element__control">
+                    <lightning-formatted-text
+                      class="slds-p-right_small slds-p-left_medium svmx-expression-edit_item_operator"
+                      value={detail.operatorLabel}
+                    ></lightning-formatted-text>
+                  </div>
+                </div>
+              </div>
+              <template if:true={isValue}>
+                <div
+                  class="slds-col slds-grow-none slds-size-1-of-1 slds-large-size_2-of-12"
+                >
+                  <div class="slds-form-element">
+                    <template if:true={viewIsText}>
+                      <lightning-formatted-text
+                        class="slds-p-right_small svmx-expression-edit_item_value-text"
+                        value={detail.operand}
+                      ></lightning-formatted-text>
+                    </template>
+                    <template if:true={viewIsDate}>
+                      <lightning-formatted-text
+                        class="slds-p-right_small svmx-expression-edit_item_value-datetime"
+                        value={formattedDateTime}
+                      ></lightning-formatted-text>
+                    </template>
+                    <template if:true={viewIsTime}>
+                      <lightning-formatted-time
+                        class="slds-p-right_small"
+                        value={detail.operand}
+                      ></lightning-formatted-time>
+                    </template>
+                    <template if:true={viewIsBoolean}>
+                      <lightning-formatted-text
+                        class="slds-p-right_small svmx-expression-edit_item_value-boolean"
+                        value={formattedBoolean}
+                      ></lightning-formatted-text>
+                    </template>
+                  </div>
+                </div>
+              </template>
+              <template if:true={isFunction}>
+                <div
+                  class="slds-col slds-grow-none slds-size-1-of-1 slds-large-size_2-of-12"
+                >
+                  <div class="slds-form-element">
+                    <lightning-formatted-text
+                      class="slds-p-right_small svmx-expression-edit_item_value-function"
+                      value={operandLabel}
+                    ></lightning-formatted-text>
+                  </div>
+                </div>
+              </template>
+              <template if:true={isLiteral}>
+                <div class="slds-col slds-size-1-of-1 slds-large-size_3-of-12">
+                  <div class="slds-form-element">
+                    <section class="slds-is-relative ">
+                      <div class="value-truncate">
+                        <lightning-formatted-text
+                          class="slds-p-right_small svmx-expression-edit_item_field-name"
+                          value={literalFieldLabel} onmouseover={handleLiteralMouseOver} onmouseout={handleLiteralMouseOut}
+                        ></lightning-formatted-text>
+                      </div>
+                      <template if:true={showLiteralTooltip}>
+                        <div class="svmx-expression_tooltip 
+                                slds-popover 
+                                slds-popover_tooltip
+                                slds-nubbin_bottom-left" role="tooltip">
+                            <div class="slds-popover__body slds-p-vertical_xx-small">
+                              {literalFieldLabel}
+                            </div>
+                        </div>
+                      </template>
+                    </section>
+                  </div>
+                </div>
+              </template>
+              <div class="slds-col slds-shrink-none">
+                <div class="slds-form-element">
+                  <div class="slds-text-align_right slds-form-element__control">
+                    <lightning-button-icon
+                      class="svmx-expression-edit_item_delete"
+                      title={i18n.editCondition}
+                      onclick={toggleEdit}
+                      icon-class="slds-button__icon_hint"
+                      icon-name="utility:edit"
+                      variant="bare"
+                    ></lightning-button-icon>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </template>
+          <template if:true={isReadOnly}>
+            <div class="slds-col slds-size-1-of-1 slds-large-size_1-of-12">
+            <legend
+              class="slds-float_left slds-p-right_medium expression-row-legend"
+            >
+              <span>{conditionNumber}</span>
+              <span class="slds-assistive-text">
+                {i18n.condition} {conditionNumber}
+              </span>
+            </legend>
+            </div>
+            <div class="slds-col slds-size-1-of-1 slds-large-size_6-of-12">
+              <section class="slds-is-relative ">
+                <div class="value-truncate">
+                  <lightning-formatted-text
+                    class="slds-p-right_small svmx-expression-edit_item_field-name"
+                    value={referenceFieldLabel} title={referenceFieldTitle}  onmouseover={handleMouseOver} onmouseout={handleMouseOut}
+                  ></lightning-formatted-text>
+                </div>
+                <template if:true={showTooltip}>
+                  <div class="svmx-expression_tooltip 
+                          slds-popover 
+                          slds-popover_tooltip
+                          slds-nubbin_bottom-left" role="tooltip">
+                      <div class="slds-popover__body slds-p-vertical_xx-small">
+                        {referenceFieldLabel}
+                      </div>
+                  </div>
+                </template>
+              </section>
+            </div>
+            <lightning-formatted-text
+              class="slds-p-right_small slds-p-left_medium svmx-expression-edit_item_operator"
+              value={detail.operatorLabel}
+            ></lightning-formatted-text>
+            <template if:true={isValue}>
+              <template if:true={viewIsText}>
+                <lightning-formatted-text
+                  class="slds-p-right_small svmx-expression-edit_item_value-text"
+                  value={detail.operand}
+                ></lightning-formatted-text>
+              </template>
+              <template if:true={viewIsDate}>
+                <lightning-formatted-text
+                  class="slds-p-right_small svmx-expression-edit_item_value-date"
+                  value={formattedDateTime}
+                ></lightning-formatted-text>
+              </template>
+              <template if:true={viewIsTime}>
+                <lightning-formatted-time
+                  class="slds-p-right_small"
+                  value={detail.operand}
+                ></lightning-formatted-time>
+              </template>
+              <template if:true={viewIsBoolean}>
+                <lightning-formatted-text
+                  class="slds-p-right_small svmx-expression-edit_item_value-boolean"
+                  value={formattedBoolean}
+                ></lightning-formatted-text>
+              </template>
+            </template>
+            <template if:true={isFunction}>
+              <lightning-formatted-text
+                class="slds-p-right_small svmx-expression-edit_item_value-function"
+                value={operandLabel}
+              ></lightning-formatted-text>
+            </template>
+            <template if:true={isLiteral}>
+              <div class="slds-form-element">
+                <section class="slds-is-relative ">
+                  <div class="value-truncate">
+                    <lightning-formatted-text
+                      class="slds-p-right_small svmx-expression-edit_item_field-name"
+                      value={literalFieldLabel} onmouseover={handleLiteralMouseOver} onmouseout={handleLiteralMouseOut}
+                    ></lightning-formatted-text>
+                  </div>
+                  <template if:true={showLiteralTooltip}>
+                    <div class="svmx-expression_tooltip 
+                            slds-popover 
+                            slds-popover_tooltip
+                            slds-nubbin_bottom-left" role="tooltip">
+                        <div class="slds-popover__body slds-p-vertical_xx-small">
+                          {literalFieldLabel}
+                        </div>
+                    </div>
+                  </template>
+                </section>
+              </div>
+            </template>
+          </template>
+        </div>
+      </fieldset>
+    </li>
+  </template>
+</template>

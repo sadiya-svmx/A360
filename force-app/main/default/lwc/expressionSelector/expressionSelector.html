@@ -1,0 +1,168 @@
+<template>
+    <c-modal-dialog
+        size={modalSize}
+        title={selectorModalTitle}
+        is-open={selectorModalOpen}
+        modal-content-id="selectorModalContent"
+        modal-header-id="selectorModalHeader"
+        onmodalclosed={handleCancelModal}
+    >
+        <div slot="body">
+            <div class="svmx-expression_card-background">
+                <template if:true={error}>
+                    <c-alert variant="error">{error}</c-alert>
+                </template>
+                <div class="slds-grid">
+                    <div class="slds-col_bump-right">
+                        <lightning-input
+                            label={i18n.searchPlaceholder}
+                            type="search"
+                            autocomplete="off"
+                            placeholder={i18n.searchPlaceholder}
+                            value={searchString}
+                            variant="label-hidden"
+                            class="slds-size_large svmx-expression_search-input"
+                            onchange={handleSearchKeyChange}
+                        ></lightning-input>
+                    </div>
+                    <div>
+                        <lightning-button
+                            label={i18n.refresh}
+                            title={i18n.refresh}
+                            variant="neutral"
+                            onclick={handleRefresh}
+                            class="slds-p-right_x-small svmx-expression_button-refresh"
+                        ></lightning-button>
+                        <lightning-button
+                            label={i18n.new}
+                            title={i18n.new}
+                            variant="neutral"
+                            onclick={handleNewExpression}
+                            class="svmx-expression_button-new"
+                        ></lightning-button>
+                    </div>
+                </div>
+                <div class="slds-page-header__row slds-m-vertical_x-small">
+                    <div class="slds-page-header__col-meta">
+                        <p class="slds-text-title_bold svmx-row-count">
+                            {rowCount} {i18n.items}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div role="listbox">
+                <ul role="presentation" class="slds-listbox slds-listbox_vertical slds-border_bottom">
+                    <template if:true={hasFilteredListViewData}>
+                        <template iterator:item={filteredListViewData}>
+                            <li key={item.value.id} data-row-id={item.value.id} role="presentation" class={item.value.computedItemCss}>
+                                <div role="presentation" class="slds-media slds-listbox__option slds-listbox__option_entity">
+                                    <span class="slds-media__figure slds-p-top_xxx-small">
+                                        <input
+                                            data-row-id={item.value.id}
+                                            type="radio"
+                                            name="selected"
+                                            value={item.value.selected}
+                                            checked={item.value.selected}
+                                            onclick={handleSelect}
+                                        />                                            
+                                    </span>
+                                    <span class="slds-media__body svmx-expression_option-name">
+                                        <span class="slds-listbox__option-text_entity slds-p-right_x-small" title={item.value.name}>{item.value.name}</span>
+                                    </span>
+                                    <span class="slds-media__body svmx-expression_option-developer-name">
+                                        <span  class="slds-listbox__option-text_entity slds-p-right_x-small slds-p-top_xxx-small" title={item.value.developerName}>
+                                            {item.value.developerName}
+                                        </span>
+                                    </span>
+                                    <span class="slds-no-flex">
+                                        <span class="slds-listbox__option-text_entity info">
+                                            <a data-row-id={item.value.id} onclick={handleExpandItem}>
+                                                <template if:false={item.value.expanded}>{i18n.more}</template>
+                                                <template if:true={item.value.expanded}>{i18n.less}</template>
+                                            </a>
+                                        </span>
+                                    </span>
+                                </div>
+                                <template if:true={item.value.expanded}>
+                                    <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-nowrap">
+                                        <div title={item.value.description} class="slds-truncate_container_75 slds-p-left_x-large slds-m-left_xxx-small">
+                                            <p class="slds-truncate">{item.value.description}</p>
+                                        </div>
+                                        <template if:true={isEditable}>
+                                            <div class="slds-p-right_x-small">
+                                                <template if:true={item.value.editMode}>
+                                                    <div class="slds-p-bottom_xx-small">
+                                                        <lightning-button
+                                                            data-row-id={item.value.id}
+                                                            label={i18n.cancel}
+                                                            title={i18n.cancel}
+                                                            onclick={handleCancelEdit}
+                                                            class="slds-p-right_xx-small slds-p-bottom_xx-small svmx-expression_button-cancel-edit"
+                                                        ></lightning-button>
+                                                        <lightning-button
+                                                            data-row-id={item.value.id}
+                                                            variant="brand"
+                                                            label={i18n.save}
+                                                            title={i18n.save}
+                                                            onclick={handleSave}
+                                                            class="svmx-expression_button-submit-edit slds-p-bottom_xx-small"
+                                                        ></lightning-button>
+                                                    </div>
+                                                </template>
+                                                <template if:false={item.value.editMode}>
+                                                    <lightning-button
+                                                        class="slds-m-left_x-small svmx-expression_button-edit-item"
+                                                        variant="base"
+                                                        label={i18n.editExpression}
+                                                        title="edit"
+                                                        data-row-id={item.value.id}
+                                                        onclick={handleEdit}
+                                                    >
+                                                    </lightning-button>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <div class="slds-p-horizontal_x-small slds-p-bottom_x-small">
+                                        <div class="svmx-expression_editor-background slds-p-around_xx-small">
+                                            <template if:false={item.value.apiInProgress}>
+                                                <c-expression-builder
+                                                    data-row-id={item.value.id}
+                                                    expression-data={item.value.selectedRecord}
+                                                    entity-definition={item.value.selectedEntityDefinition}
+                                                    edit-mode={item.value.editMode}
+                                                    edit-mode-type={pageMode}
+                                                    ontoggleedit={handleEdit}
+                                                >
+                                                </c-expression-builder>
+                                            </template>
+                                            <template if:true={item.value.apiInProgress}>
+                                                <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+                            </li>
+                        </template>
+                    </template>
+                </ul>
+            </div>
+        </div>
+        <div slot="footer">
+            <lightning-button
+                label={i18n.cancel}
+                title={i18n.cancel}
+                variant="neutral"
+                onclick={handleCancelModal}
+                class="slds-p-right_x-small svmx-expression_button-cancel"
+            ></lightning-button>
+            <lightning-button
+                class="svmx-expression_button-apply"
+                label={i18n.apply}
+                title={i18n.apply}
+                variant="brand"
+                onclick={handleApply}
+            ></lightning-button>
+        </div>
+    </c-modal-dialog>
+</template>

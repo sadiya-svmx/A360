@@ -1,0 +1,31 @@
+<template>
+    <template if:true={error}>
+        <c-alert variant="error">{error}</c-alert>
+      </template>
+    <c-auto-configuration-alert></c-auto-configuration-alert>
+    <lightning-layout multiple-rows="true" class="page_width">
+        <lightning-layout-item size="12">
+            <lightning-layout multiple-rows="true">
+                <template if:true={boxTile}>
+                    <template for:each={boxTile} for:item="tile">
+                        <lightning-layout-item padding={tilePadding} size="4" key={title}>
+                            <div class="slds-p-around_x-large">
+                                <c-admin-welcome-page-tile
+                                    icon-name= {tile.cardIcon}
+                                    title= {tile.cardCaption}
+                                    description= {tile.cardDescription}
+                                    button-label= {tile.cardButtonLabel}
+                                    button-url= {tile.cardURL}
+                                >
+                            </c-admin-welcome-page-tile>
+                            </div>
+                        </lightning-layout-item>
+                    </template>
+                </template>
+            </lightning-layout>
+        </lightning-layout-item>
+        <lightning-layout-item class="slds-p-horizontal_x-large" size="12">
+            <c-recently-viewed-list></c-recently-viewed-list>
+        </lightning-layout-item>
+    </lightning-layout>
+</template>

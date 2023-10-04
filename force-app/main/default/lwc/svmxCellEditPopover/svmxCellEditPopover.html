@@ -1,0 +1,133 @@
+<template>
+    <div onfocusout={handleBlur} onfocusin={handleFocus}>
+        <span>
+            <template if:true={isTypeLookupAndHasValue}>
+                <c-svmx-lookup-cell-selected
+                    engine-id={meta.engineId}
+                    icon-name={meta.icon}
+                    obj-name={meta.object}
+                    reference-name-fields={meta.referenceNameFields}
+                    value={initialValue}
+                    editable={isEditable}
+                    oneditcell={handleClick}
+                ></c-svmx-lookup-cell-selected>
+            </template>
+            <template if:true={isPlainCell}>
+                <span class={cellClassnames}>
+                    <div class="svmx-cell-popover-edit svmx-cell-edit_display-value svmx-truncate slds-truncate" 
+                        title={formattedDisplayValue}>
+                        {formattedDisplayValue}
+                    </div>
+                    <!-- Provide the edit icon to trigger opening the Modal -->
+                    <template if:true={isEditable}>
+                        <c-svmx-cell-edit-icon onclick={handleClick}></c-svmx-cell-edit-icon>
+                    </template>
+                </span>
+            </template>
+        </span>
+        <!-- Modal is opened by clicking on the icon above. -->
+        <template if:true={popoverOpen}>
+            <section aria-describedby="editModalHeader" 
+                class="slds-popover slds-popover_edit" 
+                role="dialog"
+                tabindex="-1"
+                style={popoverStyle}>
+                <div id="editModalHeader" 
+                    class="slds-popover--edit slds-popover__body"  
+                    onkeydown={handleKeyDown}>
+                    <div class="slds-form-element__control slds-grow">
+                        <template if:true={isTypeLookup}>
+                            <c-svmx-lookup
+                                class="svmx-cell-edit_lookup"
+                                engine-id={meta.engineId}
+                                advanced-search-config={meta.advancedSearchConfig}
+                                disabled={fieldProps.disabled}
+                                enable-advanced-search={meta.enableAdvancedSearch}
+                                field-api-name={fieldProps.fieldName}
+                                filters={meta.filters}
+                                record-type-infos={meta.recordTypeInfos}
+                                form-fill-mapping-id={meta.formFillMappingId}
+                                icon-name={meta.icon}
+                                debug-label={meta.debugLabel}
+                                target-object-api-name={meta.object}
+                                target-label-api-name={meta.referenceNameFields}
+                                onlookupselect={handleItemSelect}
+                                onclose={handleBlur}
+                                onadvmodal={handleAdvanceModal}
+                                placeholder={meta.placeholder}
+                                required={fieldProps.required}
+                                row-id={fieldProps.rowId}
+                                value={initialValue}
+                                enable-event-property-interface={meta.enableEventPropertyInterface}
+                                nested-popover
+                            ></c-svmx-lookup>
+                        </template>
+                        <template if:true={isTypePicklist}>
+                            <c-combobox-by-record-type
+                                class="svmx-cell-edit_picklist"
+                                disabled={fieldProps.disabled}
+                                filterable
+                                default-record-type-id={defaultRecordTypeId}
+                                record-type-id={recordTypeId}
+                                field-api-name={objectFieldApiName}
+                                controller-field-name={controllerFieldName}
+                                controller-value={controllerValue}
+                                items={meta.options}
+                                multiple={meta.multiple}
+                                onchange={handleItemSelect}
+                                onclose={handleBlur}
+                                placeholder={meta.placeholder}
+                                required={fieldProps.required}
+                                value={initialValue}
+                                variant="standard"
+                                nested-popover
+                            ></c-combobox-by-record-type>
+                        </template>
+                        <template if:true={isTypeTextarea}>
+                            <lightning-textarea
+                                class="svmx-cell-edit_textarea"
+                                disabled={fieldProps.disabled}
+                                name={fieldProps.fieldName}
+                                onchange={handleChange}
+                                onblur={handleBlur}
+                                value={initialValue}
+                                required={fieldProps.required}
+                                max-length={meta.length}
+                            ></lightning-textarea>
+                        </template>
+                        <template if:true={isMultiEditEnabled}>
+                            <lightning-input
+                                class="svmx-cell-edit_multiedit"
+                                data-mass-selection="true"
+                                type="checkbox"
+                                name="dt-iedit-mass-edit"
+                                label={massEditCheckboxLabel}
+                                onchange={handleMassCheckboxChange}
+                            ></lightning-input>
+                        </template>
+                    </div>    
+                </div>    
+                <template if:true={isMultiEditEnabled}>
+                    <div class="slds-popover__footer">
+                        <div class="slds-grid slds-grid_align-end">
+                            <lightning-button
+                                class="svmx-cell-edit_cancelbutton"
+                                label={i18n.buttonCancel}
+                                onclick={handleCancelClick}
+                            ></lightning-button>
+                            <lightning-button
+                                class="svmx-cell-edit_applybutton"
+                                label={i18n.buttonApply}
+                                style="margin-left: .25rem"
+                                variant="brand"
+                                data-form-last-element="true"
+                                onclick={handleApplyClick}
+                            >
+                            </lightning-button>
+                        </div>
+                    </div>
+                </template>    
+            </section>
+        </template>
+    </div>
+</template>

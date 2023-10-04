@@ -1,0 +1,74 @@
+<template>
+    <div class="slds-card">
+        <div class="slds-page-header svmx-service-assignments_list-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <c-service-max-logo-icon
+                                title-text={i18n.pageHeader}
+                                alternative-text={i18n.pageHeader}
+                                icon-size="large"
+                            ></c-service-max-logo-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span>{i18n.pageHeader}</span>
+                                        <span class="slds-page-header__title slds-truncate">{i18n.serviceAssignRulesHeader}</span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              <div class="slds-page-header__col-actions">
+                  <div class="slds-page-header__controls">
+                      <div class="slds-page-header__control">
+                          <ul class="slds-button-group-list">
+                              <li>
+                                  <lightning-button-menu
+                                    alternative-text={i18n.showMenuAltText}
+                                    label={i18n.newRule}
+                                    variant="border"
+                                    onselect={handleNewRule}>
+                                      <template for:each={newButtonItems} for:item="menuItem">
+                                          <lightning-menu-item
+                                            key={menuItem.id}
+                                            value={menuItem.value}
+                                            label={menuItem.label}
+                                            checked={menuItem.checked}>
+                                          </lightning-menu-item>
+                                      </template>
+                                  </lightning-button-menu>
+                                  <lightning-button-icon
+                                    icon-name="utility:help"
+                                    variant="bare"
+                                    alternative-text={i18n.help}
+                                    title={i18n.help}
+                                    onclick={handleHelpClick}
+                                    class="svmx-help-link-button slds-m-left_x-small"
+                                ></lightning-button-icon>
+                              </li>
+                          </ul>
+                      </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <lightning-tabset variant="scoped" class="slds-tabs_medium">
+                <lightning-tab label={i18n.casesSectionHeader}>
+                    <c-service-assignment-rules-list-view object-name={caseObject}></c-service-assignment-rules-list-view>
+                </lightning-tab>
+                <lightning-tab label={i18n.workOrdersSectionHeader}>
+                  <c-service-assignment-rules-list-view object-name={workOrderObject}></c-service-assignment-rules-list-view>
+                </lightning-tab>
+                <lightning-tab label={i18n.returnOrdersSectionHeader}>
+                  <c-service-assignment-rules-list-view object-name={returnOrderObject}></c-service-assignment-rules-list-view>
+                </lightning-tab>
+            </lightning-tabset>
+        </div>
+    </div>
+</template>

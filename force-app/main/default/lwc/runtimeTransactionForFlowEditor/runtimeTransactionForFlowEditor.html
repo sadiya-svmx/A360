@@ -1,0 +1,27 @@
+<template>
+    <template if:true={hasError}>
+        <c-alert variant="error">{error}</c-alert>
+    </template>
+    <c-combobox
+        filterable
+        required
+        placeholder={i18n.searchLayoutPlaceholder}
+        onchange={handleChangeDeveloperName}
+        value={developerName}
+        items={listDeveloperNames}
+        label={i18n.developerName}
+        variant="label-stacked"
+    ></c-combobox>
+    <c-combobox
+        filterable
+        required
+        label={i18n.sourceRecordId}
+        value={recordId}
+        placeholder={i18n.searchResources}
+        data-field="sourceRecordId"
+        message-when-value-missing={i18n.valueMissing}
+        items={recordIdOptions}
+        onchange={handleChangeRecordId}
+        variant="label-stacked"
+    ></c-combobox>
+</template>

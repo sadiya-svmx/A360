@@ -1,0 +1,254 @@
+<template>
+  <!--If plan tempalte recordtype is A360 then load tempalte list view-->
+    <template if:true={isA360RecordType}>
+      <div if:true={isApplicableProductCountZero} class="slds-accordion__summary-heading">
+        <lightning-accordion class="example-accordion" allow-multiple-sections-open
+        active-section-name="ApplicableProductTable">
+        <lightning-accordion-section name="ApplicableProductTable" label={applicableProductTableLabel}>
+          {i18n.labelNoApplicableProducts}
+        </lightning-accordion-section>
+        </lightning-accordion>
+      </div>
+      <div if:false={isApplicableProductCountZero}>
+        <c-mpln-asset-summary-list-view
+          mode='TEMPLATE'
+          mpln-record={maintenancePlanTemplateRecord}
+	  oncloseaddworkrulemodal={closeWorkRuleModal}
+        >
+        </c-mpln-asset-summary-list-view>
+    
+          <div class="slds-grid slds-wrap controls-bottom slds-p-top_medium">
+            <lightning-input if:false={isApplicableProductCountZero} 
+              type="search"
+              autocomplete="off"
+              placeholder={i18n.labelPlaceholderTitle}
+              variant="label-hidden"
+              class="slds-col mpln-quick-find workRuleTemplateSearch"
+              onchange={handleTemplateSummaryTableSearch}
+              title={i18n.labelSearchTitle}>
+            </lightning-input>
+              <lightning-button if:false={isApplicableProductCountZero}
+              icon-name="utility:add"
+              label={i18n.labelWorkRuleTemplate} 
+              title={i18n.labelWorkRuleTemplate}
+              onclick={handleNewApplicableProductClick}
+              disabled={isApplicableProductCountZero}
+              class="slds-m-left_x-small mpln-create-workrule createApWRTemplateBtn">
+            </lightning-button>
+          </div>
+         
+        </div>
+      </template>
+      <template if:false={isA360RecordType}>
+        <template if:true={error}>
+        <c-alert variant="error">{error}</c-alert>
+      </template>
+      <!-- Component Container excluding MODAL dialogs -->
+      <div if:false={isProductApplicableRecordPage} class="container">
+        <lightning-accordion class="example-accordion" allow-multiple-sections-open active-section-name="TemplateTable">
+          <lightning-accordion-section name="TemplateTable" label={templateTableLabel}>
+            <div class="slds-box remove_padding">
+              <lightning-datatable key-field="id" data={templateTable} columns={templateColumns}
+               class="workRuleTemplateDataTable" 
+               onrowaction={handleRowAction} hide-checkbox-column>
+              </lightning-datatable>
+            </div>
+          </lightning-accordion-section>
+    
+        </lightning-accordion>
+        <div class="slds-grid slds-wrap controls-top">
+          <lightning-input 
+            type="search" autocomplete="off"
+            placeholder={i18n.labelPlaceholderTitle}
+            variant="label-hidden"
+            class="slds-col mpln-quick-find workRuleTemplateSearch"
+            onchange={handleTemplateTableSearch}
+            title={i18n.labelSearchTitle}>
+          </lightning-input>
+          <lightning-button 
+            icon-name="utility:add"
+            label={i18n.labelWorkRuleTemplate}
+            title={i18n.labelWorkRuleTemplate} 
+            onclick={handleNewTemplateClick}
+            class="slds-col slds-m-left_x-small mpln-create-workrule">
+          </lightning-button>
+        </div>
+      </div>
+      <div class={appProductContainerCSSClasses}>
+        <lightning-accordion class="example-accordion" allow-multiple-sections-open
+          active-section-name="ApplicableProductTable">
+          <lightning-accordion-section name="ApplicableProductTable" label={applicableProductTableLabel}>
+            <div if:false={isApplicableProductCountZero} class="slds-box remove_padding">
+              <lightning-datatable key-field="id" data={applicableProductTable} columns={applicableProductColumns}
+                class="workRuleTemplateDataTableAP" 
+                onrowaction={handleRowAction} hide-checkbox-column>
+              </lightning-datatable>
+            </div>
+            <div if:true={isApplicableProductCountZero} class="slds-accordion__summary-heading">
+              {i18n.labelNoApplicableProducts}
+            </div>
+          </lightning-accordion-section>
+    
+        </lightning-accordion>
+        <div class="slds-grid slds-wrap controls-bottom">
+          <lightning-input if:false={isApplicableProductCountZero} 
+            type="search"
+            autocomplete="off"
+            placeholder={i18n.labelPlaceholderTitle}
+            variant="label-hidden"
+            class="slds-col mpln-quick-find workRuleTemplateSearch"
+            onchange={handleApplicableProductTableSearch}
+            title={i18n.labelSearchTitle}>
+          </lightning-input>
+            <lightning-button if:false={isApplicableProductCountZero}
+            icon-name="utility:add"
+            label={i18n.labelWorkRuleTemplate} 
+            title={i18n.labelWorkRuleTemplate}
+            onclick={handleNewApplicableProductClick}
+            disabled={isApplicableProductCountZero}
+            class="slds-m-left_x-small mpln-create-workrule createApWRTemplateBtn">
+          </lightning-button>
+        </div>
+       
+      </div>
+    </template>
+      <!-- MODAL DIALOG FOR - Select Applicable Product  -->
+      <c-modal-dialog title={i18n.labelSelectApplicableProduct} size="LARGE" is-open={selectApplicableProductOpen}
+        class="selecApplicableProductDialog"
+        modal-content-id="applicableProductModalContent" modal-header-id="productTypeModalHeader"
+        onmodalclosed={handleNewCancelModal}>
+        <div slot="body">
+          <!-- CONSTRUCTING TABLE  -->
+          <table class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols" role="grid">
+            <thead>
+    
+              <tr class="slds-line-height_reset">
+                <th class="slds-text-align_right" scope="col" style="width:3.25rem">
+                  <div class="slds-truncate slds-assistive-text" title="Choose a row to select">{i18n.labelChooseRow}</div>
+                </th>
+                <template for:each={applicableColumns} for:item="column">
+                  <th key={column.label} aria-label="Name" aria-sort="none" class="slds-is-resizable" scope="col">
+                    <a class="slds-th__action slds-text-link_reset" href="#" role="button" tabindex="-1">
+                      <div class="slds-grid slds-grid_vertical-align-center">
+                        <span class="slds-truncate" title="Name">{column.label}</span>
+                      </div>
+                    </a>
+                  </th>
+                </template>
+              </tr>
+    
+            </thead>
+            <tbody>
+              <template for:each={applicableProductListData} for:item="dataItem">
+                <tr key={dataItem.id} class="slds-hint-parent">
+                  <td class="slds-text-align_right" role="gridcell">
+                    <span class="slds-radio">
+                      <input type="radio" id={dataItem.id} value={dataItem.id} checked={dataItem.isSelected}
+                        onchange={handleProductSelection} name="options" tabindex="-1" class="applicable-product-radio"/>
+                      <label class="slds-radio__label" for={dataItem.id} id={dataItem.workTypeId}>
+                        <span class="slds-radio_faux"></span>
+                        <span class="slds-form-element__label slds-assistive-text">{dataItem.productName}</span>
+                      </label>
+                    </span>
+                  </td>
+                  <th scope="row" tabindex="0">
+                    <div class="slds-truncate">
+                      <a href={dataItem.productUrl} target="_blank" rel="noopener noreferrer" tabindex="-1">{dataItem.productName}</a>
+                    </div>
+                  </th>
+                  <td role="gridcell">
+                    <div class="slds-truncate">
+                      <a 
+                      href= {dataItem.productNameUrl} 
+                      title= {dataItem.productNameUrl} 
+                      target="_blank" rel="noopener noreferrer"
+                      tabindex="-1">{dataItem.product}</a>
+                    </div>
+                  </td>
+                  <td role="gridcell">
+                    <div class="slds-truncate">{dataItem.productFamily}</div>
+                  </td>
+                  <td role="gridcell">
+                    <div class="slds-truncate">
+                      <a 
+                        href= {dataItem.workTypeUrl} 
+                        title= {dataItem.workTypeUrl} 
+                        target="_blank" rel="noopener noreferrer"
+                        tabindex="-1">{dataItem.workType}</a>
+                      </div>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <div slot="footer">
+          <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" 
+            class="slds-p-right_x-small cancelSelectAP"
+            onclick={handleNewCancelModal}></lightning-button>
+          <lightning-button  
+            label={i18n.next} 
+            title={i18n.next} 
+            variant="brand" 
+            onclick={handleNextOfNewAPModal}
+            class="nextBtn"
+            disabled={isProductSelectedNull}></lightning-button>
+        </div>
+      </c-modal-dialog>
+    
+      <!-- MODAL DIALOG FOR - New Work Rule Template  -->
+      <c-modal-dialog title={workRuleTemplateTitle} section-class="sectionHeight" size="SMALL" is-open={openNewWRTemplate}
+        class="workRuleTemplateModalDialog"
+        modal-content-id="productTypeModalContent" modal-header-id="productTypeModalHeader"
+        onmodalclosed={handleNextOfNewAPModalCancel}>
+        <div slot="body">
+          <c-mpln-work-rule-template-detail is-edit={editConfigData.isEdit} selected-product-name={selectedProductName}
+            work-rule-data={editConfigData}></c-mpln-work-rule-template-detail>
+        </div>
+        <div slot="footer">
+          <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" class="slds-p-right_x-small cancelNewWRT"
+            onclick={handleNextOfNewAPModalCancel}></lightning-button>
+          <!-- <lightning-button label={i18n.labelSaveNew} title={i18n.labelSaveNew} variant="neutral"
+                        class="slds-p-right_x-small" onclick={onSaveWorkRuleTemplate}></lightning-button> -->
+          <lightning-button label={i18n.save} title={i18n.save} variant="brand" onclick={onSaveWorkRuleTemplate}
+            class="workRuleTemplateSaveBtn"
+            disabled={isDisableNextButtonOfAPModal}></lightning-button>
+        </div>
+      </c-modal-dialog>
+    
+    
+      <!-- MODAL DIALOG FOR - New Work Rule Template For A360 RecordType  -->
+      <template if:true={openA360NewWRTemplate}>
+    
+        <c-mpln-add-work-rule 
+            show-work-rule-modal={openA360NewWRTemplate} 
+            onclosemodal={handleNextOfNewAPModalCancel}
+            onsaveworkrule={handleSaveWorkRuleInfo}
+            applicable-product-info={applicableProductInfo}
+            row-action='addWorkRuleTemplate'
+        ></c-mpln-add-work-rule>    
+    
+      </template>
+    
+      <template if:true={isServerCallInProgress}>
+        <lightning-spinner variant="brand" size="large" class="serverCallProgress"></lightning-spinner>
+      </template>
+      <!-- MODAL DIALOG FOR DELETION -->
+      <c-modal-dialog title={i18n.labelDeleteWRTTitle} is-open={deleteWRTConfig.showDeleteModal}
+                class="deleteModalDialog"
+                modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={cancelWRTDeleteModal}>
+                <div slot="body">
+                    <p>
+                        <lightning-formatted-text class="slds-align_absolute-center"
+                            value={i18n.labelDeleteConfirmMessage}>
+                        </lightning-formatted-text>
+                    </p>
+                </div>
+                <div slot="footer">
+                    <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={cancelWRTDeleteModal}
+                        class="slds-p-right_x-small svmx-delete-modal_cancel-btn"></lightning-button>
+                    <lightning-button class="svmx-delete-modal_confirm-btn" label={i18n.labelConfirm} title={i18n.labelConfirm} variant="brand"
+                        onclick={handleWRTDeleteConfirm}></lightning-button>
+                </div>
+      </c-modal-dialog>
+    </template>

@@ -1,0 +1,32 @@
+.tile_title {
+    --sds-c-button-text-color: black;
+    --sds-c-button-shadow-focus: black;
+    --sds-c-button-text-color-hover: black;
+}
+
+.media_body {
+    height: 100%;
+    padding: 0 50px;
+}
+
+.tile_description {
+    font-size: 14px;
+}
+
+.card_size {
+    min-width: 320px;
+    max-width: 415px;
+    height: 340px;
+}
+
+.button_tile {
+    margin: 20px 0;
+}
+
+article.slds-tile {
+    height: 103px;
+}
+
+.card-title {
+    font-weight: 700;
+}

@@ -1,0 +1,165 @@
+.border_bottom {
+    border-bottom: solid 1px rgb(221, 219, 218);
+}
+.results_obtained {
+    border:solid 1px var(--lwc-colorBorderInputDisabled,rgb(201, 199, 197));
+    height: 200px;
+    width: 200px;
+    display: flex;
+    flex-direction:column;
+    justify-content:space-evenly;
+    flex-wrap: wrap;
+    align-content: center;
+}
+
+.results_obtained .slds-page-header__title {
+    text-align: center;
+    font-size:63px;
+    width: 100%;
+}
+.center_align {
+    text-align: center;
+    align-content: center;
+}
+.criteria_dialog .slds-radio_button__label {
+    width:200px;
+}
+.slds-m-right_x-small{
+    font-weight: normal;
+    font-size: 13px;
+}
+.title_text {
+    margin-left:4px;
+    display:inline-block;
+}
+
+.title_text{
+    width:105%;
+}
+.exp_index, .exp_fieldName, .exp_operator {
+    display:inline-block;
+    padding:2px;
+    font-weight: 700;
+    font-size:13px;
+}
+.exp_operand{
+    display:block;
+    padding:2px;
+    font-weight: bold;
+    font-size:13px;
+    margin-left:13px;
+    color:rgb(48,183,2);
+}
+
+.fixed_height_expression_list{
+    overflow: hidden;
+    margin-left: 31px;
+    width: 88%;
+}
+
+.psc-search-criteria_adv-expression{
+    overflow: hidden;
+    margin-left: 31px;
+    width: 88%;
+    margin-top: 5px;
+}
+.psc-search-criteria_adv-expression h3{
+    font-size:11px;
+    font-weight:bold;
+    color:rgb(102,102,102);
+}
+.adv_expr_txt {
+    font-size:13px;
+    color:rgb(97,97,97);
+    background-color: rgb(242,242,242);
+    font-weight:bold;
+    padding:3px;
+}
+.card_footer{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+.search_progress {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    background-color: white;
+    opacity: 0.9;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}
+
+.preview_section {
+    position: relative;
+}
+
+.search_progress .content {
+    width: 72%;
+}
+
+.search_progress .content h3 {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.serverCallProgress {
+    top: 0%;
+    width: auto;
+}
+
+.edit_search_btn {
+    position: relative;
+    top: 4px;
+}
+
+.scrollable {
+    position:relative;
+}
+.disable_screen{
+    position:absolute;
+    height:100%;
+    width:100%;
+    opacity: 0.5;
+    z-index:1;
+    background-color: var(--lwc-colorBackgroundInput, rgb(255, 255, 255));
+}
+
+ .hoverButton {
+    position: relative;
+ }
+ .hoverButton .hoverMessage {
+    position: absolute;
+    left: -9999px; 
+    z-index:3;
+    color: var(--lwc-colorBackgroundInput, rgb(255, 255, 255));
+    background-color: var(--lwc-colorBorderError,rgb(194, 57, 52));
+    padding: 8px;
+    width: 377px;
+    top: -21px;
+    border-radius: 10px;
+ }
+
+ .hoverButton:hover .hoverMessage {
+    left: -355%;
+
+ }
+
+ .right_arrow{
+    --sds-c-icon-color-foreground-default: var(--lwc-colorBorderError,rgb(194, 57, 52));
+    left: 96%;
+    top: 17%;
+    position: absolute;
+ }
+
+ .psc-search-card_header {
+    margin-top: -25px;
+ }
+
+ .missing_criteria {
+    font-size: 15px;
+ }

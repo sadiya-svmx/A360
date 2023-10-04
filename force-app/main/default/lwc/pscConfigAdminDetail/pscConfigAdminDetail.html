@@ -1,0 +1,223 @@
+<template>
+    <c-admin-layout>
+        <div class="container">
+            <lightning-layout>
+                <lightning-layout-item flexibility="grow">
+                    <div class="slds-card">
+                        <div class="slds-page-header listViewHeader">
+                            <div class="slds-page-header__row">
+                                <div class="slds-page-header__col-title">
+                                    <div class="slds-media">
+                                        <div class="slds-media__figure">
+                                            <img src={pscLogoUrl} width="40" height="40">
+                                        </div>
+                                        <div class="slds-media__body">
+                                            <div class="slds-page-header__name">
+                                                <div class="slds-page-header__name-title">
+                                                    <h1>
+                                                        <span>{i18n.pageHeader}</span>
+                                                        <span class="slds-page-header__title slds-truncate"
+                                                            title={pscTemplateName}>{pscTemplateName}</span>
+                                                    </h1>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="slds-page-header__col-actions">
+                                    <div class="slds-page-header__controls">
+                                        <div class="slds-page-header__control">
+                                            <lightning-button label={i18n.buttonCancel}
+                                                title={i18n.buttonCancel} onclick={handleCancel}
+                                                class="svmx-psc-config_button-backtolist slds-var-p-right_x-small">
+                                            </lightning-button>
+                                            <lightning-button variant="brand" label={i18n.save}
+                                                title={i18n.save} onclick={handleSave}
+                                                class="svmx-psc-config_button-save">
+                                            </lightning-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-card__body slds-card__body_inner">
+                            <template if:true={error}>
+                                <c-alert variant="error">{error}</c-alert>
+                            </template>
+                            <div class="slds-form" role="list">
+                                <div class="slds-section slds-is-open">
+                                    <h3 class="slds-section__title slds-theme_shade">
+                                        <span class="slds-truncate slds-p-horizontal_small"
+                                            title={i18n.generalInfo}>{i18n.generalInfo}</span>
+                                    </h3>
+                                </div>
+                                <lightning-accordion allow-multiple-sections-open
+                                    active-section-name={activeFormSections}>
+
+                                    <div class="slds-form__row">
+                                        <div class="slds-form__item" role="listitem">
+                                                <div class="slds-form-element slds-form-element_stacked">
+                                                    <lightning-input label={i18n.labelTemplateName} data-field="name"
+                                                        required value={pscTemplateName} onchange={handleNameChange}
+                                                        onblur={handleNameBlur} max-length="80"
+                                                        class="dataField svmx-psc-config_field">
+                                                    </lightning-input>
+                                                </div>
+                                        </div>
+                                        <div class="slds-form__item" role="listitem">
+                                                <div
+                                                    class="slds-form-element slds-form-element_stacked">
+                                                    <lightning-input label={i18n.labelNotificationEmail}
+                                                        data-field="notificationEmail" value={notificationEmail}
+                                                        onchange={handleEmailChange}
+                                                        class="dataField svmx-psc-config_field"></lightning-input>
+                                                </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-form__row">
+                                        <div class="slds-form__item" role="listitem">
+                                            <template if:true={editMode}>
+                                                <div class="slds-form-element slds-form-element_stacked">
+                                                    <lightning-input label={i18n.developerName} readonly="true"
+                                                        data-field="developername" value={pscDeveloperName}
+                                                        onchange={handleDeveloperNameChange}
+                                                        max-length="80" class="dataField svmx-psc-config_field">
+                                                    </lightning-input>
+                                                </div>
+                                            </template>
+                                            <template if:false={editMode}>
+                                                <div class="slds-form-element slds-form-element_stacked">
+                                                    <lightning-input label={i18n.developerName}
+                                                        data-field="developername" value={pscDeveloperName}
+                                                        onchange={handleDeveloperNameChange}
+                                                        max-length="80" class="dataField svmx-psc-config_field">
+                                                    </lightning-input>
+                                                </div>
+                                            </template>
+
+                                        </div>
+                                        <div class="slds-form__item" role="listitem">
+                                                <div class="slds-form-element slds-form-element_stacked">
+                                                    <span class="slds-form-element__label">{i18n.labelActive}</span>
+                                                    <div class="slds-form-element__control">
+                                                        <span
+                                                            class="slds-form-element__static slds-grow word-break-ie11">
+                                                            <lightning-input type="checkbox" name="ruleActive"
+                                                                class="ruleActiveToggle" checked={templateStatus}
+                                                                onchange={handleRuleActiveCheck}></lightning-input>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                        </div>
+                                        
+
+                                    </div>
+                                    <div class="slds-form__row">
+                                        <div class="slds-form__item" role="listitem">
+                                                <div
+                                                    class="slds-form-element slds-form-element_stacked">
+                                                    <lightning-textarea label={i18n.description}
+                                                        data-field="description" value={templateDescription}
+                                                        class="dataField svmx-psc-config_field"
+                                                        onchange={handleDescChange}></lightning-textarea>
+                                                </div>
+                                        </div>
+                                        <div class="slds-form__item" role="listitem"></div>
+                                        
+                                    </div>
+
+
+                                    <div class="slds-section slds-is-open">
+                                        <h3 class="slds-section__title slds-theme_shade">
+                                            <span class="slds-truncate slds-p-horizontal_small"
+                                                title={i18n.labelMapping}>{i18n.labelMapping}</span>
+                                        </h3>
+                                    </div>
+
+                                    <ul>
+                                        {i18n.labelEditorfirstLink}<lightning-button variant="base" label={i18n.labelMappingEditor} title={i18n.labelMappingEditor} onclick={handleMappingEditor} class="slds-m-left_xxx-small"></lightning-button> {i18n.labelEditersecLink}
+                                    </ul>
+                                    <template for:each={itemList} for:item="item" for:index="index">
+                                        <lightning-record-edit-form key={item.id}>
+
+                                            <div class="slds-grid slds-gutters">
+                                                <div class="slds-col slds-size_1-of-4">
+                                                    <lightning-combobox name="progress" label={i18n.lblSourceObject}
+                                                        value={item.sourceObject}
+                                                        placeholder={i18n.lblSourceObject} options={sourceOptions}
+                                                        class='psc-admin-combobox source-combobox' access-key={item.id}
+                                                        onchange={handleSourceChange}>
+                                                    </lightning-combobox>
+                                                </div>
+
+                                                <div class="slds-col slds-size_1-of-4">
+                                                    <lightning-combobox name="progress" label={i18n.lblDeliveryObject}
+                                                        value={item.targetObject}
+                                                        placeholder={i18n.lblDeliveryObject} options={item.deliveryOptions}
+                                                        class='psc-admin-combobox target-combobox' access-key={item.id}
+                                                        onchange={handleTargetChange}>
+                                                    </lightning-combobox>
+                                                </div>
+
+                                                <div class="slds-col slds-size_1-of-4">
+                                                    <lightning-combobox name="progress" label={i18n.lblMappingName}
+                                                        value={item.objectMapping}
+                                                        placeholder={i18n.lblMappingName} options={item.mappingOptions}
+                                                        class='psc-admin-combobox mapping-combobox' access-key={item.id}
+                                                        onchange={handleMappingChange}>
+                                                    </lightning-combobox>
+                                                </div>
+                                                <div class="slds-col slds-align-bottom slds-size_1-of-4">
+                                                    <lightning-button-icon icon-name="utility:delete"
+                                                        title={i18n.deleteCondition} class="slds-m-left_xx-small"
+                                                        access-key={item.id} id={index} onclick={handleDeleteCondition}
+                                                        disabled={deleteDisabled}>
+                                                    </lightning-button-icon>
+                                                </div>
+                                            </div>
+                                            <div class="slds-border_bottom slds-p-top_medium"></div>
+                                        </lightning-record-edit-form>
+                                    </template>
+                                    <div class="slds-expression__buttons">
+                                        <lightning-button label={i18n.addMapping} title={i18n.addMapping}
+                                            icon-name="utility:add"
+                                            class="slds-m-left_x-small svmx-addExpressionCondition"
+                                            onclick={handleAddCondition}></lightning-button>
+                                    </div>
+
+
+
+                                </lightning-accordion>
+                            </div>
+                        </div>
+
+                        <template if:true={apiInProgress}>
+                            <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+                        </template>
+
+                        <c-modal-dialog title={i18n.cancelModalTitle} class="cancelModal"
+                            is-open={cancelModalDialogOpen} modal-content-id="cancelModalContent"
+                            modal-header-id="cancelModalHeader" onmodalclosed={handleCancelModal}>
+                            <div slot="body">
+                                <span slot="body">
+                                    <p>
+                                        <lightning-formatted-text value={i18n.cancelModalContent}>
+                                        </lightning-formatted-text>
+                                    </p>
+                                </span>
+                            </div>
+                            <div slot="footer">
+                                <lightning-button label={i18n.goBack} title={i18n.goBack} variant="neutral"
+                                    onclick={handleCancelModal} class="slds-p-right_x-small"></lightning-button>
+                                <lightning-button class="confirmButton" label={i18n.continue} title={i18n.continue}
+                                    variant="brand" onclick={handleCancelConfirmModal}></lightning-button>
+                            </div>
+                        </c-modal-dialog>
+
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+
+    </c-admin-layout>
+</template>

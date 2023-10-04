@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>A360 – Update Contract Availability Status</masterLabel>
+    <description>Lightning Component to update the value of Contract Availability Status.</description>
+</LightningComponentBundle>

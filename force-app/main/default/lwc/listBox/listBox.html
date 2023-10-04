@@ -1,0 +1,67 @@
+<template>
+    <template if:true={state}>
+        <div class="slds-grid slds-grid_vertical">
+            <div class="slds-page-header cardBackground">
+                <div class="slds-page-header__row">
+                    <div class="slds-page-header__col-meta">
+                            <lightning-input
+                                label={searchPlaceholder}
+                                type="search"
+                                autocomplete="off"
+                                placeholder={searchPlaceholder}
+                                variant="label-hidden"
+                                class="slds-size_large search-input"
+                                onchange={handleSearchKeyChange}
+                            ></lightning-input> 
+                    </div>
+                    <div class="slds-page-header__col-controls">
+                        <div class="slds-page-header__controls">
+                            <slot name="controls"></slot>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-page-header__row">
+                    <div class="slds-page-header__col-meta">
+                        <p class="slds-text-body_small slds-p-vertical_x-small">{rowCount} {itemCountLabel}</p>
+                    </div>
+                </div>
+            </div>
+            <div class={computedTableContainerClass}>
+                <table class="slds-table slds-table_cell-buffer slds-table_header-hidden slds-table_bordered slds-table_fixed-layout">
+                    <thead class="slds-assistive-text">
+                        <tr class="slds-line-height_reset">
+                            <template iterator:column={state.columns}>
+                                <th key={column.value.label} class="" scope="col">
+                                    <div class="slds-truncate" title={column.value.label}>{column.value.label}</div>
+                                </th>
+                            </template>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template iterator:item={state.rows}>
+                            <tr key={item.value.key} class="slds-hint-parent">
+                                <template iterator:cell={item.value.cells}>
+                                    <template if:true={cell.first}>
+                                        <th key={cell.value.key} scope="row">
+                                            <div class="slds-grid slds-grid_vertical-align-center">
+                                                <div class="slds-p-right_x-small">
+                                                    <input data-row-id={item.value.key} type="radio" name="selected" checked={item.value.selected} onclick={handleSelect} class="radio-input"></input>
+                                                </div>
+                                                <div class="slds-col slds-truncate" title={cell.value.tooltip}>{cell.value.value}</div>
+                                            </div>
+                                        </th>
+                                    </template>
+                                    <template if:false={cell.first}>
+                                        <td key={cell.value.key}>
+                                            <div class={cell.value.class} title={cell.value.tooltip}>{cell.value.value}</div>
+                                        </td>
+                                    </template>
+                                </template>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </template>
+</template>

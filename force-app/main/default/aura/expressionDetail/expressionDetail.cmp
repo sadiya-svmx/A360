@@ -1,0 +1,3 @@
+<aura:component implements="lightning:isUrlAddressable">
+    <c:expressionAdminDetail />
+</aura:component>

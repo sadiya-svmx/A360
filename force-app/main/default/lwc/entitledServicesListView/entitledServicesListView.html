@@ -1,0 +1,49 @@
+<template>
+    <lightning-card title={i18n.title} icon-name="standard:entitlement">
+        <template if:true={error}>
+            <c-alert variant="error">{error}</c-alert>
+        </template>
+        <c-entitled-service-detail oncloseandrefreshpage={handleRefresh} ></c-entitled-service-detail>        
+        <div slot="actions" class="slds-grid slds-wrap">
+            <lightning-input type="search" autocomplete="off" placeholder={i18n.searchPlaceholder}
+                variant="label-hidden" title={i18n.searchPlaceholder}
+                class="slds-col svmx-entitled-services-list-view_text-search"
+                onchange={handleSearch}>
+            </lightning-input>
+            <lightning-button icon-name="utility:add" label={i18n.newService} variant="neutral"
+                onclick={handleNewRecord}
+                class="slds-col slds-m-left_x-small svmx-entitled-services-list-view_button-new">
+            </lightning-button>
+        </div>
+        <div class="slds-m-around_medium">
+            <div if:true={listViewRecords} class="slds-text-align_left">
+                {recordCountInfo}
+            </div>
+            <div style={computedDataTableHeight}>
+                <div if:true={apiInProgress} class="slds-is-relative">
+                    <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium">
+                    </lightning-spinner>
+                </div>
+                <div if:true={noRecordsFound} class="slds-align_absolute-center no-data">
+                    {i18n.noResults}
+                </div>
+                <template if:true={listViewRecords}>
+                    <lightning-datatable
+                        class="svmx-entitled-services-list-view_table"
+                        key-field="id"
+                        data={listViewRecords}
+                        columns={columns}
+                        onrowaction={handleRowAction}
+                        hide-checkbox-column
+                        default-sort-direction={sortDirection}
+                        sorted-direction={sortDirection}
+                        sorted-by={sortBy}
+                        onsort={handleColumnSort}
+                        enable-infinite-loading
+                        onloadmore={handleLoadMore}>
+                    </lightning-datatable>
+                </template>
+            </div>
+        </div>
+    </lightning-card>
+</template>

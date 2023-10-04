@@ -1,0 +1,113 @@
+<template>
+    <div class={computedComboboxClass}>
+        <label class={computedLabelClass} for="input">
+            <template if:true={required}>
+                <abbr class="slds-required" title={i18n.required}>*</abbr>
+            </template>
+            {label}
+        </label>    
+        
+        <lightning-helptext if:true={_fieldLevelHelp} content={_fieldLevelHelp}></lightning-helptext>
+        
+        <div class="svmx-combobox__dropdown slds-form-element__control">
+            <template if:true={readOnly}>
+                <div class="slds-form-element__static">{computedInputValue}</div>
+            </template>
+            <template if:false={readOnly}>
+                <div class="slds-combobox_container">
+                    <div class={computedDropdownTriggerClass} aria-expanded={computedAriaExpanded} aria-haspopup="listbox" role="combobox" onclick={handleTriggerClick}>
+                    <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                        <input type="text" 
+                            class={computedInputClass} 
+                            id="input" 
+                            aria-controls="listbox-id-7" 
+                            autocomplete="off" 
+                            aria-autocomplete="none"
+                            role="textbox" 
+                            disabled={disabled} 
+                            placeholder={placeholder} 
+                            readonly 
+                            value={computedInputValue}
+                            onfocus={handleFocus}
+                            onselect={handleInputSelect}
+                            onblur={handleBlur}
+                            />
+                        <lightning-icon icon-name="utility:down" size="xx-small" class="slds-input__icon slds-input__icon_right"></lightning-icon>
+                    </div>
+                    <div id="dropdown-element"
+                        data-dropdown-element
+                        class="slds-dropdown slds-dropdown_length-7 slds-dropdown_fluid"
+                        role="listbox"
+                        onscroll={handleListboxScroll}
+                        onmousedown={handleDropdownMouseDown}
+                        onmouseleave={handleDropdownMouseLeave}
+                        onclick={handleDropdownClick}>
+                        <template if:true={_hasDropdownOpened}>
+                            <template if:true={_filterable}>
+                                <div class="slds-m-around_xx-small">
+                                    <lightning-input
+                                        class="combo-search-input" 
+                                        type="search" 
+                                        autocomplete="off" 
+                                        label={i18n.searchPlaceholder} 
+                                        variant="label-hidden" 
+                                        onfocus={handleSearchInputFocus} 
+                                        onblur={handleSearchInputBlur} 
+                                        onchange={handleSearchKeyChange}
+                                        value={_searchInputValue}></lightning-input>
+                                </div>
+                            </template>
+                            <div class={computedListBoxClass}>
+                                <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                    <template for:each={filteredItems} for:item="item">
+                                        <li role="presentation" key={item.value} class="slds-listbox__item">
+                                            <div aria-checked="true" id={item.value} data-value={item.value} onclick={handleOptionClick} class={item.containerCss} role="option">
+                                                <span class="slds-media__figure slds-listbox__option-icon">
+                                                    <template if:true={item.highlight}>
+                                                        <lightning-icon icon-name="utility:check" size="x-small"></lightning-icon>
+                                                    </template>
+                                                </span>
+                                                <template if:true={item.iconName}>
+                                                    <span class="slds-media__figure">
+                                                        <lightning-icon size="x-small" icon-name={item.iconName}></lightning-icon>
+                                                    </span>
+                                                </template>
+                                                <span class="slds-media__body">
+                                                    <span class="slds-listbox__option-text slds-listbox__option-text_entity">{item.label}</span>
+                                                    <template if:true={item.secondary}>
+                                                        <span class="slds-listbox__option-meta slds-listbox__option-meta_entity slds-text-color_inverse-weak">{item.secondary}</span>                                        
+                                                    </template>
+                                                </span>
+                                            </div>
+                                        </li>
+                                    </template>
+                                </ul>
+                                <template if:true={showDropdownActivityIndicator}>
+                                    <div role="presentation" class="slds-listbox__item">
+                                        <div class="slds-align_absolute-center slds-p-top_medium">
+                                            <div role="status" class="slds-spinner slds-spinner_x-small slds-spinner_inline">
+                                                <span class="slds-assistive-text">{i18n.loadingText}</span>
+                                                <div class="slds-spinner__dot-a"></div>
+                                                <div class="slds-spinner__dot-b"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>                        
+                            </div>
+    
+                        </template>
+                    </div>
+                    </div>
+                </div>
+            </template>
+            <template if:true={showPills}>
+                <div class="slds-listbox_selection-group selection-group">
+                    <lightning-pill-container items={selectedPills} variant="bare" onitemremove={handlePillRemove}></lightning-pill-container>
+                </div>
+            </template>
+        </div>
+        <template if:true={_helpMessage}>
+            <div id="help-text" data-help-text class="slds-form-element__help" aria-live="assertive">{_helpMessage}</div>
+        </template>
+    </div>
+</template>

@@ -1,0 +1,24 @@
+<template>
+    <div>
+        <div style={containerStyle} data-displaysequencecontainer>
+            <template for:each={tokens} for:item="token">
+                <span
+                    key={token.index}
+                    class={token.classList}
+                    data-displaytoken
+                    data-isterminator={token.isTerminator}
+                >
+                    {token.value}
+                </span>
+            </template>
+        </div>
+        <span
+            if:true={isCollapsible}
+            onclick={toggleShowMore}
+            class="slds-text-link svmx-text-link"
+            data-expandcollapselink
+        >
+            {expandCollapseLinkText}
+        </span>
+    </div>
+</template>

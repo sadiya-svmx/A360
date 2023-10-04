@@ -1,0 +1,201 @@
+<template>
+    <div class={computedFormClass} onfocusout={handleRootBlur} onfocusin={handleRootFocus}>
+        <template if:false={_multiple}>
+            <div
+                class={computedTriggerClass}
+                aria-expanded="true"
+                aria-haspopup="listbox"
+                role="combobox"
+            >
+                <label class={computedLabelClass}>
+                    <template if:true={required}>
+                        <abbr
+                            class="slds-required"
+                            title={i18n.required}
+                        >*</abbr>
+                    </template>
+                    {label}
+                    <lightning-helptext
+                        if:true={fieldLevelHelp}
+                        content={fieldLevelHelp}
+                        class="svmx-lookup_help-icon"
+                    ></lightning-helptext>
+                </label>
+                <!-- pill for selected item - when read only -->
+                <template if:true={hasSelectionAndReadOnly}>
+                    <c-svmx-lookup-value
+                        icon={iconName}
+                        label={selectionLabel}
+                    ></c-svmx-lookup-value>
+                </template>
+
+                <!-- pill for selected item - when in cell mode -->
+                <template if:true={hasSelectionAndInCell}>
+                    <c-svmx-lookup-value
+                        icon={iconName}
+                        label={selectionLabel}
+                        is-cell
+                        editable={editable}
+                    ></c-svmx-lookup-value>
+                </template>
+
+                <!-- pill for selected item -->
+                <template if:true={hasSelectionAndNotInCell}>
+                    <div class={computedPillClass}>
+                        <span class="svmx-pill slds-pill" tabindex="0" onblur={handleBlur}>
+                            <span class="slds-pill__icon_container">
+                                <lightning-icon
+                                    icon-name={iconName}
+                                    alternative-text={iconName}
+                                    size="x-small"
+                                ></lightning-icon>
+                            </span>
+                            <span class="slds-pill__label">{selectionLabel}</span>
+                            <template if:false={disabled}>
+                                <lightning-button-icon
+                                    class="slds-pill__remove"
+                                    icon-name="utility:close"
+                                    size="x-small"
+                                    variant="bare"
+                                    onfocus={handlePillFocus}
+                                    onclick={handleRemovePill}>
+                                ></lightning-button-icon>
+                            </template>
+                        </span>
+                    </div>
+                </template>
+                <!-- search input with an icon -->
+                <template if:true={allowInput}>
+                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon--right">
+                        <lightning-icon
+                            onclick={handleSearchTermClick}
+                            icon-name="utility:search"
+                            class="slds-input__icon"
+                            size="xx-small"
+                        ></lightning-icon>
+                        <lightning-input
+                            disabled={disabled}
+                            value={searchTerm}
+                            onclick={handleSearchTermClick}
+                            onblur={handleBlur}
+                            onfocus={handleFocus}
+                            onchange={handleSearchTermChange}
+                            variant="label-hidden"
+                            autocomplete="off"
+                            placeholder={placeholder}
+                            class="svmx-lookup_search-input"
+                        ></lightning-input>
+                    </div>
+                
+                    <!-- options dropdown -->
+                    <div id="dropdown-element"
+                        data-dropdown-element
+                        role="listbox"
+                        class={computedDropDownListClass}
+                        onmousedown={handleDropdownMouseDown}
+                        onmouseleave={handleDropdownMouseLeave}
+                    >
+                        <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                            <li
+                                class="svmx-lookup_advanced-search-trigger slds-listbox__item"
+                                onclick={handleAdvancedSearchSelect}
+                                role="presentation"
+                            >
+                                <div
+                                    class="slds-media slds-listbox__option slds-listbox__option_entity slds-media_center"
+                                    role="option"
+                                >
+                                    <span class="slds-media__figure slds-listbox__option-icon">
+                                        <lightning-icon
+                                            class="slds-icon-text-default"
+                                            icon-name="utility:search"
+                                            size="xx-small"
+                                        ></lightning-icon>
+                                    </span>
+                                    <span class="svmx-lookup_listbox-option_body slds-media__body">
+                                        <span class="slds-listbox__option-text slds-listbox__option-text_entity">{searchLabel}</span>
+                                    </span>
+                                </div>
+                            </li>
+                            <template for:each={options} for:item="item">
+                                <li
+                                    key={item.Id}
+                                    onclick={handleSelect}
+                                    data-id={item.Id}
+                                    role="presentation"
+                                    class="slds-listbox__item"
+                                >
+                                    <div
+                                        class={item.cssClass}
+                                        role="option"
+                                    >
+                                        <span class="slds-media__figure slds-listbox__option-icon">
+                                            <lightning-icon
+                                                class="slds-icon-text-default"
+                                                icon-name={iconName}
+                                                alternative-text={resolvedTargetObjectApiName}
+                                                size="small"
+                                            ></lightning-icon>
+                                        </span>
+                                        <span class="svmx-lookup_listbox-option_body slds-media__body">
+                                            <span class="slds-listbox__option-text slds-listbox__option-text_entity slds-truncate">{item.label}</span>
+                                            <span
+                                                if:true={item.secondaryLabel}
+                                                class="slds-listbox__option-meta slds-listbox__option-meta_entity"
+                                            >{item.secondaryLabel}</span>
+                                            <span
+                                                if:true={showRelationshipValue}
+                                                class="slds-listbox__option-meta slds-listbox__option-meta_entity"
+                                            >{item.relatedLabel}</span>
+                                        </span>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </template>
+            </div>
+            <template if:true={hasHelpMessage}>
+                <div
+                    id="help-text"
+                    data-help-text
+                    class="slds-form-element__help"
+                    aria-live="assertive"
+                >{helpMessage}</div>
+            </template>
+        </template>
+
+        <template if:true={_multiple}>
+            <lightning-button
+                class="svmx-button_multiadd-item"
+                label={label}
+                onclick={handleAdvancedSearchSelect}
+                title={label}
+            ></lightning-button>
+        </template>
+        <!--  Advanced look upmodel -->
+        <div if:true={_showAdvancedSearchModal}>
+            <!-- TODO: Migrate this with maximum re-use -->
+            <c-lookup-advanced-search-modal
+                search-term={searchTerm}
+                results={options}
+                columns={_advancedSearchColumns}
+                onsearch={handleAdvancedModalSearch}
+                context-label={lookupMatchingFieldLabel}
+                context-value={contextValue}
+                context-record-label={contextRecordLabel}
+                object-api-name={targetObjectApiName}
+                object-label={targetObjectLabel}
+                object-plural-label={targetObjectPluralLabel}
+                override-lookup-context={_overrideLookupContext}
+                onmodallookupselect={modalLookupSelect}
+                onmodalmultiaddselect={modalMultiAddSelect}
+                oncancel={captureCancel}
+                nested-modal={nestedModal}
+                api-in-progress={apiInProgress}
+                multiple={_multiple}
+                is-debugging-enabled={isDebuggingEnabledForApplication}
+            ></c-lookup-advanced-search-modal>
+        </div>
+    </div>
+</template>

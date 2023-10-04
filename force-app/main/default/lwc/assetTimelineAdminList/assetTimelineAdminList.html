@@ -1,0 +1,79 @@
+<template>
+  <div class="slds-card full-height">
+    <c-svmx-page-header 
+            title={i18n.labelTimelineList}
+            icon-name={srcIconName}
+            sub-title={i18n.labelAssetManagement}
+            icon-title={i18n.labelTimelineList}
+            meta-title={recordCountPhrase}
+            icon-size={iconSize}
+            is-object-home = "Object">      
+                <lightning-button
+                    slot="actions"
+                    label={i18n.new}
+                    title={i18n.new}
+                    icon-name="utility:add"
+                    class="svmx-addNewConfig"
+                    onclick={handleNewConfig}
+                ></lightning-button> 
+                <lightning-button-icon
+                    icon-name="utility:question"
+                    variant="bare"
+                    alternative-text={i18n.help}
+                    class="svmx-help-link-button slds-m-left_x-small"
+                    title={i18n.help}
+                    slot="actions"
+                    onclick={handleHelpClick}
+                ></lightning-button-icon>
+                <div class="slds-page-header__controls" slot="object-controls">
+                    <div class="slds-page-header__control">
+                        <lightning-input
+                            type="search"
+                            autocomplete="off"
+                            placeholder={i18n.searchPlaceholder}
+                            variant="label-hidden"
+                            class="slds-size_large search-input"
+                            onchange={handleSearchKeyChange}
+                        ></lightning-input> 
+                    </div>
+                </div>  
+        </c-svmx-page-header>
+    <div >
+        <div >
+          <template if:true={error}>
+            <div class="slds-text-color_error svmx-error">{error}</div>
+        </template>
+          <c-x-datatable
+                class="timelineConfigListViewTable"
+                key-field="id"
+                data={filteredListViewData}
+                columns={columns}
+                hide-checkbox-column="true"
+                onrowaction={handleRowAction}
+                sorted-by={sortBy} 
+                sorted-direction={sortDirection} 
+                default-sort-direction="asc"
+                onsort={handleColumnSort}
+            >
+            </c-x-datatable>
+            <template if:true={apiInProgress}>
+              <lightning-spinner
+                  variant="brand"
+                  alternative-text={i18n.loading}
+              ></lightning-spinner>
+            </template>
+
+        </div>
+
+    </div>
+    <c-modal-dialog title={i18n.deleteModalTitle} class="deleteModal" is-open={deleteModalDialogOpen} modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={handleCancelModal}>
+        <div slot="body">
+            <p><lightning-formatted-text value={i18n.deleteModalContent}></lightning-formatted-text></p>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal} class="slds-p-right_x-small svmx-deleteConfigCancel"></lightning-button>
+            <lightning-button class="confirmButton svmx-deleteConfigConfirm" label={i18n.confirm} title={i18n.confirm} variant="brand" onclick={handleDeleteConfirmModal}></lightning-button>
+        </div>
+    </c-modal-dialog>     
+  </div>
+</template>

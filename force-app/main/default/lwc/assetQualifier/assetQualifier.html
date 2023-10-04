@@ -1,0 +1,45 @@
+<template>
+    <lightning-card variant="Narrow" icon-name="standard:task">
+        <h1 slot="title" class="slds-page-header__title">
+            {i18n.title_AssetQualifier}
+        </h1>
+        <template if:true={editable}>
+            <lightning-button label={actionTitle} slot="actions" title={actionTitle} onclick={handleClick}
+                class="slds-var-m-left_x-small">
+            </lightning-button>
+        </template>
+        <template if:true={qualifierFound}>
+            <template if:true={editable}>
+                <lightning-button-menu slot="actions" menu-alignment='right' onselect={handleRemoveAsset}>
+                    <lightning-menu-item label={i18n.button_removeAsset}>
+                    </lightning-menu-item>
+                </lightning-button-menu>
+            </template>
+            <c-expressionpreview expression-record-id={expressionObjId} editable={editable}></c-expressionpreview>
+        </template>
+        <template if:false={qualifierFound}>
+            <c-svmx-illustrator image-name="custom:no_task" heading={i18n.txt_NoQualfier}></c-svmx-illustrator>
+            <template if:true={editable}>
+                <p
+                    class="slds-var-p-horizontal_medium slds-var-m-vertical_small slds-text-align_center slds-hyphenate slds-line-clamp">
+                    {i18n.txt_AddQualifier}
+                </p>
+            </template>
+        </template>
+    </lightning-card>
+    <c-expression-selector class="slds-hyphenate slds-line-clamp" selector-modal-title={i18n.title_modalTitle}
+        selector-modal-open={selectorModalOpen} object-api-name={assetObjectApiName} curr-record-id={expressionObjId}
+        onexpressionselectorclosed={handleCloseModal} onexpressionselected={handleSelected} page-mode="read">
+    </c-expression-selector>
+    <c-modal-dialog title={i18n.title_removeAssetQualifer} is-open={confirmRemove} size="SMALL"
+        onmodalclosed={handleCloseConfirmationModal}>
+        <div slot="body" class="slds-text-align_center">{i18n.message_removeAssetQalifier}</div>
+        <div slot="footer">
+            <lightning-button label={i18n.button_cancel} title={i18n.button_cancel} variant="neutral"
+                onclick={handleCloseConfirmationModal} class="slds-p-right_x-small flowSelectorCancelButton">
+            </lightning-button>
+            <lightning-button label={i18n.button_Remove} title={i18n.button_Remove} variant="destructive"
+                onclick={handleRemove} class="flowSelectorApplyButton"></lightning-button>
+        </div>
+    </c-modal-dialog>
+</template>

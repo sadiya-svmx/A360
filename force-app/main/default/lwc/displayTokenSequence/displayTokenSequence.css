@@ -1,0 +1,21 @@
+.svmx-display_block {
+    display: block;
+}
+
+.svmx-display_inline-block {
+    display: inline-block;
+}
+
+.svmx-text-color_strong {
+    font-weight: bold;
+}
+
+.svmx-text-color_weak {
+    color: rgb(112, 110, 107);
+}
+
+.svmx-text-link {
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+}

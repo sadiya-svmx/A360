@@ -1,0 +1,14 @@
+export const TRANSACTION_EDITOR = '/lightning/cmp/SVMXA360__transactionEditor';
+export const LAYOUT_EDITOR = '/lightning/cmp/SVMXA360__LayoutEditor';
+export const EXPRESSION_EDITOR = '/lightning/cmp/SVMXA360__expressionDetail';
+export const MAPPING_EDITOR = '/lightning/cmp/SVMXA360__mappingDetail';
+export const ASSET_HIERARCHY_DETAIL_VIEW = '/lightning/cmp/SVMXA360__hierarchyConfigDetail';
+export const ASSET_TIMELINE_DETAIL_VIEW = '/lightning/cmp/SVMXA360__timelineConfigDetail';
+export const SETUP_HOME = '/lightning/n/SVMXA360__setupHome';
+export const PSC_CONFIGURATION_TEMPLATES = '/lightning/cmp/SVMXA360__pscConfigurationDetails';
+export const WIZARD_DETAIL_VIEW = '/lightning/cmp/SVMXA360__wizardDetail';
+export const AUTOMATIC_RULE_VIEW = '/lightning/cmp/SVMXA360__entitlementRuleDetail';
+export const SERVICE_ASSIGNMENT_RULES = '/lightning/cmp/SVMXA360__serviceAssignmentRuleDetail';
+export const PRICEBOOK_ASSIGNMENT_RULES = '/lightning/cmp/SVMXA360__pricebookAssignmentRuleDetail';
+export const TEMPLATE_RULES = '/lightning/cmp/SVMXA360__matchRuleDetailAura';
+export const MAINTENANCE_PLAN_PROCESS = '/lightning/cmp/SVMXA360__adminMPLNProcessDetail';

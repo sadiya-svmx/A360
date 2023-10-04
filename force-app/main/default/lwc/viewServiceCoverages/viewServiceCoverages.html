@@ -1,0 +1,525 @@
+<template>
+
+    <div class="slds-card slds-card_boundary svmx_view_service_coverage">
+
+            <div class="slds-card slds-card_boundary">
+                <header if:false={regionIsSmall} class="slds-modal__header slds-text-heading_medium">
+                    <h2 slot="title" class="slds-text-heading_small slds-text-align_left slds-m-left_x-small"><b>{headerLabel}</b> <a target={sourceObjectRecordId} onclick={viewSourceObjectRecord}>{sourceObjectRecordName}</a>{coveredByFieldLabel}
+                        <lightning-button-icon icon-name="utility:settings" alternative-text={i18n.options} onclick={handleFilter} variant={computedVariant} class="slds-float_right"> </lightning-button-icon>
+                    </h2>
+                </header>
+
+                <div class="slds-card__body slds-card__body_inner">
+
+                    <template if:true={error}>
+                        <c-alert variant="error">{error}</c-alert>
+                    </template>
+
+                    <div if:false={regionIsSmall} class="ViewServiceCoverage_sidebar_validation">
+                        
+                        <div class="slds-grid ViewServiceCoverage_tables">
+                            <div if:true={showIllustration} class="slds-grid slds-grid_align-center ViewServiceCoverages_illustration-wrapper">
+                                <c-svmx-illustrator class="ViewServiceCoverages_illustration" image-name={illustrationImageName} heading={illustrationHeading} message-body={illustrationMessage}></c-svmx-illustrator>
+                            </div>
+
+                            <template if:false={showIllustration}>
+                                <div class="slds-card slds-card_boundary slds-accordion slds-m-left_xx-small slds-m-right_xx-small ViewServiceCoverages_datatable-style">
+                                    <lightning-accordion allow-multiple-sections-open active-section-name={activeSections}>
+                                        <lightning-accordion-section name="warrantySection" label={warrantyLabel} style="width:97%;" class="slds-align_absolute-center">
+                                            <div if:false={hasWarrantyData} class="slds-box slds-box_x-small">
+                                                <i>{i18n.noCoverageFound}</i>
+                                            </div>
+                                            <div if:true={hasWarrantyData} class="slds-table--header-fixed_container slds-border_top slds-border_bottom" style={warrantyStyle}>
+                                                <div class="slds-scrollable_y" style="height:100%;">
+                                                    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-no-row-hover slds-table_fixed-layout svmx-ever-warranty-table slds-table--header-fixed" role="grid">
+
+                                                            <thead>
+                                                                <tr class="slds-line-height_reset">
+
+                                                                    <th role="gridcell">
+                                                                        <div class="slds-truncate slds-cell-fixed slds-align_absolute-center" title={i18n.coverage}>
+                                                                        {i18n.coverage}
+                                                                        </div>
+                                                                    </th>
+
+                                                                    <th role="gridcell">
+                                                                        <div class="slds-truncate slds-cell-fixed slds-align_absolute-center" title={i18n.startDate}>
+                                                                            <lightning-icon icon-name="utility:date_input" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                                                            {i18n.startDate}
+                                                                        </div>
+                                                                    </th>
+                                                                    <th role="gridcell">
+                                                                        <div class="slds-truncate slds-cell-fixed slds-align_absolute-center" title={i18n.endDate}>
+                                                                            <lightning-icon icon-name="utility:date_input" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                                                            {i18n.endDate}
+                                                                        </div>
+                                                                    </th>
+                                                                    <th role="gridcell">
+                                                                        <div class="slds-truncate slds-cell-fixed slds-align_absolute-center" title={i18n.term}>
+                                                                            {i18n.term}
+                                                                        </div>
+                                                                    </th>
+                                                                    <template if:false={showModal}>
+                                                                        <th role="gridcell">
+                                                                            <div class="slds-truncate slds-cell-fixed slds-align_absolute-center" title={i18n.warrantyType}>
+                                                                                {i18n.warrantyType}
+                                                                            </div>
+                                                                        </th>
+                                                                        <th role="gridcell">
+                                                                            <div class="slds-truncate slds-cell-fixed slds-align_absolute-center" title={i18n.coveredBy}>
+                                                                                {i18n.coveredBy}
+                                                                            </div>
+                                                                        </th>
+                                                                    </template>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <template for:each={dispWarrantyList} for:item="warranty" for:index="indexval">
+                                                                    <tr key={warranty.id} class={warranty.rowClass} style="height: 30px;">
+
+                                                                        <th role="gridcell" class="slds-truncate">
+                                                                            <div class="slds-truncate">
+                                                                            <a tabindex="-1" target={warranty.id} onclick={viewWarrantyRecord}
+                                                                            class="svmx-warranty-record" data-value={warranty.name}
+                                                                            onmouseover={previewWarrantyRecord} onmouseout={handleMouseOut}>{warranty.name}
+                                                                        </a>
+                                                                            </div>
+                                                                        </th>
+                                                                        <th role="gridcell">
+                                                                            <div class="slds-truncate">
+                                                                            <lightning-formatted-date-time value={warranty.startDate} time-zone={i18n.timeZone} class="slds-m-left_large"></lightning-formatted-date-time>
+                                                                        </div>
+                                                                        </th>
+                                                                        <th role="gridcell">
+                                                                            <div class="slds-truncate">
+                                                                                <template if:true={warranty.showEndDatePopover}>
+                                                                                    <lightning-icon icon-name="utility:clock" variant={warranty.endDateVariant} size="x-small"
+                                                                                                    class="slds-m-right_x-small svmx-end-date" onmouseover={warrantyEndDatePopover} onmouseout={hideEndDatePopover}
+                                                                                                    data-id={warranty.id}>
+                                                                                    </lightning-icon>
+                                                                                </template>
+                                                                                <lightning-formatted-date-time value={warranty.endDate} time-zone={i18n.timeZone} class={warranty.endDateClass}> </lightning-formatted-date-time>
+                                                                            </div>
+                                                                        </th>
+                                                                        <th role="gridcell" class="slds-truncate">
+                                                                            <div class="slds-truncate">
+                                                                            <a target={warranty.termId} onclick={viewTermRecord} data-value={warranty.termName} class="svmx-warranty-term-record"
+                                                                                onmouseover={previewWarrantyTermRecord} onmouseout={handleMouseOut}>{warranty.termName}</a>
+                                                                            </div>
+                                                                        </th>
+                                                                        <template if:false={showModal}>
+                                                                            <th role="gridcell">
+                                                                                <div class="slds-truncate"> {warranty.warrantyType} </div>
+                                                                            </th>
+                                                                            <th role="gridcell">
+                                                                                <template if:true={showComponent}>
+                                                                                    <template if:true={warranty.assetId}>
+                                                                                        <a target={warranty.assetId} onclick={viewAssetRecord} data-value={warranty.trackedBy} class="svmx-asset-record"
+                                                                                            onmouseover={previewAssetRecord} onmouseout={handleMouseOut}>{warranty.trackedBy}
+                                                                                        </a>
+                                                                                    </template>
+                                                                                    <template if:false={warranty.assetId}>
+                                                                                        <div class="slds-truncate"> {warranty.trackedBy} </div>
+                                                                                    </template>
+                                                                                </template>
+                                                                                <template if:false={showComponent}>
+                                                                                    <template if:true={warranty.accountId}>
+                                                                                        <a target={warranty.accountId} onclick={viewAccountRecord} data-value={warranty.trackedBy} class="svmx-account-record"
+                                                                                            onmouseover={previewAccountRecord} onmouseout={handleMouseOut}>{warranty.trackedBy}
+                                                                                        </a>
+                                                                                    </template>
+                                                                                    <template if:false={warranty.accountId}>
+                                                                                        <div class="slds-truncate"> {warranty.trackedBy} </div>
+                                                                                    </template>
+                                                                                </template>
+                                                                            </th>
+                                                                        </template>
+                                                                    </tr>
+                                                                </template>
+                                                            </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </lightning-accordion-section>
+                                    </lightning-accordion>
+
+                                    <lightning-accordion allow-multiple-sections-open active-section-name={activeSections} class="ViewServiceCoverages_accordion">
+                                        <lightning-accordion-section name="contractSection" label={contractLabel} style="width:97%;" class="slds-align_absolute-center">
+                                            <div if:false={hasContractData} class="slds-box slds-box_x-small ViewServiceCoverages_noCoverage" style="min-width:97%;">
+                                                <i>{i18n.noCoverageFound}</i>
+                                            </div>
+                                            <div if:true={hasContractData} class="slds-table--header-fixed_container slds-border_top slds-border_bottom ViewServiceCoverage_contract-data" style={contractStyle}>
+                                                <div class="slds-scrollable_y" style="height:100%;">
+                                                    <table class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered slds-table_fixed-layout slds-tree slds-table_tree slds-table--header-fixed" role="treegrid" aria-label="Expanded Contract tree grid" aria-readonly="true">
+                                                        <thead>
+                                                            <tr class="slds-line-height_reset">
+                                                                <th role="gridcell" width="20%">
+                                                                    <div class="slds-truncate slds-cell-fixed slds-align_absolute-center" title={i18n.coverage}>
+                                                                        {i18n.coverage}
+                                                                    </div>
+                                                                </th>
+                                                                <th role="gridcell" width="18%">
+                                                                    <div class="slds-truncate slds-cell-fixed slds-align_absolute-center" title={i18n.startDate}>
+                                                                        <lightning-icon icon-name="utility:date_input" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                                                        {i18n.startDate}
+                                                                    </div>
+                                                                </th>
+                                                                <th role="gridcell" width="18%">
+                                                                    <div class="slds-truncate slds-cell-fixed slds-align_absolute-center" title={i18n.endDate}>
+                                                                        <lightning-icon icon-name="utility:date_input" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                                                        {i18n.endDate}
+                                                                    </div>
+                                                                </th>
+                                                                <template if:false={showModal}>
+                                                                    <th role="gridcell" width="18%">
+                                                                        <div class="slds-truncate slds-cell-fixed slds-align_absolute-center" title={i18n.coveredBy}>
+                                                                            {i18n.coveredBy}
+                                                                        </div>
+                                                                    </th>
+                                                                </template>
+                                                                <th role="gridcell" width="26%">
+                                                                    <div class="slds-truncate slds-cell-fixed slds-align_absolute-center" title={i18n.serviceUtilization}>
+                                                                        {i18n.serviceUtilization}
+                                                                    </div>
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <template for:each={dispContractList} for:item="contract" for:index="indexval">
+                                                                <tr key={contract.id} class={contract.rowStyle}
+                                                                    aria-level={contract.treeLevel} aria-posinset={contract.setPosition}
+                                                                    aria-setsize={contract.setSize} aria-expanded={contract.isExpanded} aria-selected="true">
+                                                                    
+                                                                    <template if:false={contract.isCPLI}>
+                                                                        <th role="gridcell" class="slds-truncate" style="height: 30px;">
+                                                                            <template if:false={contract.entitlementName}>
+                                                                                <lightning-icon icon-name={contract.iconName}
+                                                                                    size=x-small
+                                                                                    onclick={showOrHideChildrenRows}
+                                                                                    data-rowid={contract.id}
+                                                                                    data-expanded={contract.isExpanded}
+                                                                                    class="ViewServiceCoverages_entitled-services">
+                                                                                </lightning-icon>
+
+                                                                                <a tabindex="-1" target={contract.serviceContractId} onclick={viewContractRecord}
+                                                                                    class="svmx-contract-record" data-value={contract.name} style={contract.nameStyle}
+                                                                                    onmouseover={previewContractRecord} onmouseout={handleMouseOut}>
+                                                                                    {contract.name}
+                                                                                </a>
+                                                                            </template>
+                                                                            <template if:true={contract.entitlementName}>
+                                                                                
+                                                                                <lightning-icon icon-name={contract.iconName}
+                                                                                    size=x-small
+                                                                                    onclick={showOrHideCPLIRows}
+                                                                                    data-rowid={contract.id}
+                                                                                    data-expanded={contract.isExpanded}
+                                                                                    class="ViewServiceCoverages-cpli"
+                                                                                    style={contract.accordianStyle}>
+                                                                                </lightning-icon>
+                                                                                
+                                                                                <a tabindex="-1" target={contract.id} onclick={viewEntitlementRecord} data-value={contract.entitlementName} class="svmx-entitlement-record"
+                                                                                onmouseover={previewEntitlementRecord} onmouseout={handleMouseOut}>{contract.entitlementName}
+                                                                                </a>
+                                                                            </template>
+                                                                        </th>
+                                                                        <th role="gridcell">
+                                                                            <lightning-formatted-date-time value={contract.startDate} time-zone={i18n.timeZone} class="slds-m-left_large"> </lightning-formatted-date-time>
+                                                                        </th>
+                                                                        <th role="gridcell">
+                                                                            <template if:true={contract.showEndDatePopover}>
+                                                                                
+                                                                                <lightning-icon icon-name="utility:clock" variant={contract.endDateVariant} size="x-small"
+                                                                                                class="slds-m-right_x-small svmx-contract-end-date" onmouseover={contractEndDatePopover} onmouseout={hideEndDatePopover}
+                                                                                                data-id={contract.id} >
+                                                                                </lightning-icon>
+                                                                            </template>
+                                                                            <lightning-formatted-date-time value={contract.endDate} time-zone={i18n.timeZone} class={contract.endDateClass}> </lightning-formatted-date-time>
+                                                                        </th>
+                                                                        <template if:false={showModal}>
+                                                                            <th role="gridcell">
+                                                                                <template if:true={showComponent}>
+                                                                                    <template if:true={contract.assetId}>
+                                                                                        <a target={contract.assetId} onclick={viewAssetRecord} data-value={contract.trackedBy}
+                                                                                            onmouseover={previewAssetRecord} onmouseout={handleMouseOut}>{contract.trackedBy}
+                                                                                        </a>
+                                                                                    </template>
+                                                                                    <template if:false={contract.assetId}>
+                                                                                        <div class="slds-truncate"> {contract.trackedBy} </div>
+                                                                                    </template>
+                                                                                </template>
+
+                                                                                <template if:false={showComponent}>
+                                                                                    <template if:true={contract.accountId}>
+                                                                                        <a target={contract.accountId} onclick={viewAccountRecord} data-value={contract.trackedBy}
+                                                                                            onmouseover={previewAccountRecord} onmouseout={handleMouseOut}>{contract.trackedBy}
+                                                                                        </a>
+                                                                                    </template>
+                                                                                    <template if:false={contract.accountId}>
+                                                                                        <div class="slds-truncate"> {contract.trackedBy} </div>
+                                                                                    </template>
+                                                                                </template>
+                                                                            </th>
+                                                                        </template>
+                                                                        <th role="gridcell">
+                                                                            <template if:true={contract.entitlementName}>
+                                                                                <div class="slds-grid slds-text-body_regular slds-m-top_xxx-small slds-gutters">
+                                                                                    <div class="slds-col slds-size_1-of-12">
+                                                                                        <template if:true={contract.showServiceThreshold}>
+                                                                                            <lightning-icon icon-name={contract.serviceThresholdIcon} variant={contract.serviceThresholdIconVariant} 
+                                                                                            size="x-small" class="slds-m-right_x-small svmx-show-threshold" onmouseover={showThresholdPopover}
+                                                                                            onmouseout={hideThresholdPopover} data-contract={contract.id}>
+                                                                                            </lightning-icon>
+                                                                                        </template>
+                                                                                    </div>
+                                                                                    <div class="slds-col slds-size_12-of-12 slds-truncate">
+                                                                                        <span class="slds-truncate" title={contract.serviceThreshold}>{contract.serviceThreshold}</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </template>
+                                                                        </th>
+                                                                    </template>
+                                                                    
+                                                                    <template if:true={contract.isCPLI}>
+                                                                        <th role="gridcell" class="slds-truncate" style="height: 30px;" colspan={computedColSpan}>
+                                                                            <span style={contract.nameStyle}>
+                                                                                
+                                                                                <template if:true={contract.isExpired}>
+                                                                                    {contract.displayMessage}
+                                                                                </template>
+                                                                                <template if:false={contract.isExpired}>
+                                                                                    <a tabindex="-1" target={contract.id} onclick={viewCPLIRecord} class="svmx-cpli-record" data-value={contract.name}
+                                                                                    onmouseover={previewCPLIRecord} onmouseout={handleMouseOut}>{contract.displayMessage}
+                                                                                    </a>
+                                                                                </template>
+                                                                                
+                                                                            </span>
+                                                                        </th>
+                                                                    </template>
+                                                                    
+                                                                </tr>
+                                                            </template>
+                                                        </tbody>
+                                                    </table>
+                                                    
+                                                    
+                                                    
+                                                </div>
+                                            </div>
+                                        </lightning-accordion-section>
+                                    </lightning-accordion>
+
+                                </div>
+                            </template>
+                        
+                            <div class={computedPanelCSS} aria-hidden="false">
+                                <div class="slds-panel__header ViewServiceCoverages_filter-panel-header">
+                                    <h2 class="slds-panel__header-title slds-text-heading_small slds-truncate" title={i18n.options}>{i18n.options}</h2>
+                                    <lightning-button-icon  icon-name="utility:refresh" alternative-text="Refresh" class="slds-p-around_xx-small ViewServiceCoverages_reset-button" onclick={handleResetFilter}></lightning-button-icon>
+                                    <button class="slds-button slds-button_brand" onclick={handleApplyFilter} disabled={disableButton}>{i18n.apply}</button>
+                                </div>
+
+                                <div class="slds-panel__body" >
+
+                                    <lightning-layout multiple-rows vertical-align="center" class="ViewServiceCoverages_filter-layout">
+                                        <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                            <div class="slds-form" role="list">
+                                                <div class="slds-form__row">
+                                                    <div class="slds-form__item" role="listitem">
+                                                        <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                            <lightning-input type="checkbox" label={i18n.futureEntitlements} checked={activeSettingData.futureEntitlements} onchange={handleValueChange} name="futureEntitlements"></lightning-input>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+
+                                    <lightning-layout multiple-rows vertical-align="center" class="ViewServiceCoverages_filter-layout">
+                                        <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                            <div class="slds-form" role="list">
+                                                <div class="slds-form__row">
+                                                    <div class="slds-form__item" role="listitem">
+                                                        <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                            <lightning-input type="checkbox" label={i18n.expiredEntitlements} checked={activeSettingData.expiredEntitlements} onchange={handleValueChange} name="expiredEntitlements"></lightning-input>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+
+                                    <lightning-layout multiple-rows vertical-align="center" class="ViewServiceCoverages_filter-layout">
+                                        <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                            <div class="slds-form" role="list">
+                                                <div class="slds-form__row">
+                                                    <div class="slds-form__item" role="listitem">
+                                                        <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                            <lightning-input type="checkbox" label={i18n.fullyConsumedServices} checked={activeSettingData.fullyConsumedServices} onchange={handleValueChange} name="fullyConsumedServices"></lightning-input>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+
+                                    <lightning-layout multiple-rows vertical-align="center">
+                                        <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                            <div class="slds-form" role="list">
+                                                <div class="slds-form__row">
+                                                    <div class="slds-form__item" role="listitem">
+                                                        <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                            <lightning-combobox name="coveredBy" label={i18n.coveredBy} value={activeSettingData.coveredBy} options={coveredByOptions} onchange={handleValueChange} class="ViewServiceCoverages_coveredBy"></lightning-combobox>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+
+                                    <template if:true={showComponent}>
+
+                                        <lightning-layout multiple-rows vertical-align="center">
+                                            <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                                <div class="slds-form" role="list">
+                                                    <div class="slds-form__row slds-m-left_x-small">
+                                                        <div class="slds-form__item" role="listitem">
+                                                            <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                                <lightning-combobox name="assetAPIName" label={i18n.assetAPIName} value={activeSettingData.assetAPIName} options={assetAPINames} onchange={handleValueChange} required={assetFieldRequired}></lightning-combobox>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </lightning-layout-item>
+                                        </lightning-layout>
+
+                                        <lightning-layout multiple-rows vertical-align="center" class="ViewServiceCoverages_filter-layout">
+                                            <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                                <div class="slds-form" role="list">
+                                                    <div class="slds-form__row slds-m-left_x-small">
+                                                        <div class="slds-form__item" role="listitem">
+                                                            <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                                <lightning-input type="checkbox" label={i18n.includeRootAsset} checked={activeSettingData.includeRootAsset} onchange={handleValueChange} name="includeRootAsset"></lightning-input>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </lightning-layout-item>
+                                        </lightning-layout>
+
+                                        <lightning-layout multiple-rows vertical-align="center" class="ViewServiceCoverages_filter-layout">
+                                            <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                                <div class="slds-form" role="list">
+                                                    <div class="slds-form__row slds-m-left_x-small">
+                                                        <div class="slds-form__item" role="listitem">
+                                                            <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                                <lightning-input type="checkbox" label={i18n.includeParentAsset} checked={activeSettingData.includeParentAsset} onchange={handleValueChange} name="includeParentAsset"></lightning-input>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </lightning-layout-item>
+                                        </lightning-layout>
+
+                                        <lightning-layout multiple-rows vertical-align="center">
+                                            <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                                <div class="slds-form" role="list">
+                                                    <div class="slds-form__row">
+                                                        <div class="slds-form__item" role="listitem">
+                                                            <div class="slds-form-element slds-form-element_stacked slds-is-editing ViewServiceCoverages_match-account-title">
+                                                                <lightning-input id="match-account-id" type="checkbox" checked={activeSettingData.matchAccount}  onchange={handleValueChange} name="matchAccount" class="ViewServiceCoverages_matchAccount"></lightning-input>
+                                                                <label for="match-account-id">
+                                                                    <span class="slds-form-element slds-form-element_stacked slds-text-color_weak">{matchAccountLabel}</span>
+                                                                </label>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </lightning-layout-item>
+                                        </lightning-layout>
+                                    </template>
+
+                                    <template if:true={showAccount}>
+                                        <lightning-layout multiple-rows vertical-align="center">
+                                            <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                                <div class="slds-form" role="list">
+                                                    <div class="slds-form__row  slds-m-left_x-small">
+                                                        <div class="slds-form__item" role="listitem">
+                                                            <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                                <lightning-combobox name="accountAPIName" label={i18n.accountAPIName} value={activeSettingData.accountAPIName} options={accountAPINames} onchange={handleValueChange} required={accountFieldRequired} class="ViewServiceCoverages_accAPI"></lightning-combobox>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </lightning-layout-item>
+                                        </lightning-layout>
+                                    </template>
+
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <template if:true={apiInProgress}>
+        <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+    </template>
+    
+    <section class={popoverData.endDatePOClass} role="dialog" data-id="svmx-popover-section" style={popoverData.endDatePOStyle}>
+        <template if:true={popoverData.showEndDatePOHeader}>
+            <header class="slds-popover__header">
+                <div class="slds-media slds-media_center slds-has-flexi-truncate ">
+                    <div class="slds-media__figure">
+                        <lightning-icon icon-name="utility:clock" size="x-small" variant={popoverData.endDateIconClass}></lightning-icon>
+                    </div>
+                    <div class="slds-media__body">
+                        <h2 class="slds-truncate slds-text-heading_small" title={i18n.expiringSoon}>{i18n.expiringSoon}</h2>
+                    </div>
+                </div>
+            </header>
+        </template>
+        <div class="slds-popover__body">
+            <p class="slds-m-bottom_x-small">
+                <lightning-formatted-text value={popoverData.expiringMessage} class={popoverData.expiringMessageCSS}></lightning-formatted-text>
+            </p>
+        </div>
+    </section>
+    
+    <section class={thresholdData.popoverClass} role="dialog" data-id="svmx-threshold-popover-section" style={thresholdData.thresholdPOStyle}>
+        <header class="slds-popover__header slds-truncate">
+            <p  class="slds-truncate slds-text-heading_small" title={i18n.serviceConsumption}>{i18n.serviceConsumption}</p>
+        </header>
+        <div class="slds-popover__body slds-popover__body_small slds-m-left_x-small">
+            <div class="slds-grid slds-grid_align-center">
+                <div class="slds-col slds-truncate">
+                    <div class="ViewServiceCoverages__title">
+                        <lightning-formatted-text title={thresholdData.totalCountService} value={thresholdData.totalCountService} class="slds-truncate"></lightning-formatted-text>
+                    </div>
+                    <span class="ViewServiceCoverages__subtitle slds-align_absolute-center" title={i18n.total}>{i18n.total}</span>
+                </div>
+                <div class="slds-col slds-truncate">
+                    <div class="ViewServiceCoverages__title">
+                        <lightning-formatted-text title={thresholdData.consumedCountService} value={thresholdData.consumedCountService} class="slds-m-left_x-small slds-truncate"></lightning-formatted-text>
+                    </div>
+                    <span class="ViewServiceCoverages__subtitle slds-align_absolute-center" title={i18n.consumed}>{i18n.consumed}</span>
+                </div>
+            </div>
+            <div class="slds-grid slds-grid_align-center slds-p-top_medium">
+                <div class="slds-col slds-truncate">
+                    <div class="ViewServiceCoverages__title">
+                        <lightning-formatted-text title={thresholdData.remainingCountService} value={thresholdData.remainingCountService} class={thresholdData.badgeClass}></lightning-formatted-text>
+                    </div>
+                    <span class="ViewServiceCoverages__subtitle slds-align_absolute-center slds-truncate" title={i18n.remaining}>{i18n.remaining}</span>
+                </div>
+            </div>
+        </div>
+    </section>
+   
+    <c-svmx-record-popover></c-svmx-record-popover>
+
+</template>

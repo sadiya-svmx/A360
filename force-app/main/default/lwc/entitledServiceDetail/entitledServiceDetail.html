@@ -1,0 +1,694 @@
+<template>      
+    <!-- create,edit and clone form-->
+    <div class="svmx-entitled-service-details-modal">
+        <c-modal-dialog title={i18n.entitledServiceDetail} class="svmx-entitled-service-detail_modal" size="SMALL"
+            is-open={entitledServiceModalOpen} modal-content-id="newModalContent" modal-header-id="newModalHeader"
+            onmodalclosed={handleEntitledServiceCancel}>
+            <div slot="body">    
+                <template if:true={error}>
+                    <div class="slds-box slds-theme_error slds-p-left_medium slds-p-right_medium" role="alert">
+                        <p>{i18n.reviewError}</p>
+                    </div>
+                    <div
+                        class="slds-text-color_error slds-p-left_large slds-p-top_xx-small svmx-entitled-service-detail_error">
+                        {error}
+                    </div>
+                </template>
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                        <template if:true={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked svmx-entitled-service-detail_is-view">
+                                <span class="slds-form-element__label">
+                                    {i18n.entitledServiceName}
+                                </span>
+                                <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                    <span class="slds-form-element__static slds-grow word-break-ie11">
+                                        <div class="slds-form-element__static">
+                                            {recordInfo.name}
+                                        </div>
+                                    </span>
+                                    <lightning-button-icon 
+                                        icon-name="utility:edit"
+                                        variant="bare"
+                                        alternative-text={i18n.edit}
+                                        title={i18n.edit}
+                                        onclick={handleEdit}
+                                        class="slds-col_bump-left slds-button__icon_hint"
+                                    ></lightning-button-icon>
+                                </div>
+                            </div>
+                        </template>                        
+                        <template if:false={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <lightning-input
+                                    class="svmx-entitled-service-detail_name svmx-entitled-service-detail_input-field"
+                                    label={i18n.entitledServiceName}
+                                    type="text" 
+                                    variant="label-stacked"
+                                    value={recordInfo.name}                              
+                                    data-field="name"
+                                    message-when-value-missing={i18n.valueMissing}
+                                    message-when-too-long={tooLongMessage}
+                                    onchange={handleChange}
+                                    max-length='255'
+                                    required
+                                ></lightning-input>
+                            </div>
+
+                        </template>                        
+                    </div>
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                        <template if:true={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked svmx-entitled-service-detail_is-view">
+                                <span class="slds-form-element__label">
+                                    {i18n.serviceContract}
+                                </span>
+                                <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                    <span class="slds-form-element__static slds-grow word-break-ie11">
+                                        <div class="slds-form-element__static">
+                                            {recordInfo.serviceContractName}
+                                        </div>
+                                    </span>
+                                </div>
+                            </div>
+                        </template>
+                        <template if:false={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <c-svmx-lookup
+                                    class="svmx-entitled-service-detail_contract-id svmx-entitled-service-detail_input-field"
+                                    advanced-search-config={booleanFalse}
+                                    data-field="ServiceContract"
+                                    field-api-name="ServiceContract"
+                                    disabled={booleanFalse}
+                                    enable-advanced-search={booleanFalse}
+                                    icon-name="standard:service_contract"
+                                    label={i18n.serviceContract}
+                                    target-object-api-name="ServiceContract"
+                                    target-label-api-name={serviceContractNameField}
+                                    onlookupselect={handleLookupFieldChange}
+                                    read-only={booleanFalse}
+                                    value={recordInfo.serviceContractId}>
+                                </c-svmx-lookup>
+                            </div>
+                        </template>                        
+                    </div>
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">                        
+                        <template if:true={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked svmx-entitled-service-detail_is-view">
+                                <span class="slds-form-element__label">
+                                    {i18n.serviceProduct}
+                                </span>
+                                <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                    <span class="slds-form-element__static slds-grow word-break-ie11">
+                                        <div class="slds-form-element__static">
+                                            {recordInfo.serviceProductName}
+                                        </div>
+                                    </span>
+                                    <lightning-button-icon 
+                                        icon-name="utility:edit"
+                                        variant="bare"
+                                        alternative-text={i18n.edit}
+                                        title={i18n.edit}
+                                        onclick={handleEdit}
+                                        class="slds-col_bump-left slds-button__icon_hint"
+                                    ></lightning-button-icon>
+                                </div>
+                            </div>
+                        </template>
+                        <template if:false={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <c-svmx-lookup
+                                    class="svmx-entitled-service-detail_product svmx-entitled-service-detail_input-field"
+                                    advanced-search-config={booleanFalse}
+                                    data-field="Product"
+                                    field-api-name="Product"
+                                    disabled={booleanFalse}
+                                    enable-advanced-search={booleanFalse}
+                                    icon-name="standard:product"
+                                    label={i18n.serviceProduct}
+                                    target-object-api-name="Product2"
+                                    target-label-api-name={productNameField}
+                                    onlookupselect={handleLookupFieldChange}
+                                    read-only={booleanFalse}
+                                    value={recordInfo.serviceProductId}
+                                    required>
+                                </c-svmx-lookup>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                        <template if:true={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked svmx-entitled-service-detail_is-view">
+                                <span class="slds-form-element__label">
+                                    {i18n.contractLineItem}
+                                </span>
+                                <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                    <span class="slds-form-element__static slds-grow word-break-ie11">
+                                        <div class="slds-form-element__static">
+                                            {recordInfo.contractLineName}
+                                        </div>
+                                    </span>
+                                </div>
+                            </div>
+                        </template>
+                        <template if:false={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked">                           
+                                <c-svmx-lookup
+                                    class="svmx-entitled-service-detail_contract-line svmx-entitled-service-detail_input-field"
+                                    advanced-search-config={booleanFalse}
+                                    data-field="ContractLine"
+                                    field-api-name="ContractLine"
+                                    disabled={booleanFalse}
+                                    enable-advanced-search={booleanFalse}
+                                    icon-name="standard:contract_line_item"
+                                    label={i18n.contractLineItem}
+                                    target-object-api-name="ContractLineItem"
+                                    target-label-api-name={contractLineNameField}
+                                    onlookupselect={handleLookupFieldChange}
+                                    read-only={booleanFalse}
+                                    value={recordInfo.contractLineId}
+                                    filters={contractLineFilter}
+                                    show-relationship-value={booleanTrue}>
+                                </c-svmx-lookup>
+                            </div>
+                        </template>                        
+                    </div>
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                        <div class="slds-form-element slds-form-element_stacked">
+                            <span class="slds-form-element__label">
+                                {i18n.status}
+                            </span>
+                            <div class="slds-form-element__control slds-grid">
+                                <span class="slds-form-element__static slds-grow word-break-ie11">
+                                    <div class="slds-form-element__static">
+                                        {entitledServiceStatus}
+                                    </div>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                        <template if:true={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked svmx-entitled-service-detail_is-view">
+                                <span class="slds-form-element__label">
+                                    {i18n.asset}
+                                </span>
+                                <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                    <span class="slds-form-element__static slds-grow word-break-ie11">
+                                        <div class="slds-form-element__static">
+                                            {recordInfo.assetName}
+                                        </div>
+                                    </span>
+                                </div>
+                            </div>
+                        </template>
+                        <template if:false={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <c-svmx-lookup 
+                                    class="svmx-entitled-service-detail_asset svmx-entitled-service-detail_input-field"
+                                    advanced-search-config={booleanFalse}
+                                    data-field="Asset"
+                                    field-api-name="Asset"
+                                    disabled={booleanFalse}
+                                    enable-advanced-search={booleanFalse}
+                                    icon-name="standard:asset_object"
+                                    label={i18n.asset}
+                                    target-object-api-name="Asset"
+                                    target-label-api-name={assetNameField}
+                                    onlookupselect={handleLookupFieldChange}
+                                    read-only={booleanFalse}
+                                    value={recordInfo.assetId}>
+                                </c-svmx-lookup>
+                            </div>
+                        </template>                        
+                    </div>
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                        <template if:true={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked svmx-entitled-service-detail_is-view">
+                                <span class="slds-form-element__label">
+                                    {i18n.startDate}
+                                </span>
+                                <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                    <span class="slds-form-element__static slds-grow word-break-ie11">
+                                        <div class="slds-form-element__static">
+                                            <lightning-formatted-date-time
+                                                value={recordInfo.startDate}
+                                                year="numeric"
+                                                month="numeric"
+                                                day="numeric"
+                                                time-zone="UTC">
+                                            </lightning-formatted-date-time>
+                                        </div>
+                                    </span>
+                                    <lightning-button-icon 
+                                        icon-name="utility:edit"
+                                        variant="bare"
+                                        alternative-text={i18n.edit}
+                                        title={i18n.edit}
+                                        onclick={handleEdit}
+                                        class="slds-col_bump-left slds-button__icon_hint"
+                                    ></lightning-button-icon>
+                                </div>
+                            </div>
+                        </template>
+                        <template if:false={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <lightning-input                                
+                                    label={i18n.startDate}
+                                    class="svmx-entitled-service-detail_start-date svmx-entitled-service-detail_input-field"
+                                    type="date"
+                                    data-field="startDate"
+                                    variant="label-stacked"
+                                    value={recordInfo.startDate}
+                                    message-when-value-missing={i18n.valueMissing}
+                                    message-when-bad-input={badInputMessage}
+                                    date-style="short"
+                                    autocomplete="false"
+                                    onchange={handleChange}
+                                ></lightning-input>
+                            </div>
+                        </template>                        
+                    </div>
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                        <template if:true={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked svmx-entitled-service-detail_is-view">
+                                <span class="slds-form-element__label">
+                                    {i18n.endDate}
+                                </span>
+                                <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                    <span class="slds-form-element__static slds-grow word-break-ie11">
+                                        <div class="slds-form-element__static">
+                                            <lightning-formatted-date-time
+                                                value={recordInfo.endDate}
+                                                year="numeric"
+                                                month="numeric"
+                                                day="numeric"
+                                                time-zone="UTC">
+                                            </lightning-formatted-date-time>
+                                        </div>
+                                    </span>
+                                    <lightning-button-icon 
+                                        icon-name="utility:edit"
+                                        variant="bare"
+                                        alternative-text={i18n.edit}
+                                        title={i18n.edit}
+                                        onclick={handleEdit}
+                                        class="slds-col_bump-left slds-button__icon_hint"
+                                    ></lightning-button-icon>
+                                </div>
+                            </div>
+                        </template>
+                        <template if:false={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <lightning-input                                
+                                    label={i18n.endDate}
+                                    class="svmx-entitled-service-detail_end-date svmx-entitled-service-detail_input-field"
+                                    type="date"
+                                    data-field="endDate"
+                                    variant="label-stacked"
+                                    value={recordInfo.endDate}
+                                    message-when-value-missing={i18n.valueMissing}
+                                    message-when-bad-input={badInputMessage}
+                                    date-style="short"
+                                    autocomplete="false"
+                                    onchange={handleChange}                                
+                                ></lightning-input>
+                            </div>
+                        </template>                        
+                    </div>
+                    <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                        <template if:true={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked svmx-entitled-service-plan-detail_is-view">
+                                <span class="slds-form-element__label">
+                                    {i18n.operatingHours}
+                                </span>
+                                <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                    <span class="slds-form-element__static slds-grow word-break-ie11">
+                                        <div class="slds-form-element__static">
+                                            {recordInfo.operatingHoursName}
+                                        </div>
+                                    </span>
+                                    <lightning-button-icon 
+                                        icon-name="utility:edit"
+                                        variant="bare"
+                                        alternative-text={i18n.edit}
+                                        title={i18n.edit}
+                                        onclick={handleEdit}
+                                        class="slds-col_bump-left slds-button__icon_hint"
+                                    ></lightning-button-icon>
+                                </div>
+                            </div>
+                        </template>
+                        <template if:false={viewMode}>
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <c-svmx-lookup
+                                    class="svmx-entitled-service-detail_operating-hours svmx-entitled-service-detail_input-field"
+                                    advanced-search-config={booleanFalse}
+                                    data-field="OperatingHours"
+                                    field-api-name="OperatingHours"
+                                    disabled={booleanFalse}
+                                    enable-advanced-search={booleanFalse}
+                                    icon-name="standard:operating_hours"
+                                    label={i18n.operatingHours}
+                                    target-object-api-name="OperatingHours"
+                                    target-label-api-name="Name"
+                                    onlookupselect={handleLookupFieldChange}
+                                    read-only={booleanFalse}
+                                    value={recordInfo.operatingHoursId}
+                                    show-relationship-value={booleanTrue} 
+                                    >
+                                </c-svmx-lookup>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="slds-section slds-is-open">
+                    <h3 class="slds-section__title">
+                        <span class="slds-truncate slds-p-horizontal_small"
+                            title={i18n.serviceThresholds}>{i18n.serviceThresholds}</span>
+                    </h3>
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-entitled-service-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.serviceUnit}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {recordInfo.serviceType}
+                                            </div>
+                                        </span>
+                                        <lightning-button-icon 
+                                            icon-name="utility:edit"
+                                            variant="bare"
+                                            alternative-text={i18n.edit}
+                                            title={i18n.edit}
+                                            onclick={handleEdit}
+                                            class="slds-col_bump-left slds-button__icon_hint"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked">
+                                    <lightning-combobox
+                                        class="svmx-entitled-service-detail_service-unit svmx-entitled-service-detail_input-field"
+                                        data-field="serviceUnit"
+                                        label={i18n.serviceUnit}
+                                        value={recordInfo.serviceType}
+                                        options={serviceUnitOptions}
+                                        onchange={handleServiceUnitChange}>
+                                    </lightning-combobox>                                
+                                </div>
+                            </template>                            
+                        </div>
+                        <template if:true={isServiceUnitSection}>
+                            <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                                <template if:true={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked svmx-entitled-service-detail_is-view">
+                                        <span class="slds-form-element__label">
+                                            {totalServiceLabel}
+                                        </span>
+                                        <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                <div class="slds-form-element__static">
+                                                    <lightning-formatted-number value={recordInfo.totalService} format-style={formatterType}>
+                                                    </lightning-formatted-number>
+                                                </div>
+                                            </span>
+                                            <lightning-button-icon 
+                                                icon-name="utility:edit"
+                                                variant="bare"
+                                                alternative-text={i18n.edit}
+                                                title={i18n.edit}
+                                                onclick={handleEdit}
+                                                class="slds-col_bump-left slds-button__icon_hint"
+                                            ></lightning-button-icon>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template if:false={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <lightning-input
+                                            data-field="totalService"
+                                            type="number"
+                                            name={totalServiceLabel}
+                                            label={totalServiceLabel}
+                                            value={recordInfo.totalService}
+                                            onchange={handleChange}
+                                            formatter={formatterType}
+                                            step="0.01"
+                                            max={maxValue}
+                                            autocomplete="off"
+                                            required
+                                            message-when-step-mismatch={stepMismatchMessage}                                            
+                                            message-when-range-overflow={stepMismatchMessage} 
+                                            message-when-value-missing={i18n.valueMissing}
+                                            class="svmx-entitled-service-detail_total-service svmx-entitled-service-detail_input-field">
+                                        </lightning-input>
+                                    </div>
+                                </template>                                
+                            </div>
+                            <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                                <template if:true={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked svmx-entitled-service-detail_is-view">
+                                        <span class="slds-form-element__label">
+                                            {serviceAlertThresholdLabel}
+                                        </span>
+                                        <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                <div class="slds-form-element__static">
+                                                    <lightning-formatted-number value={recordInfo.serviceAlertThreshold} format-style={formatterType}>
+                                                    </lightning-formatted-number>
+                                                </div>
+                                            </span>
+                                            <lightning-button-icon 
+                                                icon-name="utility:edit"
+                                                variant="bare"
+                                                alternative-text={i18n.edit}
+                                                title={i18n.edit}
+                                                onclick={handleEdit}
+                                                class="slds-col_bump-left slds-button__icon_hint"
+                                            ></lightning-button-icon>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template if:false={viewMode}>                                    
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <lightning-input
+                                            data-field="serviceAlertThreshold"
+                                            type="number"
+                                            name={serviceAlertThresholdLabel}
+                                            label={serviceAlertThresholdLabel}
+                                            value={recordInfo.serviceAlertThreshold}
+                                            onchange={handleChange}
+                                            formatter={formatterType}
+                                            step="0.01"
+                                            max={maxValue}
+                                            autocomplete="off"
+                                            message-when-step-mismatch={stepMismatchMessage} 
+                                            message-when-range-overflow={stepMismatchMessage}
+                                            message-when-value-missing={i18n.valueMissing}
+                                            class="svmx-entitled-service-detail_service-alert svmx-entitled-service-detail_input-field">
+                                        </lightning-input>
+                                    </div>
+                                </template>                                
+                            </div>        
+                            <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                                <template if:true={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked svmx-entitled-service-detail_is-view">
+                                        <span class="slds-form-element__label">
+                                            {remainingServiceLabel}
+                                        </span>
+                                        <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                <div class="slds-form-element__static">                                                    
+                                                    <lightning-formatted-number value={recordInfo.remainingService} format-style={formatterType}>
+                                                    </lightning-formatted-number>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template if:false={viewMode}>
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <lightning-input
+                                            data-field="remainingService"
+                                            type="number"
+                                            name={remainingServiceLabel}
+                                            label={remainingServiceLabel}
+                                            value={recordInfo.remainingService}
+                                            onchange={handleChange}
+                                            formatter={formatterType}
+                                            step="0.01"
+                                            disabled
+                                            class="svmx-entitled-service-detail_remaining-service">
+                                        </lightning-input>
+                                    </div>
+                                </template>                                
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="slds-section slds-is-open">
+                    <h3 class="slds-section__title">
+                        <span class="slds-truncate slds-p-horizontal_small"
+                            title={i18n.entitlementProcesses}>{i18n.entitlementProcesses}</span>
+                    </h3>
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-entitled-service-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.caseProcess}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {recordInfo.caseEntitlementProcessName}
+                                            </div>
+                                        </span>
+                                        <lightning-button-icon 
+                                            icon-name="utility:edit"
+                                            variant="bare"
+                                            alternative-text={i18n.edit}
+                                            title={i18n.edit}
+                                            onclick={handleEdit}
+                                            class="slds-col_bump-left slds-button__icon_hint"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked">
+                                    <c-svmx-lookup
+                                        class="svmx-entitled-service-detail_case-sla svmx-entitled-service-detail_input-field"
+                                        advanced-search-config={booleanFalse}
+                                        data-field="CaseEntitlement"
+                                        field-api-name="CaseEntitlement"
+                                        filters={whereClauseCase}
+                                        disabled={booleanFalse}
+                                        enable-advanced-search={booleanFalse}
+                                        icon-name="standard:entitlement_process"
+                                        label={i18n.caseProcess}
+                                        target-object-api-name="SlaProcess"
+                                        target-label-api-name={entitlementProcessName}
+                                        onlookupselect={handleLookupFieldChange}
+                                        read-only={booleanFalse}
+                                        value={recordInfo.caseEntitlementProcessId}>
+                                    </c-svmx-lookup>
+                                </div>
+                            </template>                            
+                        </div>
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal--medium slds-m-bottom_medium">
+                            <template if:true={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked svmx-entitled-service-detail_is-view">
+                                    <span class="slds-form-element__label">
+                                        {i18n.workOrderProcess}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {recordInfo.workOrderEntitlementProcessName}
+                                            </div>
+                                        </span>
+                                        <lightning-button-icon 
+                                            icon-name="utility:edit"
+                                            variant="bare"
+                                            alternative-text={i18n.edit}
+                                            title={i18n.edit}
+                                            onclick={handleEdit}
+                                            class="slds-col_bump-left slds-button__icon_hint"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={viewMode}>
+                                <div class="slds-form-element slds-form-element_stacked">
+                                    <c-svmx-lookup
+                                        class="svmx-entitled-service-detail_workorder-sla svmx-entitled-service-detail_input-field"
+                                        advanced-search-config={booleanFalse}
+                                        data-field="WOEntitlement"
+                                        field-api-name="WOEntitlement"
+                                        filters={whereClauseWO}
+                                        disabled={booleanFalse}
+                                        enable-advanced-search={booleanFalse}
+                                        icon-name="standard:entitlement_process"
+                                        label={i18n.workOrderProcess}
+                                        target-object-api-name="SlaProcess"
+                                        target-label-api-name={entitlementProcessName}
+                                        onlookupselect={handleLookupFieldChange}
+                                        read-only={booleanFalse}
+                                        value={recordInfo.workOrderEntitlementProcessId}>
+                                    </c-svmx-lookup>
+                                </div>
+                            </template>                            
+                        </div>                        
+                    </div>
+                </div>
+            </div>
+            <div slot="footer">
+                <template if:true={viewMode}>
+                    <lightning-button label={i18n.delete} title={i18n.delete} variant="destructive-text"
+                        onclick={handleDeleteModal} class="slds-float_left svmx-entitled-service-detail_deletebtn">
+                    </lightning-button>
+                </template>
+                
+                <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                    onclick={handleEntitledServiceCancel} class="slds-p-right_x-small svmx-entitled-service-detail_cancelbtn">
+                </lightning-button>
+                <template if:true={viewMode}>
+                    <lightning-button label={i18n.clone} title={i18n.clone} variant="neutral"
+                        onclick={handleClone} class="slds-p-right_x-small svmx-entitled-service-detail_clonebtn">
+                    </lightning-button>
+                    <lightning-button class="svmx-entitled-service-detail_editbtn" label={i18n.edit} title={i18n.edit} variant="brand" onclick={handleEdit}>
+                    </lightning-button>
+                </template>
+                <template if:false={viewMode}>
+                    <lightning-button class="slds-p-right_x-small svmx-entitled-service-detail_saveclonebtn" data-name="saveAndClone" label={i18n.saveAndClone} title={i18n.saveAndClone} variant="neutral" onclick={handleSave}>
+                    </lightning-button>
+                    <lightning-button class="svmx-entitled-service-detail_confirmbtn" data-name="save" label={i18n.save} title={i18n.save} variant="brand" onclick={handleSave}>
+                    </lightning-button>
+                </template>
+            </div>
+        </c-modal-dialog>
+    </div>
+    <c-modal-dialog title={i18n.deleteTitle}
+        class="svmx-entitled-service-detail_delete-modal" is-open={deleteModalDialogOpen}
+        modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={handleCancelModal}>
+        <div slot="body">
+            <template if:true={error}>
+                <c-alert variant="error">{error}</c-alert>
+            </template>
+            <p>
+                <lightning-formatted-text class="slds-align_absolute-center"
+                    value={i18n.deleteConfirmMessage}>
+                </lightning-formatted-text>
+            </p>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal}
+                class="slds-p-right_x-small svmx-delete-modal_cancel-btn"></lightning-button>
+            <lightning-button class="svmx-delete-modal_confirm-btn" label={i18n.confirm} title={i18n.confirm} variant="brand"
+                onclick={handleDeleteConfirmModal}></lightning-button>
+        </div>
+    </c-modal-dialog>
+
+    <c-modal-dialog title={i18n.deleteErrorHeader}
+        class="svmx-entitled-service-detail_delete-modal-error" is-open={deleteErrorMessageOpen}
+        modal-content-id="deleteModalErrorContent" modal-header-id="deleteModalErrorHeader" onmodalclosed={handleCancelModal}>
+        <div slot="body">
+            <p>
+                <lightning-formatted-rich-text class="slds-align_absolute-center"
+                    value={deleteErrorMsg}>
+                </lightning-formatted-rich-text>
+            </p>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal}
+                class="slds-p-right_x-small svmx-delete-modal_cancel-btn"></lightning-button>
+        </div>
+    </c-modal-dialog>
+</template>

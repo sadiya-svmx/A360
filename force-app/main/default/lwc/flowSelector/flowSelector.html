@@ -1,0 +1,52 @@
+<template>
+    <c-modal-dialog title={i18n.modalTitle} class="flowSelectorModal" is-open={selectorModalOpen} modal-content-id="flowSelectorContent" modal-header-id="flowSelectorHeader" onmodalclosed={handleCancelModal}>
+        <div slot="body">
+            <article class="slds-card modal-cardbody">
+                <div class="slds-card__body slds-card__body_inner">
+                    <div class="slds-p-bottom_xx-small"><strong>{i18n.label}</strong></div>
+                    <template if:true={filteredData}>
+                        <c-list-box
+                            class="svmx-flow-selector_list-box"
+                            key-field="apiName"
+                            items={filteredData}
+                            columns={columns}
+                            search-placeholder={i18n.searchPlaceholder}
+                            onsearchkeychange={handleSearchKeyChange}
+                            onrowselected={handleRowSelected}
+                            scrollable>
+                            <div class="slds-page-header__control" slot="controls">
+                                <lightning-button
+                                    label={i18n.refresh}
+                                    title={i18n.refresh}
+                                    variant="neutral"
+                                    onclick={handleRefresh}
+                                    class="svmx-flow-selector_button-refresh"
+                                ></lightning-button>
+                            </div>
+                            <div class="slds-page-header__control" slot="controls">
+                                <lightning-button
+                                    label={i18n.new}
+                                    title={i18n.new}
+                                    variant="neutral"
+                                    disabled={isNewTargetDisabled}
+                                    onclick={handleNewFlow}
+                                    class="svmx-flow-selector_button-new"
+                                ></lightning-button>
+                            </div>
+                        </c-list-box>
+                    </template>
+                    <template if:true={error}>
+                        <div id="help-text" data-help-text class="slds-form-element__help" aria-live="assertive">{error}</div>
+                    </template>
+                    <template if:false={filteredData}>
+                        <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+                    </template>
+                </div>
+            </article>            
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal} class="slds-p-right_x-small svmx-flow-selector_cancel-button"></lightning-button>
+            <lightning-button label={i18n.apply} title={i18n.apply} variant="brand" onclick={handleApply} class="svmx-flow-selector_apply-button"></lightning-button>
+        </div>
+    </c-modal-dialog>
+</template>

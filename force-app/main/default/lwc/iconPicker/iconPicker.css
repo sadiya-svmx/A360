@@ -1,0 +1,26 @@
+.cardBackground {
+    background-color: #fff;
+    padding: 0;
+}
+
+.svmx-container {
+    height: calc(100vh - 320px);
+}
+
+.svmx-visual-picker_x-small .slds-visual-picker__figure,.slds-visual-picker__body {
+    width: 68px;
+}
+
+.svmx-visual-picker_x-small .slds-visual-picker__figure {
+    height: 68px;
+}
+
+.svmx-text-overflow-ellipsis {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: normal;
+}
+
+.svmx-text-hyphenation {
+    hyphens: auto;
+}

@@ -1,0 +1,124 @@
+<template>
+    <template if:false={loading} >
+        <lightning-tabset variant="scoped" active-tab-value={activeTab}>
+            <template for:each={tabs} for:item="tab">
+                <lightning-tab label={tab.label} key={tab.id} value={tab.value} onactive={handleActive} show-error-indicator={tab.showErrorIndicator}>
+                    <!-- search filter and add item link  -->
+                    <lightning-layout>
+                        <lightning-layout-item size="6" class="slds-m-bottom_small slds-text-align_left">
+                            <div class="slds-grid slds-gutters">
+                                <div class="slds-col slds-col slds-size_6-of-12 slds-p-right_small">
+                                    <lightning-input 
+                                        type="search" 
+                                        autocomplete="off" 
+                                        placeholder={i18n.filter}
+                                        variant="label-hidden" 
+                                        class="svmx-button_search-item"
+                                        onpaste={handleFilter}
+                                        onchange={handleFilter}>
+                                    </lightning-input>
+                                </div>
+                                <template if:true={tab.showFilterResults}>
+                                    <div class="slds-col slds-size_5-of-12 slds-p-left_none slds-m-top_x-small">
+                                            {tab.showFilterResults}
+                                    </div>
+                                </template>
+                            </div>
+                        </lightning-layout-item>   
+                        <template if:true={tab.addRow}>
+                            <lightning-layout-item size="6">
+                                <div class="slds-grid slds-grid_reverse">
+                                    <template if:true={tab.enableMultiAdd}>
+                                        <c-svmx-lookup
+                                            engine-id={tab.multiAddConfig.engineId}
+                                            advanced-search-config={tab.multiAddConfig.advancedSearchConfig}
+                                            enable-advanced-search={tab.multiAddConfig.enableAdvancedSearch}
+                                            filters={tab.multiAddConfig.filters}
+                                            form-fill-mapping-id={tab.multiAddConfig.formFillMappingId}
+                                            label={tab.labelMultiAddItem}
+                                            debug-label={tab.multiAddConfig.debugLabel}
+                                            target-object-api-name={tab.multiAddConfig.objectApiName}
+                                            target-label-api-name={tab.multiAddConfig.referenceNameFields}
+                                            multiple={tab.enableMultiAdd}
+                                            onlookupselect={applyMultiSelect}
+                                            enable-event-property-interface={tab.multiAddConfig.enableEventPropertyInterface} 
+                                            class="svmx-button_multiadd_item"  
+                                        ></c-svmx-lookup>
+                                    </template>  
+                                    <lightning-button
+                                        class="svmx-button_add-item"
+                                        label={tab.labelAddItem}
+                                        onclick={handleAddItem}
+                                        title={tab.labelAddItem}
+                                    ></lightning-button>
+                                </div>
+                            </lightning-layout-item>
+                        </template>                                
+                    </lightning-layout>
+                    <!-- tab grid data -->
+                    <c-x-datatable
+                        class="svmx-runtime-datatable"
+                        columns={tab.columns}
+                        data={tab.data}
+                        selected-rows={tab.selectedRows}
+                        draft-values={tab.lastSavedData}
+                        errors={tab.errors}
+                        hide-checkbox-column={tab.hideCheckboxColumn}
+                        key-field="Id"
+                        oncellchange={handleCellChange}
+                        oncheckboxchange={handleCheckboxChange}
+                        ondynamicfieldchange={handleDynamicFieldChange}
+                        onrowaction={handleRowAction}
+                        onrowselection={handleRowSelection}
+                        suppress-bottom-bar
+                        show-row-number-column
+                        min-column-width="100"
+                    ></c-x-datatable>
+    
+                    <div if:false={rowCount} class="svmx-runtime-grid_no-data slds-align_absolute-center slds-m-top_medium no-data">{i18n.noResults}
+                    </div>
+                </lightning-tab>
+            </template>
+        </lightning-tabset>
+        <c-modal-dialog
+            class="svmx-modal_delete deleteModal" 
+            is-open={deleteModalDialogOpen}
+            modal-content-id="deleteModalContent"
+            modal-header-id="deleteModalHeader"
+            onmodalclosed={handleCancelModal}
+            title={i18n.deleteModalTitle}
+            relative-to-viewport
+            relative-to-debugpanel={relativeToDebugpanel}
+        >
+            <div slot="body">
+                <p>
+                    <lightning-formatted-text value={i18n.deleteModalContent}></lightning-formatted-text>
+                </p>
+            </div>
+            <div slot="footer">
+                <lightning-button
+                    class="svmx-modal_button-cancel slds-p-right_x-small"
+                    label={i18n.cancel}
+                    onclick={handleCancelModal}
+                    title={i18n.cancel}
+                    variant="neutral"
+                ></lightning-button>
+                <lightning-button
+                    class="svmx-modal_button-confirm confirmButton"
+                    label={i18n.confirm}
+                    onclick={handleDeleteConfirmModal}
+                    title={i18n.confirm}
+                    variant="brand"
+                ></lightning-button>
+            </div>
+        </c-modal-dialog>
+        <template if:true={extendedEdit.showExtendedEdit}>
+            <c-runtime-extended-edit
+                title={extendedEdit.title}
+                row-index={extendedEdit.rowIndex}
+                tab-index={extendedEdit.tabIndex}
+                onextendededitcancel={handleExtendedEditCancel}>
+            </c-runtime-extended-edit>
+        </template>
+    </template>
+</template>

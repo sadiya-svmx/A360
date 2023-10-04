@@ -1,0 +1,13 @@
+.svmx-datatable {
+    height: 50vh;
+}
+.svmx-datatable-header {
+    background-color: var(--lwc-colorTextPlaceholderInverse);
+}
+.slds-form-element__help, .slds-form-element__helper {
+    display: none !important;
+}
+.svmx-pagination-bottom .svmx-pageJump lightning-input {
+    width: 4rem;
+    height: 30px;
+}

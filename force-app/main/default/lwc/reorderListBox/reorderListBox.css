@@ -1,0 +1,82 @@
+.listbox {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    clear: left
+}
+
+.listbox__column {
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+}
+
+.listbox__column .listbox__button {
+    margin: 0 .25rem
+}
+
+.listbox__column_responsive {
+    -webkit-box-flex: 0;
+    -ms-flex: 1 1 15rem;
+    flex: 1 1 15rem;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    overflow: hidden;
+    min-width: 6rem;
+}
+
+.listbox__column_responsive .listbox__options {
+    width: auto;
+    max-width: 100%
+}
+
+.listbox__options {
+    border: 1px solid #dddbda;
+    border-radius: .25rem;
+    padding: .25rem 0;
+    width: 15rem;
+    height: 15rem;
+    background-color: #fff;
+    overflow: auto
+}
+
+.listbox__options [aria-selected=true] {
+    background-color: #0070d2;
+    color: #fff
+}
+
+.listbox__options [aria-selected=true]:focus,
+.listbox__options [aria-selected=true]:hover {
+    background: #005fb2;
+    color: #fff
+}
+
+.listbox__options.listbox-is-disabled {
+    background-color: #ecebea;
+    border-color: #c9c7c5;
+    color: #3e3e3c
+}
+
+.listbox__options.listbox-is-disabled:hover {
+    cursor: not-allowed
+}
+
+.listbox__options.listbox-is-disabled .slds-listbox__option:hover {
+    cursor: not-allowed;
+    background-color: transparent
+}
+
+.listbox__options.listbox-is-disabled .slds-listbox__option:focus {
+    background-color: transparent
+}
+
+.no-user-select {
+    -webkit-touch-callout: none; 
+    -webkit-user-select: none; 
+    -ms-user-select: none;
+    user-select: none;    
+}

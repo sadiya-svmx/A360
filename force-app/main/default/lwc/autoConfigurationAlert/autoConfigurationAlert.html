@@ -1,0 +1,27 @@
+<template>
+    <template if:true={error}>
+        <c-alert variant="error">{error}</c-alert>
+      </template>
+    <template if:true={showWarningOrFail} >
+        <div class="slds-notify_container slds-is-relative">
+            <div class={showWarningOrFail.class} role="status">
+                <lightning-icon icon-name={showWarningOrFail.icon} alternative-text="Warning!" title="Warning" class="slds-p-right_small"></lightning-icon>
+                <div class="slds-notify__content">
+                    <h2 class="slds-text-heading_small "> {showWarningOrFail.message}
+                        <lightning-button
+                            data-id="warningButton"
+                            class="slds-p-left_xx-small"
+                            variant="base"
+                            label={showWarningOrFail.buttonLabel}
+                            onclick={handleClick}
+                            >
+                        </lightning-button>
+                    </h2>
+                </div>
+                <div class="slds-notify__close slds-p-top_xx-small">
+                    <lightning-button-icon icon-name="utility:close" size="large" variant="bare-inverse" alternative-text="close" onclick={handleClose} ></lightning-button-icon>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>

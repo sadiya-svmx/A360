@@ -1,0 +1,496 @@
+<template>
+    <template if:true={isOpen}>
+        <section role="dialog" class={computeOpenInModal} tabindex="-1" aria-labelledby="modal-heading-01"
+            aria-modal="true" aria-describedby="modal-content-id-1">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title={i18n.lnkClose} onclick={handleCancel}>
+                        <lightning-icon icon-name="utility:close" size="small" variant="bare"></lightning-icon>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">{i18n.selectServiceCoverage}</h2>
+                    <p class="slds-m-top_x-small">{i18n.selectCoverage}
+                        <a target={sourceObjectRecordId} onclick={viewSourceObjectRecord}
+                        class='svmx-source-record' title={sourceObjectRecordName}
+                        onmouseover={previewSourceRecord} onmouseout={handleMouseOut}> {sourceObjectRecordName}</a>
+                    </p>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <template if:true={error}>
+                        <c-alert variant="error">{error}</c-alert>
+                    </template>
+                    <template if:true={showFilter}>
+                        <div class="slds-clearfix">
+                            <lightning-formatted-text value={i18n.billingType} class="EverInteractiveEntitlement__billingType--color"></lightning-formatted-text>
+                            <lightning-formatted-text value={billingTypeValue} class="slds-m-left_x-small svmx-billingTypeVal"></lightning-formatted-text>
+                            <template if:true={showChangeBillingType}>
+                                <a class="EverInteractiveEntitlement__change--button slds-m-left_xx-small" onclick={openBillingTypeModal}>{i18n.change}</a>
+                            </template>
+                            <div class="slds-float_right slds-p-bottom_medium">
+                                <lightning-button-icon icon-name="utility:filterList" onclick={handleFilter} variant={computedVariant}></lightning-button-icon>
+                            </div>
+                        </div>
+                    </template>
+
+                    <div class="slds-grid">
+                        <div class="slds-card slds-card_boundary slds-accordion">
+                            <lightning-accordion allow-multiple-sections-open active-section-name={activeSections}>
+                                <lightning-accordion-section name="warrantySection" label={warrantyLabel}>
+                                    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-no-row-hover slds-table_fixed-layout svmx-ever-warranty-table" role="grid">
+                                        <thead>
+                                            <tr class="slds-line-height_reset">
+                                                <th class="slds-text-align_right" scope="col" style="width:3.25rem">
+                                                    <div class="slds-truncate slds-assistive-text" id="column-group-header" title={i18n.chooseRow}>{i18n.chooseRow}</div>
+                                                </th>
+                                                <th role="gridcell">{i18n.coverage}</th>
+                                                <th role="gridcell">
+                                                    <lightning-icon icon-name="utility:date_input" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                                    {i18n.startDate}
+                                                </th>
+                                                <th role="gridcell">
+                                                    <lightning-icon icon-name="utility:date_input" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                                    {i18n.endDate}
+                                                </th>
+                                                <th role="gridcell">{i18n.term}</th>
+                                                <th role="gridcell">{i18n.warrantyType}</th>
+                                                <th role="gridcell">{i18n.coveredBy}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template for:each={dispWarrantyList} for:item="warranty" for:index="indexval">
+                                                <tr key={warranty.id} class={warranty.rowClass}>
+                                                    <td class="slds-text-align_right" role="gridcell">
+                                                        <span class="slds-radio">
+                                                            <input type="radio" id={warranty.id} value={warranty.id} onclick={performRowChecked}
+                                                                name="options" tabindex="-1" aria-labelledby={warranty.id}
+                                                                checked={warranty.checked}/>
+                                                            <label class="slds-radio__label" for={warranty.id} id={warranty.id}>
+                                                                <span class="slds-radio_faux"></span>
+                                                            </label>
+                                                        </span>
+                                                    </td>
+                                                    <th role="gridcell" class="slds-truncate">
+                                                        <a tabindex="-1" target={warranty.id} onclick={viewWarrantyRecord} class="svmx-warranty-record" title={warranty.name}
+                                                        onmouseover={previewWarrantyRecord} onmouseout={handleMouseOut}>{warranty.name}</a>
+                                                    </th>
+                                                    <th role="gridcell">
+                                                        <lightning-formatted-date-time value={warranty.startDate} time-zone={i18n.timeZone} class="slds-m-left_large"></lightning-formatted-date-time>
+                                                    </th>
+                                                    <th role="gridcell">
+                                                        <template if:true={warranty.showEndDatePopover}>
+                                                            <lightning-icon icon-name="utility:clock" variant={warranty.endDateVariant} size="x-small"
+                                                                            class="slds-m-right_x-small svmx-end-date" onmouseover={showPopover} onmouseout={hidePopover}
+                                                                            data-id={warranty.id}>
+                                                            </lightning-icon>
+                                                            <section class={warranty.endDatePOClass} role="dialog" data-id={warranty.id}>
+                                                                <template if:true={warranty.showEndDatePOHeader}>
+                                                                    <header class="slds-popover__header">
+                                                                        <div class="slds-media slds-media_center slds-has-flexi-truncate ">
+                                                                            <div class="slds-media__figure">
+                                                                                <lightning-icon icon-name="utility:clock" size="x-small" variant={warranty.endDateIconClass}></lightning-icon>
+                                                                            </div>
+                                                                            <div class="slds-media__body">
+                                                                                <h2 class="slds-truncate slds-text-heading_small" title={i18n.expiringSoon}>{i18n.expiringSoon}</h2>
+                                                                            </div>
+                                                                        </div>
+                                                                    </header>
+                                                                </template>
+                                                                <div class="slds-popover__body slds-popover_warning__body">
+                                                                    <p class="slds-m-bottom_x-small svmx-expiring-message">
+                                                                        <lightning-formatted-text value={warranty.expiringMessage} class={warranty.expiringMessageCSS}></lightning-formatted-text>
+                                                                    </p>
+                                                                </div>
+                                                            </section>
+                                                        </template>
+                                                        <lightning-formatted-date-time value={warranty.endDate} time-zone={i18n.timeZone} class={warranty.endDateClass}> </lightning-formatted-date-time>
+                                                    </th>
+                                                    <th role="gridcell" class="slds-truncate">
+                                                        <a target={warranty.termId} onclick={viewTermRecord} title={warranty.termName} class="svmx-warranty-term-record"
+                                                        onmouseover={previewWarrantyTermRecord} onmouseout={handleMouseOut}>{warranty.termName}</a>
+                                                    </th>
+                                                    <th role="gridcell">{warranty.warrantyType}</th>
+                                                    <th role="gridcell">{warranty.trackedByLabel}</th>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                    <footer class="slds-card__footer">
+                                        <template if:true={showWarrantyViewAll}>
+                                            <a class="slds-card__footer-action" onclick={viewAllWarranties}>{i18n.viewAll}</a>
+                                        </template>
+                                    </footer>
+                                </lightning-accordion-section>
+                            </lightning-accordion>
+                            <lightning-accordion allow-multiple-sections-open active-section-name={activeSections}>
+                                <lightning-accordion-section name="contractSection" label={contractLabel}>
+                                    <table class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered slds-table_fixed-layout" role="grid">
+                                        <thead>
+                                            <tr class="slds-line-height_reset">
+                                                <th class="slds-text-align_right" scope="col" style="width:3.25rem">
+                                                    <div class="slds-truncate slds-assistive-text" title={i18n.chooseRow}>{i18n.chooseRow}</div>
+                                                </th>
+                                                <th role="gridcell" width="15%">{i18n.coverage}</th>
+                                                <th role="gridcell" width="20%">{i18n.entitledService}</th>
+                                                <th role="gridcell" width="15%">
+                                                    <lightning-icon icon-name="utility:date_input" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                                    {i18n.startDate}
+                                                </th>
+                                                <th role="gridcell" width="15%">
+                                                    <lightning-icon icon-name="utility:date_input" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                                    {i18n.endDate}
+                                                </th>
+                                                <th role="gridcell" width="12%">{i18n.coveredBy}</th>
+                                                <th role="gridcell" width="23%">{i18n.serviceThreshold}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template for:each={dispContractList} for:item="contract" for:index="indexval">
+                                                <tr key={contract.id} class={contract.rowClass}>
+                                                    <td class="slds-text-align_right" role="gridcell">
+                                                        <span class="slds-radio">
+                                                            <template if:false={contract.entitlementName}>
+                                                                <input type="radio" id={contract.id} value={contract.id} name="options"
+                                                                       tabindex="-1" aria-labelledby={contract.id} checked={contract.checked} disabled/>
+                                                            </template>
+                                                            <template if:true={contract.entitlementName}>
+                                                                <input type="radio" id={contract.id} value={contract.id} name="options" onclick={performRowChecked}
+                                                                       tabindex="-1" aria-labelledby={contract.id} checked={contract.checked} class="svmx-entitlement-record-select"/>
+                                                            </template>
+                                                            <label class="slds-radio__label" for={contract.id} id={contract.id}>
+                                                                <span class="slds-radio_faux"></span>
+                                                            </label>
+                                                        </span>
+                                                    </td>
+                                                    <th role="gridcell" class="slds-truncate">
+                                                        <a tabindex="-1" target={contract.serviceContractId} onclick={viewContractRecord}
+                                                           class="svmx-contract-record" title={contract.name}
+                                                           onmouseover={previewContractRecord} onmouseout={handleMouseOut}>
+                                                           {contract.name}
+                                                        </a>
+                                                    </th>
+                                                    <th role="gridcell" class="slds-truncate">
+                                                        <template if:true={contract.entitlementName}>
+                                                            <lightning-icon icon-name="utility:level_down" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                                            <a tabindex="-1" target={contract.id} onclick={viewEntitlementRecord} title={contract.entitlementName} class="svmx-entitlement-record"
+                                                            onmouseover={previewEntitlementRecord} onmouseout={handleMouseOut}>{contract.entitlementName}</a>
+                                                        </template>
+                                                    </th>
+                                                    <th role="gridcell">
+                                                        <lightning-formatted-date-time value={contract.startDate} time-zone={i18n.timeZone} class="slds-m-left_large"> </lightning-formatted-date-time>
+                                                    </th>
+                                                    <th role="gridcell">
+                                                        <template if:true={contract.showEndDatePopover}>
+                                                            <lightning-icon icon-name="utility:clock" variant={contract.endDateVariant} size="x-small"
+                                                                            class="slds-m-right_x-small svmx-contract-end-date" onmouseover={showEndDataPopover} onmouseout={hideEndDatePopover}
+                                                                            data-contract={contract.id}>
+                                                            </lightning-icon>
+                                                            <section class={contract.endDatePOClass} role="dialog" data-contract={contract.id}>
+                                                                <template if:true={contract.showEndDatePOHeader}>
+                                                                    <header class="slds-popover__header">
+                                                                        <div class="slds-media slds-media_center slds-has-flexi-truncate ">
+                                                                            <div class="slds-media__figure">
+                                                                                <lightning-icon icon-name="utility:clock" size="x-small" variant={contract.endDateIconClass}></lightning-icon>
+                                                                            </div>
+                                                                            <div class="slds-media__body">
+                                                                                <h2 class="slds-truncate slds-text-heading_small" title={i18n.expiringSoon}>{i18n.expiringSoon}</h2>
+                                                                            </div>
+                                                                        </div>
+                                                                    </header>
+                                                                </template>
+                                                                <div class="slds-popover__body slds-popover_warning__body">
+                                                                    <p class="slds-m-bottom_x-small">
+                                                                        <lightning-formatted-text value={contract.expiringMessage} class={contract.expiringMessageCSS}></lightning-formatted-text>
+                                                                    </p>
+                                                                </div>
+                                                            </section>
+                                                        </template>
+                                                        <lightning-formatted-date-time value={contract.endDate} time-zone={i18n.timeZone} class={contract.endDateClass}> </lightning-formatted-date-time>
+                                                    </th>
+                                                    <th role="gridcell">{contract.trackedByLabel}</th>
+                                                    <th role="gridcell">
+                                                        <template if:true={contract.entitlementName}>
+                                                            <div class="slds-grid slds-text-body_regular slds-m-top_xxx-small slds-gutters">
+                                                                <div class="slds-col slds-size_1-of-12">
+                                                                    <template if:true={contract.showServiceThreshold}>
+                                                                        <lightning-icon icon-name={contract.serviceThresholdIcon} variant={contract.serviceThresholdIconVariant} size="x-small"
+                                                                                        class="slds-m-right_x-small" onmouseover={showPopover} onmouseout={hidePopover} data-id={contract.id}>
+                                                                        </lightning-icon>
+                                                                    </template>
+                                                                </div>
+                                                                <section class={contract.popoverClass} role="dialog" onmouseover={showPopover} onmouseout={hidePopover} data-id={contract.id}>
+                                                                     <header class="slds-popover__header slds-truncate">
+                                                                        <p  class="slds-truncate slds-text-heading_small" title={i18n.serviceConsumption}>{i18n.serviceConsumption}</p>
+                                                                    </header>
+                                                                    <div class="slds-popover__body slds-popover__body_small slds-m-left_x-small">
+                                                                        <div class="slds-grid slds-grid_align-center">
+                                                                            <div class="slds-col slds-truncate">
+                                                                                <div class="EverInteractiveEntitlement__title">
+                                                                                    <lightning-formatted-text title={contract.totalCountService} value={contract.totalCountService} class="slds-truncate"></lightning-formatted-text>
+                                                                                </div>
+                                                                                <span class="EverInteractiveEntitlement__subtitle slds-align_absolute-center" title={i18n.total}>{i18n.total}</span>
+                                                                            </div>
+                                                                            <div class="slds-col slds-truncate">
+                                                                                <div class="EverInteractiveEntitlement__title">
+                                                                                    <lightning-formatted-text title={contract.consumedCountService} value={contract.consumedCountService} class="slds-m-left_x-small slds-truncate"></lightning-formatted-text>
+                                                                                </div>
+                                                                                <span class="EverInteractiveEntitlement__subtitle slds-align_absolute-center" title={i18n.consumed}>{i18n.consumed}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="slds-grid slds-grid_align-center slds-p-top_medium">
+                                                                            <div class="slds-col slds-truncate">
+                                                                                <div class="EverInteractiveEntitlement__title">
+                                                                                    <lightning-formatted-text title={contract.remainingCountService} value={contract.remainingCountService} class={contract.badgeClass}></lightning-formatted-text>
+                                                                                </div>
+                                                                                <span class="EverInteractiveEntitlement__subtitle slds-align_absolute-center slds-truncate" title={i18n.remaining}>{i18n.remaining}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </section>
+                                                            <div class="slds-col slds-size_12-of-12 slds-truncate">
+                                                                <span class="slds-truncate" title={contract.serviceThreshold}>{contract.serviceThreshold}</span>
+                                                            </div>
+                                                        </div>
+                                                        </template>
+                                                    </th>
+                                                </tr>
+                                            </template>
+
+                                        </tbody>
+                                    </table>
+                                    <footer class="slds-card__footer">
+                                        <template if:true={showContractViewAll}>
+                                            <a class="slds-card__footer-action" onclick={viewAllContracts}>{i18n.viewAll}</a>
+                                        </template>
+                                    </footer>
+                                </lightning-accordion-section>
+                            </lightning-accordion>
+                            <lightning-accordion allow-multiple-sections-open active-section-name={activeSections}>
+                                <lightning-accordion-section name="contractSection" label={i18n.noCoverage}>
+                                    <table class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered slds-table_fixed-layout" role="grid">
+                                            <thead>
+                                                <tr class="slds-line-height_reset">
+                                                    <th class="slds-text-align_right" scope="col" style="width:3.25rem;height:1.3rem">
+                                                        <div class="slds-truncate slds-assistive-text" title={i18n.chooseRow}>{i18n.chooseRow}</div>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr key={i18n.incidentNotcovered} class={noCoverageSelectedClass}>
+                                                    <td class="slds-text-align_right" role="gridcell">
+                                                        <span class="slds-radio">
+                                                            <input type="radio" id={i18n.incidentNotcovered} value={i18n.incidentNotcovered} name="options"
+                                                                tabindex="-1" aria-labelledby={i18n.incidentNotcovered} checked={noCoverageSelected}
+                                                                onclick={performRowChecked} class="svmx-incident-not-covered"/>
+                                                            <label class="slds-radio__label" for={i18n.incidentNotcovered} id={i18n.incidentNotcovered}>
+                                                                <span class="slds-radio_faux"></span>
+                                                            </label>
+                                                        </span>
+                                                    </td>
+                                                    <th role="gridcell">{i18n.incidentNotcovered}</th>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                </lightning-accordion-section>
+                            </lightning-accordion>
+                            <template if:true={apiInProgress}>
+                                <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+                            </template>
+                        </div>
+
+                        <div class={computedPanelCSS} aria-hidden="false" >
+                            <div class="slds-panel__header">
+                                <h2 class="slds-panel__header-title slds-text-heading_small slds-truncate" title={i18n.filter}>{i18n.filter}</h2>
+                                <button class="slds-button slds-button_brand" onclick={handleApplyFilter}>{i18n.apply}</button>
+                            </div>
+                            <div class="slds-panel__body">
+                                <lightning-layout multiple-rows vertical-align="center">
+                                    <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                        <div class="slds-form" role="list">
+                                            <div class="slds-form__row">
+                                                <div class="slds-form__item" role="listitem">
+                                                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                        <lightning-input type="checkbox" label={i18n.futureEntitlements} checked={activeSettingData.futureEntitlements} onchange={handleValueChange} name="futureEntitlements"></lightning-input>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+
+                                <lightning-layout multiple-rows vertical-align="center">
+                                    <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                        <div class="slds-form" role="list">
+                                            <div class="slds-form__row">
+                                                <div class="slds-form__item" role="listitem">
+                                                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                        <lightning-input type="checkbox" label={i18n.expiredEntitlements} checked={activeSettingData.expiredEntitlements} onchange={handleValueChange} name="expiredEntitlements"></lightning-input>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+
+                                <lightning-layout multiple-rows vertical-align="center">
+                                    <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                        <div class="slds-form" role="list">
+                                            <div class="slds-form__row">
+                                                <div class="slds-form__item" role="listitem">
+                                                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                        <lightning-input type="checkbox" label={i18n.fullyConsumedServices} checked={activeSettingData.fullyConsumedServices} onchange={handleValueChange} name="fullyConsumedServices"></lightning-input>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+
+                                <lightning-layout multiple-rows vertical-align="center">
+                                    <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                        <div class="slds-form" role="list">
+                                            <div class="slds-form__row">
+                                                <div class="slds-form__item" role="listitem">
+                                                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                        <lightning-input type="checkbox" label={i18n.onHoldEntitlements} checked={activeSettingData.onHoldEntitlements} onchange={handleValueChange} name="onHoldEntitlements"></lightning-input>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+
+                                <lightning-layout multiple-rows vertical-align="center">
+                                    <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                        <div class="slds-form" role="list">
+                                            <div class="slds-form__row">
+                                                <div class="slds-form__item" role="listitem">
+                                                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                        <lightning-combobox name="coveredBy" label={i18n.coveredBy} value={activeSettingData.coveredBy} options={coveredByOptions} onchange={handleValueChange} ></lightning-combobox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+
+                                <template if:true={showComponent}>
+                                    <lightning-layout multiple-rows vertical-align="center">
+                                        <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                            <div class="slds-form" role="list">
+                                                <div class="slds-form__row">
+                                                    <div class="slds-form__item" role="listitem">
+                                                        <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                            <lightning-input type="checkbox" label={matchAccountLabel} checked={activeSettingData.matchAccount}  onchange={handleValueChange} name="matchAccount"></lightning-input>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                </template>
+
+                                <template if:true={showAccount}>
+                                    <lightning-layout multiple-rows vertical-align="center">
+                                        <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                            <div class="slds-form" role="list">
+                                                <div class="slds-form__row">
+                                                    <div class="slds-form__item" role="listitem">
+                                                        <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                            <lightning-combobox name="accountAPIName" label={i18n.accountAPIName} value={activeSettingData.accountAPIName} options={accountAPINames} onchange={handleValueChange} ></lightning-combobox>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                </template>
+
+                                <template if:true={showComponent}>
+
+                                    <lightning-layout multiple-rows vertical-align="center">
+                                        <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                            <div class="slds-form" role="list">
+                                                <div class="slds-form__row">
+                                                    <div class="slds-form__item" role="listitem">
+                                                        <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                            <lightning-combobox name="assetAPIName" label={i18n.assetAPIName} value={activeSettingData.assetAPIName} options={assetAPINames} onchange={handleValueChange} ></lightning-combobox>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+
+                                    <lightning-layout multiple-rows vertical-align="center">
+                                        <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                            <div class="slds-form" role="list">
+                                                <div class="slds-form__row">
+                                                    <div class="slds-form__item" role="listitem">
+                                                        <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                            <lightning-input type="checkbox" label={i18n.includeRootAsset} checked={activeSettingData.includeRootAsset} onchange={handleValueChange} name="includeRootAsset"></lightning-input>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+
+                                    <lightning-layout multiple-rows vertical-align="center">
+                                        <lightning-layout-item size="3" medium-device-size="3" class="slds-align-top">
+                                            <div class="slds-form" role="list">
+                                                <div class="slds-form__row">
+                                                    <div class="slds-form__item" role="listitem">
+                                                        <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                                            <lightning-input type="checkbox" label={i18n.includeParentAsset} checked={activeSettingData.includeParentAsset} onchange={handleValueChange} name="includeParentAsset"></lightning-input>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-m-top_small">
+                        <lightning-textarea label={i18n.notes} value={notes}></lightning-textarea>
+                    </div>
+                    <template if:true={billingTypeModalOpen}>
+                        <section role="dialog" tabindex="-1" aria-labelledby="billingTypeModal" aria-modal="true"
+                                aria-describedby="billingTypeModalContent" class="slds-modal slds-fade-in-open slds-modal_small svmx-changeBillingTypeModal">
+                                <div class="slds-modal__container EverInteractiveEntitlement__billingTypeModal">
+                                    <header class="slds-modal__header">
+                                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                                title={i18n.lnkClose} onclick={handleCancelModal}>
+                                            <lightning-icon icon-name="utility:close" size="small" variant="bare"></lightning-icon>
+                                        </button>
+                                        <h2 id="billingTypeModalHeader" class="slds-modal__title slds-hyphenate">{i18n.noCoverage}</h2>
+                                    </header>
+                                    <div class="slds-modal__content slds-p-around_medium" id="billingTypeModalBodyContent">
+                                        <lightning-radio-group label={i18n.selectBillingType}
+                                                               options={billingTypeOptions}
+                                                               value={_billingTypeValue}
+                                                               onchange={handleBillingTypeChange}
+                                                               type="radio">
+                                        </lightning-radio-group>
+                                    </div>
+                                    <footer class="slds-modal__footer">
+                                        <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal} class="slds-p-right_x-small svmx-delete-modal_cancel-btn"></lightning-button>
+                                        <lightning-button class="confirmButton" label="Update" title="Update" variant="brand" onclick={handleUpdateBillingModal}></lightning-button>
+                                    </footer>
+                                </div>
+                        </section>
+                        <div class="slds-backdrop slds-backdrop_open"></div>
+                    </template>
+                </div>
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick={handleCancel}>{i18n.cancel}</button>
+                    <button class="slds-button slds-button_brand" onclick={handleSave}>{i18n.save}</button>
+                </footer>
+                <c-svmx-record-popover></c-svmx-record-popover>
+            </div>
+        </section>
+        <template if:false={noModal}>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+    </template>
+</template>

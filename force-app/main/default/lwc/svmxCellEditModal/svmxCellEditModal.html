@@ -1,0 +1,113 @@
+<template>
+    <span class={cellClassnames}>
+        <!-- Show handle showing the lookup as a special case -->
+        <template if:true={isTypeLookupAndHasObject}>
+            <c-svmx-lookup-value
+                icon={valueObject.icon}
+                label={valueObject.label}
+            ></c-svmx-lookup-value>
+        </template>
+        <template if:true={isTypeLookupAndNoObject}>
+            <c-svmx-lookup
+                icon-name={meta.icon}
+                target-object-api-name={meta.object}
+                target-label-api-name={meta.referenceNameFields}
+                value={initialValue}
+                read-only
+                is-in-cell
+            ></c-svmx-lookup>
+        </template>
+    
+        <!-- Show the display value of the cell -->
+        <div class="svmx-cell-edit_display-value svmx-truncate slds-truncate" 
+            title={formattedDisplayValue}>
+            {formattedDisplayValue}
+        </div>
+        
+        <!-- Provide the edit icon to trigger opening the Modal -->
+        <template if:true={isEditable}>
+            <c-svmx-cell-edit-icon onclick={handleClick}></c-svmx-cell-edit-icon>
+        </template>
+    </span>
+
+    <!-- Modal is opened by clicking on the icon above. -->
+    <template if:true={modalOpen}>
+        <c-modal-dialog
+            is-open={modalOpen}
+            modal-content-id="editModalContent"
+            modal-header-id="editModalHeader"
+            section-class="svmx-modal-content_min-height"
+            title={fieldProps.label}
+            onmodalclosed={handleModalClose}
+            relative-to-viewport
+        >
+            <div class={formElementClasses} slot="body">
+                <template if:true={isTypeLookup}>
+                    <c-svmx-lookup
+                        advanced-search-config={meta.advancedSearchConfig}
+                        class="svmx-cell-edit_lookup"
+                        disabled={fieldProps.disabled}
+                        enable-advanced-search={meta.enableAdvancedSearch}
+                        field-api-name={fieldProps.fieldName}
+                        filters={meta.filters}
+                        icon-name={meta.icon}
+                        target-object-api-name={meta.object}
+                        target-label-api-name={meta.referenceNameFields}
+                        onlookupselect={handleChange}
+                        placeholder={meta.placeholder}
+                        required={fieldProps.required}
+                        row-id={fieldProps.rowId}
+                        value={initialValue}
+                        nested-modal
+                    ></c-svmx-lookup>
+                </template>
+                <template if:true={isTypePicklist}>
+                    <c-combobox-by-record-type
+                        class="svmx-cell-edit_picklist"
+                        disabled={fieldProps.disabled}
+                        filterable
+                        default-record-type-id={defaultRecordTypeId}
+                        record-type-id={recordTypeId}
+                        field-api-name={objectFieldApiName}
+                        controller-field-name={controllerFieldName}
+                        controller-value={controllerValue}
+                        items={meta.options}
+                        multiple={meta.multiple}
+                        onchange={handleChange}
+                        placeholder={meta.placeholder}
+                        required={fieldProps.required}
+                        value={initialValue}
+                        variant="standard"
+                    ></c-combobox-by-record-type>
+                </template>
+                <template if:true={isTypeTextarea}>
+                    <lightning-textarea
+                        class="svmx-cell-edit_textarea"
+                        disabled={fieldProps.disabled}
+                        name={fieldProps.fieldName}
+                        onchange={handleChange}
+                        value={initialValue}
+                        required={fieldProps.required}
+                        max-length={meta.length}
+                    ></lightning-textarea>
+                </template>
+            </div>
+            <div slot="footer">
+                <lightning-button
+                    class="svmx-modal_button-cancel slds-p-right_x-small"
+                    label={i18n.buttonCancel}
+                    onclick={handleModalClose}
+                    title={i18n.buttonCancel}
+                    variant="neutral"
+                ></lightning-button>
+                <lightning-button
+                    class="svmx-modal_button-save"
+                    label={i18n.buttonApply}
+                    onclick={handleModalSave}
+                    title={i18n.buttonApply}
+                    variant="brand"
+                ></lightning-button>
+            </div>
+        </c-modal-dialog>
+    </template>
+</template>

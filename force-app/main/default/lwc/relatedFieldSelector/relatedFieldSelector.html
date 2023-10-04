@@ -1,0 +1,84 @@
+<template>
+    <c-modal-dialog title={i18n.title} class="flowSelectorModal" is-open={selectorModalOpen} modal-content-id="flowSelectorContent" modal-header-id="flowSelectorHeader" onmodalclosed={handleCancelModal} size = "SMALL_FIXED">
+        <div slot="body">
+            <template if:true={error}>
+                <c-alert variant="error">
+                   <div slot="header"></div>
+                    <p class="modal-wraptext">{error}</p>
+                </c-alert>
+            </template>
+            <template if:true={isCompatibilityFieldsRequired}>
+                <div class="slds-p-left_medium slds-p-bottom_small"><b>{i18n.target} </b>{targetFieldLabel}</div>
+            </template>
+            <nav role="navigation" aria-label="Breadcrumbs">
+                <ol class="slds-breadcrumb slds-list_horizontal slds-wrap slds-grid_vertical-align-center">
+                    <lightning-breadcrumbs>
+                        <template iterator:it={fieldsList}>
+                            <li key={it.value.id} class="slds-p-left_medium">
+                                <template if:false={it.last}>
+                                    <div class="slds-media slds-media_center">
+                                        <div class="slds-media__body">
+                                            <lightning-breadcrumb key={it.value.id} href="#" label={it.value.label} name={it.value.name} class="svmx-related-picklist-value"
+                                            onclick={handleNavigateTo}></lightning-breadcrumb>
+                                        </div>
+                                        <div class="slds-media__figure">
+                                                <lightning-icon icon-name="utility:right" alternative-text="right!" title="right" size="small"></lightning-icon>    
+                                        </div>   
+                                    </div>
+                                </template> 
+                                <template if:true={it.last}>
+                                        <div class="slds-p-top_xx-small">
+                                            <lightning-breadcrumb key={it.value.id} href="#" label={it.value.label} name={it.value.name} class="svmx-related-picklist-value"
+                                                onclick={handleNavigateTo}></lightning-breadcrumb>
+                                        </div>         
+                                </template> 
+                            </li>    
+                        </template>
+                        <template if:false={isFieldSelected}>
+                            <template if:true={isFieldsListEmpty}>
+                                <div class="slds-media__body">
+                                    <lightning-combobox name="progress" variant="label-hidden" label={label} value={value} style="width:200px;" 
+                                     placeholder={i18n.select} options={objectApiOptions} onchange={handleObjectChange} class="svmx-related-picklist-combobox-value"></lightning-combobox>
+                                </div>
+                            </template>
+                            <template if:false={isFieldsListEmpty}>
+                                <template if:false={compatibleFieldOptionsEmpty}>
+                                    <div class="slds-media slds-media_center">
+                                        <div class="slds-media__figure">
+                                            <lightning-icon icon-name="utility:right" alternative-text="right!" title="right" size="small"></lightning-icon>    
+                                        </div>
+                                        <div class="slds-media__body">
+                                            <lightning-combobox name="progress" variant="label-hidden" label={label} value={value} style="width:200px;"
+                                             placeholder={i18n.select} options={options} onchange={handleChange} class="svmx-related-picklist-combobox-value"></lightning-combobox>
+                                        </div> 
+                                    </div> 
+                                </template> 
+                                <template if:true={compatibleFieldOptionsEmpty}>
+                                    <div class="slds-p-vertical_x-small slds-text-color_error">{i18n.noMatchingFieldAvailable}</div>
+                                </template>
+                            </template>
+                        </template>
+                    </lightning-breadcrumbs>
+                </ol>
+            </nav>
+            <template if:true={apiInProgress}>
+                <lightning-spinner
+                    variant="brand"
+                    alternative-text={i18n.loading}
+                ></lightning-spinner>
+            </template>
+            <template if:true={isFieldSelected}>
+                    <div class="slds-align_absolute-center" style="height:10rem">
+                        <div class="slds-box">
+                            <div class="slds-text-title slds-text-align_center">{i18n.selectedField}</div>
+                            <div class="slds-text-body_regular slds-text-align_center modal-wraptext">{referenceFieldApiName}</div>
+                        </div>
+                    </div>
+            </template>
+        </div>
+        <div slot="footer">
+        <lightning-button label={i18n.cancel} title="Cancel" variant="neutral" onclick={handleCancelModal} class="slds-p-right_x-small svmx-related-picklist_cancel-button"></lightning-button>
+        <lightning-button label={i18n.apply} title="Apply" variant="brand" onclick={handleApply} disabled={isApplyButtondisabled} class="svmx-related-picklist_apply-button"></lightning-button>
+        </div>
+    </c-modal-dialog>
+</template>

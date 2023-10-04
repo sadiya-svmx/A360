@@ -1,0 +1,151 @@
+<template>
+    <lightning-card title={i18n.title} icon-name="standard:maintenance_plan">
+        <template if:true={error}>
+            <c-alert variant="error">{error}</c-alert>
+        </template>
+        <!--Location Source Object-->
+        <div class="slds-m-around_medium">
+            <div class="slds-form" role="list">
+                <div class="slds-form__row">
+                    <div class="slds-form__item">
+                        <div class="slds-form-element slds-form-element_stacked">
+                            <c-svmx-lookup icon-name="standard:maintenance_plan"
+                                target-object-api-name="SVMXA360__MaintenancePlanTemplate__c"
+                                target-label-api-name="Name" label={i18n.labelMplanTemplate}
+                                object-api-name="MaintenancePlan"
+                                data-fieldname="SVMXA360__MaintenancePlanTemplateId__c"
+                                onlookupselect={handleFieldChange}
+                                value={maintenancePlanRecord.SVMXA360__MaintenancePlanTemplateId__c} required="true"
+                                filters={mplanTemplateFilter} class="inputfield" onerror={handleLookupError}>
+                            </c-svmx-lookup>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-form__row">
+                    <div class="slds-form__item">
+                        <div class="slds-form-element slds-form-element_stacked">
+                            <lightning-input label={i18n.labelMplanTitle} data-fieldname="MaintenancePlanTitle"
+                                value={maintenancePlanRecord.MaintenancePlanTitle} onchange={handleFieldChange}>
+                            </lightning-input>
+                        </div>
+                    </div>
+                </div>
+                <template if:true={renderLocationAPI}>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item">
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <lightning-input label={i18n.labelLocation} type="text" value={locationName}
+                                    data-fieldname={maintenancePlanRecord.LocationId} read-only="true"
+                                    class="inputfield" variant="label-stacked"></lightning-input>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item">
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <c-svmx-lookup icon-name="standard:account" target-object-api-name="Account"
+                                    target-label-api-name="Name" data-fieldname="AccountId" label={i18n.labelAccount}
+                                    onlookupselect={handleFieldChange} value={maintenancePlanRecord.AccountId}
+                                    filters={accountFilter} class="svmx-lookup-account-filter"
+                                    onerror={handleLookupError}></c-svmx-lookup>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <!--Account Source Object-->
+                <template if:true={renderAccountAPI}>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item">
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <c-svmx-lookup icon-name="standard:location" target-object-api-name="Location"
+                                    target-label-api-name="Name" data-fieldname="LocationId" label={i18n.labelLocation}
+                                    value={maintenancePlanRecord.LocationId} onlookupselect={handleFieldChange}
+                                    onerror={handleLookupError}></c-svmx-lookup>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item">
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <lightning-input label={i18n.labelAccount} type="text" value={accountName}
+                                    data-fieldname={maintenancePlanRecord.AccountId} read-only="true" class="inputfield"
+                                    variant="label-stacked"></lightning-input>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <!--Service Contract Source Object-->
+                <template if:true={renderSContractAPI}>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item">
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <lightning-input label={i18n.labelServiceContract} type="text"
+                                    value={serviceContractName} data-fieldname={maintenancePlanRecord.ServiceContractId}
+                                    read-only="true" class="inputfield" variant="label-stacked"></lightning-input>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item">
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <c-svmx-lookup icon-name="standard:location" target-object-api-name="Location"
+                                    target-label-api-name="Name" data-fieldname="LocationId" label={i18n.labelLocation}
+                                    value={maintenancePlanRecord.LocationId} onlookupselect={handleFieldChange}
+                                    onerror={handleLookupError}></c-svmx-lookup>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item">
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <c-svmx-lookup icon-name="standard:account" target-object-api-name="Account"
+                                    target-label-api-name="Name" data-fieldname="AccountId" label={i18n.labelAccount}
+                                    value={maintenancePlanRecord.AccountId} onlookupselect={handleFieldChange}
+                                    disabled="true" onerror={handleLookupError}></c-svmx-lookup>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <!--Asset Source Object-->
+                <template if:true={renderAssetAPI}>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item">
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <c-svmx-lookup icon-name="standard:location" target-object-api-name="Location"
+                                    target-label-api-name="Name" data-fieldname="LocationId" label={i18n.labelLocation}
+                                    value={maintenancePlanRecord.LocationId} onlookupselect={handleFieldChange}
+                                    disabled="true" onerror={handleLookupError}></c-svmx-lookup>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item">
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <c-svmx-lookup icon-name="standard:account" target-object-api-name="Account"
+                                    target-label-api-name="Name" data-fieldname="AccountId" label={i18n.labelAccount}
+                                    value={maintenancePlanRecord.AccountId} onlookupselect={handleFieldChange}
+                                    disabled="true" onerror={handleLookupError}></c-svmx-lookup>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <div class="slds-form__row">
+                    <div class="slds-form__item">
+                        <div class="slds-form-element slds-form-element_stacked">
+                            <lightning-input label={i18n.labelStartDate} type="date" data-fieldname="StartDate"
+                                class="inputfield" value={maintenancePlanRecord.StartDate} onchange={handleFieldChange}
+                                required="true">
+                            </lightning-input>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <c-svmx-form-footer is-sticky errors={popoverErrorMessages} is-in-modal=true alignment="right"
+            has-error={hasFormError}>
+            <lightning-button variant="brand" label={i18n.next} title={i18n.next} onclick={handleNext}
+                class="slds-m-left_xx-small slds-m-right_xx-small"></lightning-button>
+        </c-svmx-form-footer>
+    </lightning-card>
+</template>

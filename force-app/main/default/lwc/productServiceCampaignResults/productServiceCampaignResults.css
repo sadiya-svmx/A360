@@ -1,0 +1,24 @@
+.svmx-psc-search_progress {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    opacity: 0.9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}
+
+.svmx-psc-search_progress .content {
+    width: 90%;
+}
+.svmx-psc-search_progress .content h3 {
+    font-size: 16px;
+    font-weight: bold;
+}
+.svmx-psc-block {
+    border: solid 3px #f2f2f2;
+    position: relative;
+    padding: 1rem;
+}

@@ -1,0 +1,637 @@
+<template>
+    <c-admin-layout remove-scroll=true>
+
+        <div class="container">
+            <div class="slds-card">
+                <c-svmx-page-header 
+                    title={processRecord.name} 
+                    icon-name={srcIconName} 
+                    sub-title={i18n.maintenanceProcessing} 
+                    icon-title={processRecord.name}
+                    icon-size={iconSize}>
+                    <div class="slds-page-header__control" slot="actions">
+                        <lightning-button
+                            label={i18n.cancel}
+                            title={i18n.cancel}
+                            onclick={handleCancel}
+                            class="svmx-cancelMplanProcessEdit"
+                        ></lightning-button>
+                        <lightning-button
+                            variant="brand"
+                            class="svmx-saveMplanProcess slds-p-left_xx-small"
+                            label={i18n.save}
+                            title={i18n.save}
+                            onclick={handleSave}
+                        ></lightning-button>
+                    </div>
+                </c-svmx-page-header>
+            </div>
+            <div class="scrollable">
+                <div class="slds-card__body slds-card__body_inner">
+                    <template if:true={error}>
+                        <c-alert variant="error">{error}</c-alert>
+                    </template>
+                    <template if:true={apiInProgress}>
+                        <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+                    </template>
+                    <div
+                        class="slds-form slds-p-bottom_x-small"
+                        role="list"
+                        if:true={showProcessDetail}
+                    >
+                        <div class="slds-section slds-is-open">
+                            <h3 class="slds-section__title slds-theme_shade">
+                                <span
+                                    class="slds-truncate slds-p-horizontal_small"
+                                    title={i18n.properties}
+                                    >{i18n.properties}</span
+                                >
+                            </h3>
+                        </div>
+                        <div class="slds-form__row">
+                            <div class="slds-form__item" role="listitem">
+                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                    <lightning-input
+                                        label={i18n.processName}
+                                        class="svmx-mplnProcessNameInput dataField"
+                                        data-field="name"
+                                        message-when-value-missing={i18n.enterProcessName}
+                                        required
+                                        value={processRecord.name}
+                                        max-length="80"
+                                        onblur={handleNameBlur}
+                                        onchange={handleFormInputChange}
+                                    ></lightning-input>
+                                </div>
+
+                            </div>
+                            <div class="slds-form__item" role="listitem">
+                                <div
+                                    class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                    <span class="slds-form-element__label">{i18n.isActive}</span>
+                                    <div class="slds-form-element__control">
+                                        <span
+                                            class="slds-form-element__static slds-grow word-break-ie11">
+                                            <lightning-input
+                                                type="checkbox"
+                                                name="activeProcess"
+                                                checked={processRecord.isActive}
+                                                onchange={handleActiveCheck}
+                                            ></lightning-input>   
+                                        </span>
+                                    </div>  
+                                </div>                  
+                            </div>
+                        </div>
+
+                        <div class="slds-form__row">
+                            <div class="slds-form__item" role="listitem">
+                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                    <lightning-input
+                                        label={i18n.developerName}
+                                        data-field="developerName"
+                                        class="svmx-mplnProcessDeveloperNameInput dataField"
+                                        message-when-value-missing={i18n.developerNameMissing}
+                                        disabled={developerNameDisabled}
+                                        required
+                                        value={processRecord.developerName}
+                                    ></lightning-input>    
+                                </div>                        
+                            </div>
+                            <div class="slds-form__item" role="listitem">
+                            </div>
+                        </div>
+
+                        <div class="slds-form__row">
+                            <div class="slds-form__item" role="listitem">
+                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                    <lightning-textarea
+                                        class="svmx-expressionDescriptionInput"
+                                        label={i18n.description}
+                                        max-length="512"
+                                        value={processRecord.description}
+                                        data-field="description"
+                                        onchange={handleFormInputChange}
+                                    ></lightning-textarea>  
+                                </div>                             
+                            </div>
+                            <div class="slds-form__item" role="listitem">
+                                <div
+                                    class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                    <span class="slds-form-element__label">{i18n.isDefault}</span>
+                                    <div class="slds-form-element__control">
+                                        <span
+                                            class="slds-form-element__static slds-grow word-break-ie11">
+                                            <lightning-input
+                                                type="checkbox"
+                                                name="defaultProcess"
+                                                checked={processRecord.isDefault}
+                                                onchange={handleDefaultCheck}
+                                            ></lightning-input>   
+                                        </span>
+                                    </div>  
+                                </div>                  
+                            </div>
+                        </div>
+                        <div class="slds-form__row">
+                            <div class="slds-form__item" role="listitem">
+                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                    <lightning-input
+                                        type="number"
+                                        class="svmx-svmx-mplnProcessNdaysBeforeInput"
+                                        label={i18n.labelDaysInAdvance}
+                                        value={processRecord.nDaysBefore}
+                                        data-field="nDaysBefore"
+                                        onchange={handleFormInputChange}
+                                        field-level-help={i18n.labelHelpTextAdvanceWOGeneration}
+                                    ></lightning-input>  
+                                </div>                             
+                            </div>
+                            <div class="slds-form__item" role="listitem">
+                            </div>
+                        </div>
+                        <div class="slds-section slds-is-open">
+                            <h3 class="slds-section__title slds-theme_shade">
+                                <span
+                                    class="slds-truncate slds-p-horizontal_small"
+                                    title={i18n.mappingRules}
+                                    >{i18n.mappingRules}</span
+                                >
+                            </h3>
+                        </div>
+
+                        <ul>
+                            {i18n.labelEditorfirstLink}<lightning-button variant="base" label={i18n.labelMappingEditor} title={i18n.labelMappingEditor} onclick={handleMappingEditor} class="slds-m-left_xxx-small"></lightning-button> {i18n.labelEditersecLink}
+                        </ul>
+                        <template for:each={itemList} for:item="item" for:index="index">
+
+                            <lightning-record-edit-form key={item.id}>
+                                <div class="slds-grid slds-gutters">
+                                    <div class="slds-col slds-size_1-of-4">
+                                        <span
+                                            class="slds-form-element__label"
+                                            >{i18n.srcObject}</span
+                                        >
+                                        <div
+                                            class="slds-form-element__control"
+                                        >
+                                            <div
+                                                class="slds-form-element__static"
+                                            >
+                                                {item.sourceObject}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="slds-col slds-size_1-of-4">
+                                        <span
+                                            class="slds-form-element__label"
+                                            >{i18n.targetObject}</span
+                                        >
+                                        <div
+                                            class="slds-form-element__control"
+                                        >
+                                            <div
+                                                class="slds-form-element__static"
+                                            >
+                                                {item.targetObject}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="slds-col slds-size_1-of-4">
+                                        <lightning-combobox name="progress" label={i18n.labelMappingName}
+                                            value={item.objectMapping}
+                                            placeholder={i18n.labelMappingName} options={item.mappingOptions}
+                                            class='mpln-admin-combobox mapping-combobox' access-key={item.id}
+                                            onchange={handleMappingChange}>
+                                        </lightning-combobox>
+                                    </div>
+
+                                </div>
+                                <div class="slds-border_bottom slds-p-top_medium"></div>
+
+                            </lightning-record-edit-form>
+                            
+                        </template>
+
+                        <div class="slds-section slds-is-open">
+                            <h3 class="slds-section__title slds-theme_shade">
+                                <span
+                                    class="slds-truncate slds-p-horizontal_small"
+                                    title={i18n.assignmentRules}
+                                    >{i18n.assignmentRules}</span
+                                >
+                            </h3>
+                        </div>
+
+                        <div class="slds-form__row">
+                            <div class="slds-form__item" role="listitem">
+                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                    <lightning-combobox name="assignWOTo" label={i18n.assignWOTo}
+                                        value={processRecord.assignTo}
+                                        options={assignToOptions}
+                                        class='mpln-admin-combobox assignwoto-combobox' 
+                                        onchange={handleAssignToChange}>
+                                    </lightning-combobox>                                  
+                                </div>
+                            </div>
+                            <div class="slds-form__item" role="listitem">
+                            </div>
+                        </div>
+                        <div class="slds-form__row">
+                            <template if:true={isConfigurableField}>
+                                <div class="slds-form__item slds-size_1-of-2" role="listitem">
+                                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                        <lightning-combobox name="assignToObject" label={i18n.labelObject}
+                                            value={processRecord.assignToObject}
+                                            options={assignToObjectOptions}
+                                            class='mpln-admin-combobox assigntoobject-combobox' 
+                                            onchange={handleAssignToObjectChange}>
+                                        </lightning-combobox>                                  
+                                    </div>
+                                </div>
+                                <div class="slds-form__item slds-size_1-of-2" role="listitem">
+                                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                        <lightning-combobox name="assignWOTo2" label={i18n.assignWOTo}
+                                            value={processRecord.assignToValue}
+                                            options={configurableFieldOptions}
+                                            onchange={handleLookupChange}
+                                            class='mpln-admin-combobox assignwoto2-combobox'>
+                                        </lightning-combobox>                                  
+                                    </div>
+                                </div>    
+                            </template>
+                            <template if:true={isUserAssignment}>
+                                <div class="slds-form__item" role="listitem">
+                                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                        <c-svmx-lookup
+                                            label={i18n.user}
+                                            target-object-api-name="User"
+                                            target-label-api-name="Name"
+                                            onlookupselect={handleLookupChange}
+                                            class='mpln-admin-lookup-user'
+                                            value={processRecord.assignToValue}
+                                         ></c-svmx-lookup>                                 
+                                    </div>
+                                </div>     
+                                <div class="slds-form__item" role="listitem">
+                                </div>                           
+                            </template>
+                            <template if:true={isQueueAssignment}>
+                                <div class="slds-form__item" role="listitem">
+                                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                        <c-svmx-lookup
+                                            label={i18n.queue}
+                                            target-object-api-name="Group"
+                                            target-label-api-name="Name"
+                                            onlookupselect={handleLookupChange}
+                                            value={processRecord.assignToValue}
+                                            filters={groupFilter}
+                                        ></c-svmx-lookup>                                  
+                                    </div>
+                                </div>    
+                                <div class="slds-form__item" role="listitem">
+                                </div>                            
+                            </template>
+                        </div>
+
+                        <div class="slds-section slds-is-open">
+                            <h3 class="slds-section__title slds-theme_shade">
+                                <span
+                                    class="slds-truncate slds-p-horizontal_small"
+                                    title={i18n.loggingConfig}
+                                    >{i18n.loggingConfig}</span
+                                >
+                            </h3>
+                        </div>                      
+                        <div class="slds-form__row">
+                            <div class="slds-form__item" role="listitem">
+                                <div
+                                    class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                    <span class="slds-form-element__label">{i18n.detailLogNotification}
+                                        <lightning-helptext content={i18n.labelHelpTextLoggingNotification}></lightning-helptext>
+                                    </span>
+                                    <div class="slds-form-element__control">
+                                        <span
+                                            class="slds-form-element__static slds-grow word-break-ie11">
+                                            <lightning-input
+                                                type="checkbox"
+                                                name="detailLogNotification"
+                                                checked={processRecord.detailLogNotification}
+                                                onchange={handleDetailLogCheck}
+                                            ></lightning-input>   
+                                        </span>
+                                    </div>  
+                                </div>                  
+                            </div>
+                            <div class="slds-form__item" role="listitem">
+                            </div>
+                        </div>
+                        <div class="slds-form__row">
+                            <div class="slds-form__item" role="listitem">
+                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                    <lightning-input
+                                        label={i18n.sendSuccessNotification}
+                                        class="svmx-mplnProcessSendSuccessInput dataField"
+                                        data-field="sendSuccessEmail"
+                                        value={processRecord.sendSuccessEmail}
+                                        onchange={handleFormInputChange}
+                                    ></lightning-input>
+                                </div>
+                            </div>
+                            <div class="slds-form__item" role="listitem">
+                            </div>
+                        </div>
+                        <div class="slds-form__row">
+                            <div class="slds-form__item" role="listitem">
+                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                    <lightning-input
+                                        label={i18n.sendFailureNotification}
+                                        class="svmx-mplnProcessSendFailureInput dataField"
+                                        data-field="sendFailureEmail"
+                                        value={processRecord.sendFailureEmail}
+                                        onchange={handleFormInputChange}
+                                    ></lightning-input>
+                                </div>
+                            </div>
+                            <div class="slds-form__item" role="listitem">
+                            </div>
+                        </div>
+
+                        <div class="slds-section slds-is-open">
+                            <h3 class="slds-section__title slds-theme_shade">
+                                <span
+                                    class="slds-truncate slds-p-horizontal_small"
+                                    title={i18n.processSchedule}
+                                    >{i18n.processSchedule}</span
+                                >
+                            </h3>
+                        </div>
+
+                        <ul>
+                            {i18n.processRunDesc}
+                        </ul>
+
+                        <div class="slds-size_1-of-2">
+                            <div class="slds-form-element">
+                              <div class="inlineContainer workRuleInterval">
+                                <lightning-input 
+                                  type="number" 
+                                  value={interval} 
+                                  class="interval"
+                                  min="1"
+                                  message-when-range-underflow={i18n.labelErrorLowNumber}
+                                  required 
+                                  onchange={onIntervalChange}
+                                  name="frequencyCount" 
+                                  label={i18n.labelScheduleEvery}>
+                                </lightning-input>
+                              </div>
+                              <div class="comboboxContainer freqContainer slds-m-left_x-small">
+                                <lightning-combobox name="Frequency" value={editFrequencyValue} class="frequency"
+                                    options={frequencyOptions} onchange={handleFrequencyChange}>
+                                </lightning-combobox>
+                              </div>
+                
+                            </div>
+                        </div>
+
+                        <div class="slds-size_1-of-2 endScheduleContainer">
+                        </div>
+
+                        <div if:true={isFrequencyDay} class="slds-form-element__row addPadding">
+                            <div class="slds-size_1-of-2">
+                              <div class="slds-form-element">
+                                <!-- DAY -->
+                              </div>
+                            </div>
+                        </div>
+
+                        <div if:true={isFrequencyWeek} class="slds-form-element__row addPadding">
+                            <!-- WEEK -->
+                            <div class="slds-size_1-of-2">
+                              <fieldset class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                  <div class="slds-checkbox_button-group weekdayContainer">
+                                    <template for:each={weekDayNameList} for:item="item">
+                                      <span key={item.weekDay} class="slds-button slds-checkbox_button">
+                                        <input onchange={onWeekChange} checked={item.selected} type="checkbox" id={item.weekDay}
+                                          class="weekdayOption"
+                                          value={item.weekDay} name="checkbox" />
+                                        <label class="slds-checkbox_button__label" for={item.weekDay}>
+                                          <span class="slds-checkbox_faux weekDayLabel">{item.label}</span>
+                                        </label>
+                                      </span>
+                                    </template>
+                                  </div>
+                                </div>
+                              </fieldset>
+                              <!-- field set end-->
+                            </div>
+                        </div>
+
+                        <div if:true={isFrequencyMonth} class="slds-form-element__row addPadding monthContainer">
+                            <!-- Month -->
+                            <div class="slds-size_1-of-2">
+                              <div class="slds-form-element">
+                                <fieldset class="slds-form-element">
+                                  <div class="slds-form-element__control">
+                  
+                                    <span class="slds-radio">
+                                      <input type="radio" id="radio-43" class="radio-43 mnth-monthDayRadio" checked={monthRadioButton.monthDay}
+                                        onchange={onRadioChangeForMonthSelection} value={enumMonthRadioValues.monthDay} name="months" />
+                                      <label class="slds-radio__label" for="radio-43">
+                                        <span class="slds-radio_faux"></span>
+                                        <span class="slds-form-element__label">{i18n.labelOnDay}</span>
+                                      </label>
+                                      <div class="comboboxContainer monthDay">
+                                        <lightning-combobox onchange={onMonthComboboxChange} 
+                                          name={enumMonthRadioValues.monthDay}
+                                          class="monthDay-month-cmbx"
+                                          value={monthSubOptionValues.monthDay} disabled={monthRadioSelection.disableMonthDay}
+                                          options={monthControlOptions.monthDay}></lightning-combobox>
+                                      </div>
+                  
+                                    </span>
+                                    <span class="slds-radio">
+                                      <input type="radio" id="radio-44" onchange={onRadioChangeForMonthSelection}
+                                        class="mnth-dayPositionRadio"
+                                        checked={monthRadioButton.dayPosition} value={enumMonthRadioValues.dayPosition} name="months" />
+                                      <label class="slds-radio__label" for="radio-44">
+                                        <span class="slds-radio_faux"></span>
+                                        <span class="slds-form-element__label">{i18n.labelOnThe}</span>
+                                      </label>
+                                      <div class="comboboxContainer setpos">
+                                        <lightning-combobox onchange={onMonthComboboxChange} name={subOptionKeyNames.setPos}
+                                          value={monthSubOptionValues.setPos} disabled={monthRadioSelection.disableDayPosition}
+                                          class="setPos-month-cmbx"
+                                          options={monthControlOptions.setPos}></lightning-combobox>
+                                      </div>
+                                      <div class="comboboxContainer setweekpos slds-m-left_x-small">
+                                        <lightning-combobox onchange={onMonthComboboxChange} value={monthSubOptionValues.weekDay}
+                                          class="weekDay-month-cmbx"
+                                          name={subOptionKeyNames.weekDay} disabled={monthRadioSelection.disableDayPosition}
+                                          options={monthControlOptions.weekDay}></lightning-combobox>
+                                      </div>
+                                    </span>
+                                  </div>
+                                </fieldset>
+                              </div>
+                            </div>
+                        </div>
+
+                        <div if:true={isFrequencyYear} class="slds-form-element__row addPadding yearContainer">
+                            <div class="slds-size_1-of-2">
+                              <div class="slds-form-element">
+                                <!-- Years -->
+                                <fieldset class="slds-form-element">
+                                  <!-- <legend class="slds-form-element__legend slds-form-element__label">Months</legend> -->
+                                  <div class="slds-form-element__control">
+                                    <span class="slds-radio">
+                                      <input onchange={onradioChangeForYearSection} type="radio" id="radio-45"
+                                        class="onMonthDayRadio"
+                                        checked={yearRadioButton.monthDay} value={enumYearRadioValues.monthAndDay} name="years" />
+                                      <label class="slds-radio__label" for="radio-45">
+                                        <span class="slds-radio_faux"></span>
+                                        <span class="slds-form-element__label">{i18n.labelOn}</span>
+                                      </label>
+                                      <div class="comboboxContainer yearCombobx yearMonthFirstCbx">
+                                        <lightning-combobox disabled={yearRadioSelection.disableMonthDay} onchange={onYearComboboxChange}
+                                          name={subOptionKeyNames.month} value={yearSubOptionValues.monthDayMonth}
+                                          options={yearControlOptions.month}></lightning-combobox>
+                  
+                                      </div>
+                                      <div class="comboboxContainer yearCombobx yearMarginCbxFix">
+                                        <lightning-combobox disabled={yearRadioSelection.disableMonthDay} onchange={onYearComboboxChange}
+                                          name={subOptionKeyNames.day} value={yearSubOptionValues.day}
+                                          options={yearControlOptions.day}></lightning-combobox>
+                                      </div>
+                  
+                                    </span>
+                                    <span class="slds-radio yearSecondRow">
+                                      <input onchange={onradioChangeForYearSection} type="radio" id="radio-46"
+                                        class="monthWeekDayRadioBtn"
+                                        checked={yearRadioButton.monthWeekDay} value={enumYearRadioValues.monthAndWeekdayAndPos}
+                                        name="years" />
+                                      <label class="slds-radio__label" for="radio-46">
+                                        <span class="slds-radio_faux"></span>
+                                        <span class="slds-form-element__label">{i18n.labelOnThe}</span>
+                                      </label>
+                                      <div class="comboboxContainer yearCombobx yearSetPos">
+                                        <lightning-combobox disabled={yearRadioSelection.disableMonthWeekDay}
+                                          name={subOptionKeyNames.setPos} value={yearSubOptionValues.setPos}
+                                          onchange={onYearComboboxChange} options={yearControlOptions.setPos}></lightning-combobox>
+                                      </div>
+                  
+                                      <div class="comboboxContainer yearCombobx yearMarginCbxFix">
+                                        <lightning-combobox disabled={yearRadioSelection.disableMonthWeekDay}
+                                          name={subOptionKeyNames.weekDay} value={yearSubOptionValues.weekDay}
+                                          onchange={onYearComboboxChange} options={yearControlOptions.weekDay}></lightning-combobox>
+                                      </div>
+                                      <span class="slds-form-element__label yearMonthCbxLbl">{i18n.labelOf}</span>
+                                      <div class="comboboxContainer yearCombobx yearMonthCbx">
+                                        <lightning-combobox disabled={yearRadioSelection.disableMonthWeekDay}
+                                          name={subOptionKeyNames.month} value={yearSubOptionValues.month} onchange={onYearComboboxChange}
+                                          options={yearControlOptions.month}></lightning-combobox>
+                                      </div>
+                  
+                                    </span>
+                                  </div>
+                                </fieldset>
+                              </div>
+                            </div>
+                        </div>
+
+                        <div class="slds-form__row">
+                            <div class="slds-grid slds-gutters">
+                                <div class="slds-col svmx-time-row-at">
+                                    <span class="slds-form-element__label">{i18n.labelAt}</span>
+                                </div>
+                                <div class="slds-col">
+                                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                        <lightning-combobox name="timeoption" value={processRecord.runAt} class="svmx-time-option"
+                                            options={timeOptions} onchange={handleTimeChange} required>
+                                        </lightning-combobox>
+                                    </div>                                
+                                </div>
+                                <div class="slds-col">
+                                    <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                        <lightning-combobox name="timezoneoption" value={processRecord.timeZone} class="svmx-time-zone-option"
+                                            options={timeZonePicklistValues} onchange={handleTimeZoneChange} required>
+                                        </lightning-combobox>
+                                    </div>                                
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="slds-form__row">
+                            <div class="slds-form__item" role="listitem">
+                                <div class="slds-form-element slds-form-element_stacked svmx-is-view">
+                                    <span
+                                        class="slds-form-element__label">
+                                        {i18n.processLastRun}
+                                    </span>
+                                    <div class="slds-form-element__control">
+                                        <span
+                                            class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                <lightning-formatted-date-time
+                                                    value={processRecord.lastRunDate}
+                                                    year="numeric"
+                                                    month="numeric"
+                                                    day="numeric"
+                                                    time-zone={i18n.timeZone}
+                                                    hour="2-digit"
+                                                    minute="2-digit">
+                                                </lightning-formatted-date-time>
+                                            </div>
+                                        </span>
+                                    </div>
+                                </div>  
+                            </div>
+                        </div>
+                        
+                        <div class="slds-form__row">
+                            <div class="slds-form__item" role="listitem">
+                                <div class="slds-form-element slds-form-element_stacked svmx-is-view">
+                                    <span
+                                        class="slds-form-element__label">
+                                        {i18n.lastRunStatus}
+                                    </span>
+                                    <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                        <span class="slds-form-element__static slds-grow word-break-ie11">
+                                            <div class="slds-form-element__static">
+                                                {processRecord.lastRunStatus}
+                                            </div>
+                                        </span>
+                                    </div>
+                                </div> 
+                            </div>                           
+                        </div>
+
+                        <c-modal-dialog title={i18n.cancelModalTitle} class="cancelModal"
+                            is-open={cancelModalDialogOpen} modal-content-id="cancelModalContent"
+                            modal-header-id="cancelModalHeader" onmodalclosed={handleCancelModal}>
+                            <div slot="body">
+                                <span slot="body">
+                                    <p>
+                                        <lightning-formatted-text value={i18n.cancelModalContent}>
+                                        </lightning-formatted-text>
+                                    </p>
+                                </span>
+                            </div>
+                            <div slot="footer">
+                                <lightning-button label={i18n.goBack} title={i18n.goBack} variant="neutral"
+                                    onclick={handleCancelModal} class="goBackButton slds-p-right_x-small"></lightning-button>
+                                <lightning-button class="confirmButton" label={i18n.continue} title={i18n.continue}
+                                    variant="brand" onclick={handleCancelConfirmModal}></lightning-button>
+                            </div>
+                        </c-modal-dialog>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+     </c-admin-layout>
+</template>

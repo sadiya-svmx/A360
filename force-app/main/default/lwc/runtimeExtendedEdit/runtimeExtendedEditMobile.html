@@ -1,0 +1,144 @@
+<template>
+    <c-modal-dialog
+        is-open
+        modal-content-id="editModalContent"
+        modal-header-id="editModalHeader"
+        section-class="svmx-modal-content_min-height slds-p-around_none"
+        title={title}
+        size={modalSize}
+        onmodalclosed={handleModalClose}
+        relative-to-viewport
+        show-footer={editRecord}
+    >
+        <div slot="header">
+            <lightning-layout horizontal-align="center">
+                <lightning-layout-item class="slds-text-align_left" size="7">
+                    <h2
+                        id="editModalHeader"
+                        class="slds-modal__title slds-truncate"
+                        style="padding-top: 10px;"
+                    >
+                        {title}
+                    </h2>
+                </lightning-layout-item>
+                <lightning-layout-item class="slds-text-align_right" size="5">
+                    <button 
+                        class="svmx-modal_button-cancel slds-p-right_x-small slds-button slds-button_neutral" 
+                        style="min-width: 62px;"
+                        onclick={handleModalClose}>
+                        {i18n.buttonCancel}
+                    </button>
+                    <button 
+                        class="svmx-modal_button-save slds-button slds-button_brand" 
+                        style="min-width: 62px;"
+                        onclick={handleModalSave}>
+                        {i18n.buttonApply}
+                    </button>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+        <div slot="body">
+            <template if:true={hasError}>
+                <c-alert variant="error" error-message={error}>{error}</c-alert>
+            </template>
+            <div class="slds-p-top_large">
+                <c-runtime-section
+                    onrecordmodified={handleRecordModified}
+                    sections={sections}
+                    onerror={handleError}
+                    engine-id={engineId}
+                ></c-runtime-section>
+            </div>
+            <template if:true={deleteModalDialogOpen}>
+                <c-modal-dialog
+                    is-open
+                    class="svmx-modal_delete deleteModal" 
+                    modal-content-id="deleteModalContent"
+                    modal-header-id="deleteModalHeader"
+                    onmodalclosed={handleCancelModal}
+                    title={i18n.deleteModalTitle}
+                    size="X_SMALL"
+                    relative-to-viewport
+                    nested-modal
+                >
+                    <div slot="header">
+                        <lightning-layout horizontal-align="center">
+                            <lightning-layout-item class="slds-text-align_left" size="4">
+                                <h2
+                                    class="slds-modal__title"
+                                    style="padding-top: 10px; font-size: 16px;"
+                                >
+                                    {removeItemLabel}
+                                </h2>
+                            </lightning-layout-item>
+                            <lightning-layout-item class="slds-text-align_right" size="8">
+                                <lightning-button
+                                    class="svmx-modal_button-cancel slds-p-right_x-small"
+                                    label={i18n.cancel}
+                                    onclick={handleCancelModal}
+                                    title={i18n.cancel}
+                                    variant="neutral"
+                                ></lightning-button>
+                                <lightning-button
+                                    class="svmx-modal_button-confirm confirmButton"
+                                    label={i18n.remove}
+                                    onclick={handleDeleteConfirmModal}
+                                    title={i18n.remove}
+                                    variant="brand"
+                                ></lightning-button>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </div>
+                    <div class="slds-p-around_small" style="height: 10vh;" slot="body">
+                        <p>
+                            <lightning-formatted-text value={i18n.deleteModalContent}></lightning-formatted-text>
+                        </p>
+                    </div>
+                </c-modal-dialog>
+            </template>
+        </div>
+        <div slot="footer">
+            <lightning-layout horizontal-align="spread">
+                <lightning-layout-item>
+                    <button class="svmx-record-navigation" onclick={applyPrevious} disabled={firstRecord}>
+                        <svg width="24" height="36" viewBox="0 0 23 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g id="previous">
+                              <path id="Icon" 
+                                fill={previousButtonColor}
+                                fill-rule="evenodd" clip-rule="evenodd"
+                                d="M22.75 1.6996V34.3495C22.75 35.2718 21.5313 35.9174 20.6875 35.1796L0.8125 19.2235C0.0625 18.6702 0.0625 17.4711 0.8125 16.9178L20.6875 0.777289C21.5313 0.13167 22.75 0.685058 22.75 1.6996Z">
+                              </path>
+                            </g>
+                        </svg>
+                    </button>
+                </lightning-layout-item>
+                <lightning-layout-item>
+                    <button class="svmx-record-navigation" onclick={applyNext} disabled={lastRecord}>
+                        <svg width="24" height="36" viewBox="0 0 24 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g id="next">
+                              <path 
+                                fill={nextButtonColor}
+                                fill-rule="evenodd" clip-rule="evenodd" 
+                                d="M0.75 34.3004L0.750003 1.65053C0.750003 0.728216 1.96875 0.082594 2.8125 0.820444L22.6875 16.7765C23.4375 17.3298 23.4375 18.5289 22.6875 19.0822L2.8125 35.2227C1.96875 35.8683 0.75 35.3149 0.75 34.3004Z">
+                              </path>
+                            </g>
+                        </svg>
+                    </button>
+                </lightning-layout-item>
+                <lightning-layout-item>
+                    <template if:true={tab.addRow}>
+                        <lightning-icon class="svmx-clone-button" icon-name="action:clone" size="small" onclick={applyClone}>
+                        </lightning-icon>
+                    </template>
+                </lightning-layout-item>
+                <lightning-layout-item>
+                    <template if:true={tab.deleteRow}>
+                        <lightning-icon class="svmx-delete-button" icon-name="action:delete" size="small" onclick={handleDelete}>
+                        </lightning-icon>
+                    </template>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+    </c-modal-dialog>
+    
+</template>

@@ -1,0 +1,15 @@
+<aura:component
+        implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:hasSObjectName"
+        access="global">
+        <aura:attribute name="recordId" type="String" access="global" />
+        <aura:attribute name="sObjectName" type="String" access="global" />
+        <aura:attribute name="maxHeight" type="String" access="global" />
+        <aura:attribute name="showIcons" type="Boolean" access="global" />
+        <aura:attribute name="width" type="String" />
+        <lightning:flexipageRegionInfo width="{!v.width}" />
+        <c:svmxServiceFlowWizard recordId="{!v.recordId}" objectApiName="{!v.sObjectName}" maxHeight="{!v.maxHeight}"
+                showIcons="{!v.showIcons}" flexipageRegionWidth="{!v.width}" onlaunchaction="{!c.launchAction}" onrefreshview="{!c.refreshview}"
+                isInCommunity="false">
+        </c:svmxServiceFlowWizard>
+        <c:SvmxFlowLauncher aura:id="flowlauncher"></c:SvmxFlowLauncher>
+</aura:component>

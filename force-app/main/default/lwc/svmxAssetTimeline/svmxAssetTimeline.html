@@ -1,0 +1,202 @@
+<template>
+    <div class="svmx-asset-timeline_timeline-container slds-box slds-box_x-small slds-is-relative">
+        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+            <div class="slds-col slds-shrink">
+                <span class="svmx-asset-timeline_label">{label}</span>
+                <h1 if:false={error} class="slds-text-heading_small svmx-asset-timeline_asset-name">{assetName}</h1>
+            </div>
+            <div class="slds-col slds-shrink-none slds-grid slds-grid_vertical-align-center">
+                <template if:true={showSummary}>
+                    <div class="svmx-asset-timeline_summary slds-p-right_small">
+                        <span class={computedTimelineSummaryDetailClass}>{i18n.showing} </span>
+                        <span>{formattedMapZoomStart} - {formattedMapZoomEnd} </span>
+                        <span class={computedTimelineSummaryDetailClass}>{timelineSummary}</span>
+                    </div>
+                </template>
+                <lightning-button-group>
+                    <lightning-button-icon
+                        class="svmx-asset-timeline_refresh-button"
+                        icon-name="utility:refresh"
+                        alternative-text={i18n.refresh}
+                        onclick={handleRefresh}
+                    ></lightning-button-icon>
+                    <lightning-button-icon-stateful
+                        class="svmx-asset-timeline_filter-button"
+                        icon-name="utility:filterList"
+                        selected={isFilterDisplayed}
+                        onclick={handleCancelFilter}
+                        alternative-text={i18n.filter}
+                        if:true={showFilterPanel}
+                    ></lightning-button-icon-stateful>
+                </lightning-button-group>
+            </div>
+        </div>
+        <div class="svmx-asset-timeline_timeline-wrapper slds-m-top_x-small">
+            <div class="slds-col slds-size_1-of-1">
+                <div class="svmx-asset-timeline_canvas" lwc:dom="manual"></div>
+                <div class="svmx-asset-timeline_canvas-axis" lwc:dom="manual"></div>
+                <div class="svmx-asset-timeline_map-wrapper">
+                    <div class="svmx-asset-timeline_map" lwc:dom="manual"></div>
+                    <div class="svmx-asset-timeline_map-axis" lwc:dom="manual"></div>
+                </div>
+            </div>
+
+            <div if:true={showIllustration} class="slds-is-absolute slds-grid slds-grid_align-center slds-grid_vertical-align-center svmx-asset-timeline_illustration-wrapper">
+                <c-svmx-illustrator class="svmx-asset-timeline_illustration" image-name={illustrationImageName} heading={illustrationHeading} message-body={illustrationMessage}></c-svmx-illustrator>
+            </div>
+
+            <div
+                class="svmx-asset-timeline_filter-panel slds-float_right slds-panel slds-size_small slds-panel_docked slds-panel_docked-right"
+                aria-hidden="false"
+            >
+                <div class="slds-panel__header">
+                    <template if:false={filterValuesChanged}>
+                        <h2 class="slds-panel__header-title slds-text-heading_small slds-truncate" title={i18n.filters}>
+                            {i18n.filters}
+                        </h2>
+                        <button
+                            class="svmx-asset-timeline_filter-close-button slds-button slds-button_icon slds-button_icon slds-button_icon-small slds-float_right slds-panel__close"
+                            title={i18n.close}
+                            onclick={handleCancelFilter}
+                        >
+                            <lightning-icon
+                                icon-name="utility:close"
+                                alternative-text={i18n.closeAltText}
+                                size="xx-small"
+                            ></lightning-icon>
+                        </button>
+                    </template>
+
+                    <template if:true={filterValuesChanged}>
+                        <div class="slds-grid" style="width: 100%">
+                            <div>
+                                <lightning-button
+                                    label={i18n.cancel}
+                                    title={i18n.cancel}
+                                    onclick={handleCancelFilter}
+                                ></lightning-button>
+                            </div>
+                            <div class="slds-grid slds-col slds-grid_align-end">
+                                <lightning-button
+                                    variant="brand"
+                                    label={i18n.apply}
+                                    title={i18n.apply}
+                                    onclick={handleApplyFilter}
+                                ></lightning-button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="slds-panel__body">
+                    <p>
+                        <lightning-formatted-text class="slds-text-color_error" value={validationError}>
+                         </lightning-formatted-text>
+                    </p>
+                    <legend class="slds-form-element__label">{i18n.typesToShow}</legend>
+                    <div class="slds-form-element slds-p-horizontal_large">
+                        <div class="slds-form-element__control">
+                            <div class="slds-checkbox slds-m-bottom_medium">
+                                <input type="checkbox" name="SelectAll"
+                                    class="svmx-assetTimeline_allheaderCheckbox "
+                                    id='selectAllFilter'
+                                    onchange={handleSelectAll} />
+                                <label class="slds-checkbox__label slds-truncate "
+                                    for="selectAllFilter">
+                                    <span class="slds-checkbox_faux"></span>
+                                    <span style="font-weight: bold"
+                                        class="slds-truncate slds-form-element__label
+                                        ">{i18n.selectAll}</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div style='display:hidden;position:fixed;top:0px;'>{dummyVal}</div>
+                    <template if:true={filterList}>
+                        <template for:each={filterList} for:item="option">
+                            <c-x-expandable-section key={option.key} no-header-highlight
+                                section-padding="slds-p-left_xx-large slds-p-top_none slds-p-right_none slds-m-bottom_none">
+                                <span slot="header">
+                                    <div class="slds-form-element">
+                                        <div class="slds-form-element__control">
+                                            <div class="slds-checkbox">
+                                                <input type="checkbox" name={option.key}
+                                                    class="svmx-assetTimeline_headerCheckbox"
+                                                    id={option.key} data-hkey={option.key}
+                                                    onchange={handleHeaderCheckboxChange}  />
+                                                <label class="slds-checkbox__label slds-truncate "
+                                                    for={option.key}>
+                                                    <span class="slds-checkbox_faux"></span>
+                                                    <span
+                                                        class="slds-truncate
+                                                        slds-form-element__label">{option.label}</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </span>
+                                <template for:each={option.value} for:item="type">
+                                    <template if:true={type.isArray}>
+                                        <div key={type.value} class="slds-grid ">
+                                            <div  class="slds-col slds-size_1-of-12">
+                                                <lightning-input type="checkbox"
+                                                    class="slds-truncate svmx-assetTimeline_sectionCheckbox"
+                                                    label={type.label} data-key={type.value} data-parent={option.key}
+                                                    key={type.value} name={type.value} checked={type.checked}
+                                                    variant="label-hidden" onchange={handleFilterCheckboxChange}>
+                                                </lightning-input>
+                                            </div>
+                                            <div class="slds-col slds-size_10-of-12 slds-truncate" title={type.label}>
+                                                <lightning-icon key={type.value}
+                                                    data-id={type.value} icon-name={type.iconName}
+                                                    size="x-small" alternative-text={type.label}
+                                                    onclick={handleClickCheckbox} title={type.label}>
+                                                    
+                                                </lightning-icon>
+                                                <span key={type.value} style=" cursor: pointer;"
+                                                 data-id={type.value} onclick={handleClickCheckbox} > {type.label}</span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </template>
+                            </c-x-expandable-section>
+                        </template>
+                    </template>
+                   
+                    
+                    <legend class="slds-form-element__label">{i18n.dateRange}</legend>
+                    <div>
+                        <lightning-input 
+                            type="date" 
+                            class="svmx-asset-timeline_filter-startdate svmx-asset-timeline_filter-field" 
+                            label={i18n.startDate} 
+                            variant="label-hidden" 
+                            value={formattedTimelineStart} 
+                            date-style="short"
+                            style="overflow: hidden;"
+                            onchange={handleFilterStartDateChange}
+                        ></lightning-input>
+                        <lightning-input 
+                            type="date" 
+                            class="svmx-asset-timeline_filter-enddate slds-p-top_xx-small svmx-asset-timeline_filter-field" 
+                            label={i18n.endDate} 
+                            variant="label-hidden" 
+                            value={formattedTimelineEnd}
+                            date-style="short"
+                            style="overflow: hidden;"
+                            onchange={handleFilterEndDateChange}
+                        ></lightning-input>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <template if:true={apiInProgress}>
+                <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+        </template>
+    </div>
+
+    <c-svmx-record-popover class="svmx-asset-timeline_record-preview"
+        record-icon-name={computeIconName}
+    ></c-svmx-record-popover>
+    <c-svmx-list-record-popover class="svmx-asset-timeline_list-record-preview"
+    ></c-svmx-list-record-popover>
+</template>

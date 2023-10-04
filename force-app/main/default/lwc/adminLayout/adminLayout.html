@@ -1,0 +1,16 @@
+<template>
+    <div class="slds-grid slds-template__container AdminLayout__max-height">
+        <div class={computedSplitterClass} if:false={isAutoConfigRunning}>
+            <lightning-button-icon class={computedSplitterButtonClass} icon-name="utility:left" aria-controls="menu" aria-expanded={computedAriaExpanded} size="x-small" variant="bare" onclick={handleSplitterClick} alternative-text={splitterButtonAltText}></lightning-button-icon>
+
+            <div  id="menu" class="slds-split-view slds-grid slds-grid_vertical slds-grow slds-card slds-scrollable_y">
+                <div >
+                    <c-svmx-menu onmenuselection={handleMenuSelection}></c-svmx-menu>
+                </div>
+            </div>
+        </div>
+        <div class={mainContentCss}>
+            <slot></slot>
+        </div>
+    </div>  
+</template>

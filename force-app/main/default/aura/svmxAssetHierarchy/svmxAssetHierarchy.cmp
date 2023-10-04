@@ -1,0 +1,29 @@
+<aura:component 
+    implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:hasSObjectName"
+    access="global">
+    <aura:attribute name="recordId" type="String" access="global" />
+    <aura:attribute name="sObjectName" type="String" access="global" />
+    <aura:attribute name="label" type="String" access="global" />
+    <aura:attribute name="order" type="String" access="global" />
+    <aura:attribute name="hierarchyField" type="String" access="global" />
+    <aura:attribute name="plotHierarchyField" type="Boolean" access="global" />
+    <aura:attribute name="displayIcon" type="Boolean" access="global" />
+    <aura:attribute name="maxHeight" type="Integer" access="global" />
+    <aura:attribute name="width" type="String" />
+    <aura:attribute name="isInCommunity" type="Boolean" default="false" />
+    <lightning:flexipageRegionInfo width="{!v.width}" />
+    <c:assetHierarchy 
+        recordId="{!v.recordId}" 
+        objectApiName="{!v.sObjectName}" 
+        label="{!v.label}"
+        order="{!v.order}" 
+        hierarchyField="{!v.hierarchyField}" 
+        displayIcon="{!v.displayIcon}"
+        maxHeight="{!v.maxHeight}"
+        flexipageRegionWidth="{!v.width}" 
+        onlaunchaction="{!c.launchAction}"
+        isInCommunity="{!v.isInCommunity}"
+        plotHierarchyField="{!v.plotHierarchyField}">
+    </c:assetHierarchy>
+    <c:SvmxFlowLauncher aura:id="flowlauncher" OpenAsModal="true" noRedirect="true"></c:SvmxFlowLauncher>
+</aura:component>

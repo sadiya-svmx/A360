@@ -1,0 +1,17 @@
+.svmx-lookup-value  {
+    width: 100%;
+    font-size: 0.875rem;
+    line-height: 1.875rem;
+}
+
+.svmx-lookup-value.svmx-lookup-value_cell {
+    font-size: 0.8125rem;
+}
+
+.svmx-lookup-value .slds-pill__label {
+    padding-left: calc(1.25rem + 0.25rem + 2px);
+}
+
+.svmx-truncate {
+    white-space: unset;
+}

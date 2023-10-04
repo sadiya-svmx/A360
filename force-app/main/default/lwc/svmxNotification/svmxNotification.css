@@ -1,0 +1,33 @@
+.svmx-svg-value  {
+    transform: rotate(0deg) !important;
+    fill: white !important;
+    stroke: black;
+    stroke-width: 3px;
+}
+.svmx-notification-count  {
+    top: 0px; 
+    bottom: 30px;
+}
+.svmx-notification-badge-color {
+        background: gray !important;
+        color: white !important;
+}
+.svmx-recordNotification_tooltip {
+    width: 400px;
+}
+.svmx-svg-notification-value  {
+    transform: rotate(0deg) !important;
+    fill: white !important;
+    stroke-width: 3px;
+}
+.svmx-svg-notification-area{
+    height: 20px;
+    width: 20px;
+    padding: 2px;
+}
+.svmx-tab-label {
+    color: black !important;
+}
+.svmx-header-bold {
+    font-weight: bold;
+}

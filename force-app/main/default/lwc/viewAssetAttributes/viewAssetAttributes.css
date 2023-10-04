@@ -1,0 +1,45 @@
+.svmx-asset-attribute-card {
+    background: none;
+}
+
+.attribute-title-view {
+    border-bottom: var(--lwc-borderWidthThin,1px) solid var(--lwc-colorBorder,rgb(221, 219, 218));
+}
+.svmx-input-field-warning{
+    background-color: var(--lwc-colorBackgroundInput,rgb(255, 255, 255));
+    border-color: var(--lwc-colorBorderWarning,rgb(255, 183, 93));
+    box-shadow: var(--lwc-colorBorderWarning,rgb(255, 183, 93)) 0 0 0 var(--lwc-borderWidthThin,1px) inset;
+    background-clip: padding-box;
+}
+
+.svmx-input-warning-text {
+    color: rgb(236 134 8);
+}
+.svmx-attribute-name {
+    font-size: initial;
+    font-weight: normal;
+}
+.svmx-attribute-unit {
+    font-size: smaller;
+    font-style: italic;
+    color: gray;
+}
+.assetAttributes_illustration-wrapper {
+    background-color: var(--lwc-colorBackgroundAlt,rgb(255, 255, 255));
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.svmx-attribute-highlight {
+    position: relative;
+    background-color: var(--lwc-colorBackgroundHighlight);
+}
+.svmx-attribute-value {
+    font-size: medium;
+    font-weight: normal;
+}
+.svmx-ta-form_element {
+    padding: initial !important;
+}

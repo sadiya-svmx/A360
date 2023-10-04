@@ -1,0 +1,70 @@
+<template>
+    <template if:false={isInModal}>
+        <div class={pageHeaderClasses}>
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <template if:true={iconName}>
+                            <div class="slds-media__figure">
+                                <template if:true={isImageFromStaticResource}>
+                                    <lightning-icon
+                                        src={iconName}
+                                        size={iconSize}
+                                        alternative-text={iconTitle}
+                                        title={iconTitle}
+                                    ></lightning-icon>
+                                </template>
+                                <template if:false={isImageFromStaticResource}>
+                                    <lightning-icon
+                                        icon-name={iconName}
+                                        size={iconSize}
+                                        alternative-text={iconTitle}
+                                        title={iconTitle}
+                                    ></lightning-icon>
+                                </template>
+                            </div>
+                        </template>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span>{subTitle}</span>
+                                        <span class="slds-page-header__title slds-truncate" title={title}>{title}</span>
+                                    </h1>
+                                </div>
+                                <div class="slds-page-header__name-switcher">
+                                    <div class="slds-dropdown-trigger slds-dropdown-trigger_click">
+                                        <slot name="switch-list-view"></slot>
+                                    </div>
+                                </div>
+                            </div>
+                            <template if:false={isObjectHome}>
+                                <p class="slds-page-header__name-meta">{metaTitle}</p>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                <div class={actionClasses}>
+                    <div class="slds-page-header__controls">
+                        <div class="slds-page-header__control">
+                            <slot name="actions" onslotchange={handleActionSlotChange}></slot>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <template if:true={isObjectHome}>
+                <div class="slds-page-header__row svmx-page-header_object-home-row">
+                    <div class="slds-page-header__col-meta">
+                        <p class="slds-page-header__meta-text">{metaTitle}</p>
+                    </div>
+                    <div class="slds-page-header__col-controls">
+                        <slot name="object-controls"></slot>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </template>
+    <template if:true={isInModal}>
+        <h2 class="slds-p-horizontal--medium slds-p-bottom--medium slds-text-heading--medium svmx-page-header_in-modal">{title}</h2>
+    </template>
+</template>

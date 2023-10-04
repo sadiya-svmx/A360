@@ -1,0 +1,23 @@
+.THIS .main-content {
+    display: flex;
+    align-items: stretch;
+    flex: 1 1 auto;
+    overflow: auto;
+}
+
+.THIS .main-content :first-child {
+    width: 100%;
+}
+
+.THIS .split-container {
+    width: 310px;
+    flex: none;
+}
+
+.THIS .splitter-button {
+    display: inline-flex;
+}
+
+.THIS .slds-split-view_container.slds-is-closed {
+    width:auto;
+}

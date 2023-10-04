@@ -1,0 +1,18 @@
+<aura:component implements="lightning:actionOverride,force:hasRecordId,force:lightningQuickActionWithoutHeader" >
+	<aura:html tag="style">
+        .cuf-content {
+          padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+          padding: 0rem !important;
+        }
+        .slds-modal__content{
+          overflow-y:hidden !important;
+          height:unset !important;
+          max-height:unset !important;
+        }
+    </aura:html>
+    <c:createApplicableProductRecord parentId="{!v.recordId}" aura:id="createAppProductCmplwcId" 
+                                     onclose="{!c.closeMethodInAuraController}"
+                                     oncloseandrefreshpage="{!c.closeAndRefresh}"/>
+</aura:component>

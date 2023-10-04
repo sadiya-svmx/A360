@@ -1,0 +1,73 @@
+<template>
+    <article class="slds-card">
+        <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__body">
+                    <h2 class="slds-card__header-title">
+                        <a href="#" class="slds-card__header-link slds-truncate" title={i18n.serviceContractAuthoringSummaryTitle}>
+                            <span>{i18n.serviceContractAuthoringSummaryTitle}</span>
+                        </a>
+                    </h2>
+                </div>
+            </header>
+        </div>
+        <div class="slds-card__body slds-card__body_inner slds-p-horizontal_medium">
+            <template if:true={isBatchExecutionCompleted}>
+                <template if:true={error}>
+                    <c-alert variant="error">{error}</c-alert>
+                </template>
+
+                <template if:true={noErrorRecordsFound}>
+                        <div class="svmx-serviceContractAuthoring__success"> {i18n.successMsg} </div>
+                </template>
+
+                <template if:false={apiInProgress}>
+                    <template if:false={noErrorRecordsFound}>
+                        {authoringDescription}
+
+                        <div class="slds-p-top_small svmx-serviceContractAuthoring__batchLogTable">
+                            <c-x-datatable
+                                key-field="Id"
+                                data={displayFailedBatch}
+                                columns={columns}>
+                            </c-x-datatable>
+                        </div>
+                        <footer class="slds-card__footer">
+                            <template if:true={showBatchViewAll}>
+                                <a class="slds-card__footer-action svmx-serviceContractAuthoring__ViewAllBtn" onclick={viewAllBatches}>{i18n.viewAll}</a>
+                            </template>
+                        </footer>
+                    </template>
+                </template>
+            </template>
+            <template if:false={isBatchExecutionCompleted}>
+                <div>
+                    <h4>
+                        <span class="svmx-serviceContractAuthoring__batchInProgress"><b>{i18n.label_batchesInProgress}</b></span>
+                    </h4>
+                    <lightning-layout multiple-rows="true">
+                        <lightning-layout-item class="slds-p-top_small" size="6">
+                            <div class="page-section page-header">
+                                <span>{i18n.label_total_batches_executed}</span>
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item class="slds-p-top_small slds-p-left_x-small" size="6">
+                            <div class="page-section page-header">
+                                <span>{totalNumberOfBatchesCompleted}</span>
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item class="slds-p-top_small" size="6">
+                            <span>{i18n.label_totalNumberOfBatches}</span>
+                        </lightning-layout-item>
+                        <lightning-layout-item class="slds-p-top_small slds-p-left_x-small" size="6">
+                            <span>{totalNumberOfBatches}</span>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </div>
+                <template if:true={apiInProgress}>
+                    <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+                </template>
+            </template>
+        </div>
+    </article>
+</template>

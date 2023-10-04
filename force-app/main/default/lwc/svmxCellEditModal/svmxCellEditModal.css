@@ -1,0 +1,12 @@
+.svmx-cell-edit.svmx-cell-edit__lookup-spacing {
+    padding: 3px .25rem 3px .25rem;
+}
+
+.svmx-cell-edit.svmx-cell-edit__lookup-spacing c-svmx-cell-edit-icon {
+    padding-top: 0.125rem;
+    padding-right: 0.125rem;
+}
+
+.svmx-truncate {
+    white-space: unset;
+}

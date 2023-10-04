@@ -1,0 +1,23 @@
+.slds-accordion__summary-action {
+    padding: 0 var(--lwc-spacingXSmall,6.5rem);
+    line-height: var(--lwc-lineHeightButton,1.875rem);
+    background: var(--lwc-colorBackground,rgb(243, 242, 242));
+}
+
+.slds-accordion__section {
+    padding: 0;
+    padding-bottom: var(--lwc-spacingMedium,1rem);
+}
+
+.slds-accordion__content {
+    padding-left: var(--lwc-spacingSmall,0.75rem);
+    padding-right: var(--lwc-spacingSmall,0.75rem);
+}
+
+.rule-accordion-section .slds-checkbox_faux {
+    background-color: var(--lwc-colorBackgroundInputCheckbox,rgb(255, 255, 255));
+}
+
+.svmx-editbutton-icon .slds-button__icon{
+    fill: var(--lwc-colorTextIconDefaultHint,rgb(176, 173, 171));
+}

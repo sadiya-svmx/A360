@@ -1,0 +1,22 @@
+{
+  "short_name": "FSLMax Layout Editor",
+  "name": "FSLMax Layout Editor Built With LCC",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": "index.html",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "landing-pages": [
+    {
+      "path": "index.html",
+      "apex-controller": "SVMXA360.ADM_PageLayoutLightningService"
+    }
+  ],
+  "content_security_policy": "script-src 'self'https://*.newrelic.com; object-src 'self'"
+}

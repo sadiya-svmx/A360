@@ -1,0 +1,58 @@
+<template>
+    <span class="svmx-lookup-advanced-search_modal">
+        <c-modal-dialog title={titleModal} is-open={isModalOpen} onmodalclosed={handleCancel}
+            size="MEDIUM_FIXED" modal-content-id="lookupModalContent"
+            modal-header-id="lookupModalHeader" nested-modal={nestedModal}
+            relative-to-viewport relative-to-debugpanel={relativeToDebugpanel}>
+        <div slot="body">
+            <template if:true={error}>
+                <c-alert variant="error">{error}</c-alert>
+            </template>
+            <template if:true={filterExpression}>
+                <c-lookup-modal-search-box
+                    filter-expression={filterExpression}
+                    search-term={searchTerm}
+                    onsearch={handleSearchEvent}
+                    override-lookup-context={overrideLookupContext}
+                    context-label={contextLabel}
+                    context-value={contextValue}
+                    context-record-label={contextRecordLabel}
+                ></c-lookup-modal-search-box>
+            </template>
+            <template if:true={apiInProgress}>
+                <div class="svmx-lookup-advanced-search_spinner">
+                    <lightning-spinner variant="brand" alternative-text={i18n.labelLoading}
+                        size="large"></lightning-spinner>
+                </div>
+            </template>
+            <template if:false={apiInProgress}>
+                <template if:true={hasResults}>
+                    <div class="slds-box slds-box_x-small svmx-lookup-advanced-search_table-head">
+                        {labelPlural}<br/>
+                        {results.length} {i18n.labelResultsSM}
+                    </div>
+                    <c-x-datatable key-field="Id" data={results} columns={_columnDefinitions}
+                        default-sort-direction={i18n.labelAscending} sorted-by={sortBy}
+                        sorted-direction={sortDirection} onsort={handleSortData}
+                        max-row-selection={maxRowSelection} onrowselection={handleRowSelection}
+                        selected-rows={selectedRows}>
+                    </c-x-datatable>
+                </template>
+                <template if:false={hasResults}>
+                    <div class="slds-align_absolute-center slds-text-heading_small svmx-lookup-advanced-search_message">
+                        {messageNoResults}
+                    </div>
+                </template>
+            </template>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.buttonCancel} title={i18n.buttonCancel}
+                variant="neutral" onclick={handleCancel} class="slds-p-right_x-small">
+            </lightning-button>
+            <lightning-button label={i18n.buttonApply} title={i18n.buttonApply} variant="brand"
+                onclick={handleApply} class="slds-p-right_x-small" disabled={hasEmptySelectedId}>
+            </lightning-button>
+        </div>
+    </c-modal-dialog>
+    </span>
+</template>

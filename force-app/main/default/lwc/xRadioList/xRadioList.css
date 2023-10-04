@@ -1,0 +1,54 @@
+label.slds-radio__label {
+    display: block;
+}
+
+fieldset.svmx-mobile {
+    min-inline-size: auto;
+}
+
+.svmx-mobile .slds-radio .slds-radio_faux,
+.svmx-mobile .slds-radio .slds-radio--faux {
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.slds-radio [type=radio]:checked + .slds-radio_faux:after,
+.slds-radio [type=radio]:checked + .slds-radio--faux:after,
+.slds-radio [type=radio]:checked ~ .slds-radio_faux:after,
+.slds-radio [type=radio]:checked ~ .slds-radio--faux:after,
+.slds-radio [type=radio]:checked + .slds-radio__label .slds-radio_faux:after,
+.slds-radio [type=radio]:checked + .slds-radio__label .slds-radio--faux:after {
+    width: 50%;
+    height: 50%;
+}
+
+.slds-radio [type=checkbox] {
+    width: 1px;
+    height: 1px;
+    border: 0;
+    clip: rect(0 0 0 0);
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+}
+
+.svmx-multi-select_button {
+    display: inline-block;
+}
+
+.slds-radio .slds-form-element__label {
+    font-size: 0.8125rem;
+}
+
+.slds-text-heading_small {
+    font-size: 1rem;
+}
+
+.slds-text-heading_small.single-line-label {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: left;
+}

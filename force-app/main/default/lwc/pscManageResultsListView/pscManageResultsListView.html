@@ -1,0 +1,162 @@
+<template>
+    <div class="container">
+        <lightning-layout>
+            <lightning-layout-item flexibility="grow" padding="horizontal-small">
+                <div class="slds-card">
+                    <template if:true={error}>
+                        <c-alert variant="error">{error}</c-alert>
+                    </template>
+                    <div class="slds-page-header">
+                        <div class="slds-page-header__row">
+                            <div class="slds-page-header__col-title">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure">
+                                        <lightning-icon icon-name="standard:campaign" alternative-text={i18n.manageResultLines} title={i18n.manageResultLines}>
+                                        </lightning-icon>
+                                    </div>
+                                  <div class="slds-media__body">
+                                    <div class="slds-page-header__name">
+                                      <div class="slds-page-header__name-title">
+                                        <h1>
+                                          <span>{i18n.manageResultLines}</span>
+                                          <span class="slds-page-header__title slds-truncate" title={pscName}>{pscName}</span>
+                                        </h1>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+                            <div class="slds-page-header__col-actions">
+                                <div class="slds-page-header__controls">
+                                    <div class="slds-page-header__control">
+                                        <lightning-button label={i18n.backButton} title={i18n.backButton} onclick={handleBack}></lightning-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-page-header__row slds-page-header__row_gutters">
+                            <div class="slds-page-header__col-details">
+                                <ul class="slds-page-header__detail-row">
+                                    <li class="slds-p-left_small slds-size_1-of-8">
+                                        <div class="slds-truncate" title={psciCount}>{psciCount}</div>
+                                    </li>
+                                    <li class="slds-p-left_small slds-size_2-of-8">
+                                        <div class="slds-truncate">
+                                            <div class="slds-input-has-icon slds-input-has-icon--left">
+                                                <lightning-icon icon-name="utility:search" class="slds-input__icon" size="xx-small">
+                                                </lightning-icon>
+                                                <lightning-input value={searchTerm}
+                                                    onchange={handleSearchTermChange}
+                                                    variant="label-hidden"
+                                                    autocomplete="off"
+                                                    placeholder={i18n.labelSearch}
+                                                    title={i18n.labelSearch}>
+                                                </lightning-input>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="slds-col_bump-left">
+                                        <lightning-button variant="base" icon-name="utility:add" label={i18n.addItemsManuallyButton} title={i18n.addItemsManuallyButton} onclick={handleAddItemsManually}></lightning-button>
+                                    </li>
+                                    <li class="slds-p-left_large">
+                                        <lightning-button variant="base"
+                                        icon-name="utility:email"
+                                        label={i18n.deliveryMethodButton}
+                                        title={i18n.deliveryMethodButton}
+                                        onclick={handleDeliveryMethodChange}
+                                        disabled={hasNoneSelected}></lightning-button>
+                                    </li>
+                                    <li class="slds-p-left_large">
+                                        <lightning-button variant="brand" label={i18n.saveDeliverButton} title={i18n.saveDeliverButton} onclick={handleSaveAndDeliver}></lightning-button>
+                                    </li>
+                                </ul>
+                            </div>
+                          </div>
+                    </div>
+                    <div if:true={filterPsciList} class="slds-p-horizontal_medium">
+                        <c-x-paginated-datatable 
+                        key-field="Id"
+                        records={filterPsciList}
+                        columns={psciColumns}
+                        default-sort-direction={i18n.labelAscending}
+                        sorted-by={sortBy}
+                        sorted-direction={sortDirection}
+                        entity-name={entityName}
+                        onpaginatedrowselection={handleRowSelection}
+                        onpaginatedrowaction={handleRowAction}
+                        show-info-header="true"
+                        >
+                        </c-x-paginated-datatable>
+                    </div>
+                </div>
+            </lightning-layout-item>
+        </lightning-layout>
+        <c-modal-dialog title={modalTitle} is-open={openModal} modal-content-id="changeModalContent"
+        modal-header-id="changeModalHeader" onmodalclosed={handleCancel} size={classSize}>
+            <div slot="body">
+                <div if:true={showChangeDeliveryContent}>
+                    <p>{i18n.changeDeliveryMsg}</p>
+                    <p>{i18n.deliveryMethodButton}</p>
+                    <c-combobox
+                        variant="label-stacked"
+                        placeholder={i18n.select}
+                        data-field="deliveryOption"
+                        value={deliveryMethodToSet}
+                        items={deliveryOptions}
+                        onchange={handleFormInputChange}
+                        class="requiredInput"
+                        hide-none-option>
+                    </c-combobox>
+                </div>
+                <div if:true={showExitContent}>
+                    {i18n.exitConfirmationMsg}
+                </div>
+                <div if:true={showDeliveryConfirmationContent}>
+                    <lightning-layout horizontal-align="spread">
+                        <lightning-layout-item padding="around-small">
+                            <div>{i18n.deliveryConfirmationMsg}</div>
+                        </lightning-layout-item>
+                        <lightning-layout-item padding="around-small">
+                            <div class="svmx-deliverConfirmation">
+                                <h3 class="slds-page-header__title slds-align_absolute-center">
+                                    {itemsToGenerate}
+                                </h3>
+                                <div class="slds-align_absolute-center slds-text-align_center">
+                                    {i18n.itemsGeneratedMsg}
+                                </div>
+                            </div>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </div>
+            </div>
+            <div slot="footer">
+                <div if:true={showChangeDeliveryContent}>
+                    <lightning-button label={i18n.cancelBtn} title={i18n.cancelBtn} variant="neutral"
+                        onclick={handleCancel} class="slds-p-right_x-small"></lightning-button>
+                    <lightning-button label={i18n.confirmBtn} title={i18n.confirmBtn}
+                        variant="brand" onclick={handleChangeDeliverConfirm} disabled={isEmptyDeliveryMethod}></lightning-button>
+                </div>
+                <div if:true={showExitContent}>
+                    <lightning-button label={i18n.btnExitWithoutSave} title={i18n.btnExitWithoutSave} variant="neutral"
+                    onclick={handleExit} class="slds-p-right_x-small"></lightning-button>
+                    <lightning-button label={i18n.btnSaveAndExit} title={i18n.btnSaveAndExit}
+                    variant="brand" onclick={handleSaveExit}></lightning-button>
+                </div>
+                <div if:true={showDeliveryConfirmationContent}>
+                    <lightning-button label={i18n.cancelBtn} title={i18n.cancelBtn} variant="neutral"
+                        onclick={handleCancel} class="slds-p-right_x-small"></lightning-button>
+                    <lightning-button label={i18n.deliverButton} title={i18n.deliverButton}
+                        variant="brand" onclick={handleDeliver} disabled={isEmptyDeliverLines}></lightning-button>
+                </div>
+        </div>
+        </c-modal-dialog>
+        <c-psc-add-assets-modal if:true={showAddItem} is-modal-open={showAddItem} asset-columns={assetColumns}
+        oncancel={handleCancel} onconfirm={handleConfirmAdd} asset-id-list={assetIdList} delivery-method={defaultDeliveryMethod}> </c-psc-add-assets-modal>
+        <template if:true={apiInProgress}>
+            <div class="svmx-lookup-advanced-search_spinner">
+                <lightning-spinner variant="brand" alternative-text={i18n.labelLoading}
+                    size="large"></lightning-spinner>
+            </div>
+        </template>
+    </div>
+</template>

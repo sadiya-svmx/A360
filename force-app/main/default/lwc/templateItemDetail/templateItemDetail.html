@@ -1,0 +1,266 @@
+<template>
+    <div class="svmx-template-item-detail">
+        <c-modal-dialog
+            title={i18n.editTemplateItem}
+            is-open={modalOpen}
+            size="medium"
+            modal-content-id="templateItemContent"
+            modal-header-id="templateItemHeader"
+            onmodalclosed={handleCancelModal}
+            relative-to-viewport>
+
+            <div slot="body">
+                <div class="slds-form" role="list">
+                    <div class="slds-form__row">
+                        <div class="slds-form__item" role="listitem">
+                            <div class="slds-form-element slds-form-element_stacked">
+                                <lightning-input
+                                    class="item-attribute svmx-technical-item-attribute_input-field"
+                                    label={i18n.technicalAttribute}
+                                    value={templateItemRecord.attributeName}
+                                    variant="label-stacked"
+                                    type="text"
+                                    data-field="name"
+                                    read-only
+                                ></lightning-input>
+                            </div>
+                        </div>
+                        <div class="slds-form__item" role="listitem">
+                            <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                <template if:true={isDateType}>
+                                    <lightning-input                                
+                                        class="svmx-technical-item-detail_default-value svmx-technical-item-detail_input-field"
+                                        label={i18n.defaultValue}
+                                        type="date"
+                                        data-field="defaultValue"
+                                        variant="label-stacked"
+                                        value={recordInfo.defaultValue}
+                                        message-when-value-missing={i18n.valueMissing}
+                                        message-when-bad-input={badInputMessage}
+                                        date-style="short"
+                                        autocomplete="false"
+                                        onchange={handleDefaultValueChanged}                                
+                                    ></lightning-input>
+                                </template>
+                                <template if:true={isDateTimeType}>
+                                    <lightning-input
+                                        class="svmx-technical-item-detail_default-value svmx-technical-item-detail_input-field"
+                                        label={i18n.defaultValue}
+                                        type="datetime"
+                                        data-field="defaultValue"
+                                        variant="label-stacked"
+                                        value={templateItemRecord.defaultValue}
+                                        message-when-value-missing={i18n.valueMissing}
+                                        message-when-bad-input={badInputMessage}
+                                        date-style="short"
+                                        autocomplete="false"
+                                        onchange={handleDefaultValueChanged}
+                                        timezone={timezone}
+                                    ></lightning-input>
+                                </template>
+                                <template if:true={isBooleanType}>
+                                    <div class="slds-form-element slds-form-element_stacked">
+                                        <span class="slds-form-element__label">
+                                            {i18n.defaultValue}
+                                        </span>
+                                        <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                            <span class="slds-form-element__static slds-grow word-break-ie11">
+                                                <div class="slds-form-element__static">
+                                                    <lightning-input
+                                                        type="checkbox"
+                                                        class="svmx-technical-item-detail_default-value svmx-technical-item-detail_input-field"
+                                                        label={i18n.defaultValue}
+                                                        data-field="defaultValue"
+                                                        checked={templateItemRecord.defaultValue}
+                                                        name="defaultValue"
+                                                        variant="label-hidden"
+                                                        onchange={handleDefaultValueChanged}>
+                                                    </lightning-input>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template if:true={isTextType}>
+                                    <lightning-input
+                                        class="svmx-technical-item-detail_default-value svmx-technical-item-detail_input-field"
+                                        label={i18n.defaultValue}
+                                        type="text" 
+                                        variant="label-stacked"
+                                        value={templateItemRecord.defaultValue}                              
+                                        data-field="defaultValue"
+                                        message-when-value-missing={i18n.valueMissing}
+                                        message-when-too-long={tooLongMessage}
+                                        onchange={handleDefaultValueChanged}
+                                        max-length='255'>
+                                    </lightning-input>
+                                </template>
+                                <template if:true={isNumberType}>
+                                    <lightning-input
+                                        class="svmx-technical-item-detail_default-value svmx-technical-item-detail_input-field"
+                                        label={i18n.defaultValue}
+                                        type="number"
+                                        formatter="decimal"
+                                        step="0.0001"
+                                        message-when-step-mismatch={stepMismatchMessage}
+                                        autocomplete="off"
+                                        variant="label-stacked"
+                                        value={templateItemRecord.defaultValue}                              
+                                        data-field="defaultValue"
+                                        message-when-value-missing={i18n.valueMissing}
+                                        onchange={handleDefaultValueChanged}>
+                                    </lightning-input>
+                                </template>
+                                <template if:true={isPicklistType}>
+                                    <c-combobox
+                                        variant="label-stacked"
+                                        label={i18n.defaultValue}
+                                        data-field="defaultValue"
+                                        value={templateItemRecord.defaultValue}
+                                        items={picklistOptions}
+                                        onchange={handleDefaultValueChanged}
+                                        class="svmx-technical-item-detail_default-value svmx-technical-item-detail_input-field"
+                                        filterable
+                                    ></c-combobox>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item" role="listitem">
+                            <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                <span class="slds-form-element__label">
+                                    {i18n.isReadOnly}
+                                </span>
+                                <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                    <span class="slds-form-element__static slds-grow word-break-ie11">
+                                        <div class="slds-form-element__static">
+                                            <lightning-input
+                                                type="checkbox"
+                                                class="item-readonly svmx-technical-item-detail_input-field"
+                                                label={i18n.isReadOnly}
+                                                data-field="readOnly"
+                                                checked={templateItemRecord.isReadOnly}
+                                                name="readOnly"
+                                                variant="label-hidden"
+                                                disabled={hideReadOnlyField}
+                                                onchange={handleReadOnlyChanged}>
+                                            </lightning-input>
+                                        </div>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-form__item" role="listitem">
+                            <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                <span class="slds-form-element__label">
+                                    {i18n.isRequired}
+                                </span>
+                                <div class="slds-form-element__control slds-grid slds-grid_vertical-align-end">
+                                    <span class="slds-form-element__static slds-grow word-break-ie11">
+                                        <div class="slds-form-element__static">
+                                            <lightning-input
+                                                type="checkbox"
+                                                class="item-required svmx-technical-item-detail_input-field"
+                                                label={i18n.isRequired}
+                                                data-field="required"
+                                                checked={templateItemRecord.isRequired}
+                                                name="required"
+                                                variant="label-hidden"
+                                                disabled={hideRequiredField}
+                                                onchange={handleRequiredChanged}>
+                                            </lightning-input>
+                                        </div>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <template if:true={isNumber}>
+                        <div class="slds-form__row">
+                            <div class="slds-form__item" role="listitem">
+                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                    <lightning-input
+                                            class="item-maximum svmx-technical-item-detail_input-field"
+                                            label={i18n.maximumValue}
+                                            type="number"
+                                            autocomplete="off"
+                                            data-field="maximumValue"
+                                            formatter="decimal"
+                                            step="0.0001"
+                                            message-when-step-mismatch={stepMismatchMessage}
+                                            variant="label-stacked"
+                                            value={templateItemRecord.maximumValue}
+                                            message-when-value-missing={i18n.valueMissing}
+                                            onchange={handleMaximumValueChanged}>
+                                        </lightning-input>
+                                </div>
+                            </div>
+                            <div class="slds-form__item" role="listitem">
+                                <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                    <lightning-input
+                                        class="item-minimum svmx-technical-item-detail_input-field"
+                                        label={i18n.minimumValue}
+                                        type="number"
+                                        formatter="decimal"
+                                        step="0.0001"
+                                        message-when-step-mismatch={stepMismatchMessage}
+                                        autocomplete="off"
+                                        variant="label-stacked"
+                                        value={templateItemRecord.minimumValue}                              
+                                        data-field="minimumValue"
+                                        message-when-value-missing={i18n.valueMissing}
+                                        onchange={handleMinimumValueChanged}>
+                                    </lightning-input>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <div class="slds-form__row">
+                        <div class="slds-form__item" role="listitem">
+                            <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                <lightning-textarea
+                                    class="item-message svmx-technical-item-detail_input-field"
+                                    label={i18n.message}
+                                    max-length="1000"
+                                    value={templateItemRecord.message}
+                                    data-field="message"
+                                    onchange={handleMessageChanged}
+                                ></lightning-textarea>
+                            </div>
+                        </div>
+                        <div class="slds-form__item" role="listitem">
+                            <div class="slds-form-element slds-form-element_stacked slds-is-editing">
+                                <lightning-textarea
+                                    class="item-help svmx-technical-item-detail_input-field"
+                                    label={i18n.helpText}
+                                    max-length="1000"
+                                    value={templateItemRecord.helpText}
+                                    data-field="helpText"
+                                    onchange={handlehelpTextChanged}
+                                ></lightning-textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div slot="footer">
+                <lightning-button
+                    label={i18n.cancel}
+                    title={i18n.cancel}
+                    variant="neutral"
+                    onclick={handleCancelModal}
+                    class="slds-var-p-right_x-small svmx-item-detail-cancelbtn"
+                ></lightning-button>
+                <lightning-button
+                    label={i18n.confirm}
+                    title={i18n.confirm}
+                    variant="brand"
+                    onclick={handleSave}
+                    class="svmx-item-detail-savebtn"
+                ></lightning-button>
+            </div>
+        </c-modal-dialog>
+    </div>
+</template>

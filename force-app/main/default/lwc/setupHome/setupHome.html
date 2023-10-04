@@ -1,0 +1,13 @@
+<template>
+	<template if:true={apiInProgress}>
+		<lightning-spinner variant="brand" alternative-text="loading.."></lightning-spinner>
+	</template>
+	<template if:true={isAdminScreen}>
+		<c-admin-layout onloadcomplete={handleComplete} is-auto-config-running={isAutoConfigRunning} card-less={cardLess}>
+			<c-center-stage onloadpage={handleLoadPage} tag={selectedComponent} class="full-width"></c-center-stage>
+		</c-admin-layout>
+	</template>
+	<template if:true={isLookupEditor}>
+		<c-lookup-editor onopenadminscreen={openAdminScreen} onloadcomplete={handleComplete}></c-lookup-editor>
+	</template>
+</template>

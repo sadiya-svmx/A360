@@ -1,0 +1,31 @@
+<aura:component implements="lightning:actionOverride,force:lightningQuickActionWithoutHeader,force:hasRecordId,force:hasSObjectName">
+    <aura:attribute name="recordId" type="String" access="global" />
+    <aura:attribute name="sObjectName" type="String" access="global" />
+    <aura:attribute name="maxHeight" type="String" access="global" />
+    <aura:attribute name="showIcons" type="Boolean" access="global" />
+    <aura:attribute name="width" type="String" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.handleInit}"></aura:handler>
+
+    <aura:html tag="style">
+        .PHONE .forceChatterPublisherPresentationMobile .cuf-scroller-inside {
+            padding: 0;
+        }
+
+        .PHONE .forceChatterPublisherPresentationMobile .cuf-scroller-inside .svmx-button_compact > .slds-button {
+            --slds-c-button-spacing-inline-start: 0.5rem;
+            --slds-c-button-spacing-inline-end: 0.5rem;
+            --slds-c-button-line-height: 1.875rem;
+        }
+
+        .PHONE .forceChatterPublisherPresentationMobile .cuf-scroller-inside .svmx-input_compact .slds-checkbox .slds-checkbox__label {
+            min-height: unset;
+        }
+    </aura:html>
+
+    <c:svmxServiceFlowWizard recordId="{!v.recordId}" objectApiName="{!v.sObjectName}" maxHeight="{!v.maxHeight}"
+            showIcons="{!v.showIcons}" flexipageRegionWidth="{!v.width}" onlaunchaction="{!c.launchAction}"
+            isInCommunity="false" oncloseaction="{!c.handleCloseAction}">
+    </c:svmxServiceFlowWizard>
+    <c:SvmxFlowLauncher aura:id="flowlauncher"></c:SvmxFlowLauncher>
+</aura:component>

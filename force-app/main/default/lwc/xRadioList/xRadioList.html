@@ -1,0 +1,67 @@
+<template>
+    <fieldset class={rootClass}>
+        <div class="slds-grid slds-form-element__control">
+            <div class="slds-col slds-size_1-of-1">
+                <template for:each={transformedOptions} for:item="option">
+                    <div key={option.value} class={option.outerClassList}>
+                        <span class="slds-radio">
+                            <input
+                                type={inputType}
+                                name={name}
+                                id={option.indexId}
+                                data-index-id={option.indexId}
+                                checked={option.isChecked}
+                                value={option.value}
+                                required={required}
+                                disabled={disabled}
+                                onchange={handleChange}
+                                onfocus={handleFocus}
+                                onblur={handleBlur}
+                            />
+
+                            <label class="slds-radio__label slds-p-around_medium" for={option.indexId}>
+                                <lightning-layout>
+                                    <lightning-layout-item flexibility="no-flex">
+                                        <template if:false={multiple}>
+                                            <span class="slds-radio_faux"></span>
+                                        </template>
+
+                                        <template if:true={multiple}>
+                                            <lightning-button-icon-stateful
+                                                icon-name={option.iconName}
+                                                selected={option.isChecked}
+                                                onclick={handleMultiSelectClick}
+                                                value={option.indexId}
+                                                class="svmx-multi-select_button slds-m-around_xx-small"
+                                            ></lightning-button-icon-stateful>
+                                        </template>
+                                    </lightning-layout-item>
+
+                                    <lightning-layout-item class="slds-form-element__label slds-has-flexi-truncate">
+                                        <template if:false={option.hasSecondaryLabel}>
+                                            <div class="slds-text-heading_small slds-text-color_default slds-truncate single-line-label">{option.label}</div>
+                                        </template>
+
+                                        <template if:true={option.hasSecondaryLabel}>
+                                            <div>
+                                                <div class="slds-text-heading_small slds-text-color_default slds-truncate">{option.label}</div>
+                                                <div class="slds-text-color_weak">{option.secondaryLabel}</div>
+                                            </div>
+                                        </template>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </label>
+                        </span>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <template if:true={_helpMessage}>
+            <div data-help-message
+                id="help-message"
+                class="slds-form-element__help"
+            >{_helpMessage}</div>
+        </template>
+    </fieldset>
+</template>

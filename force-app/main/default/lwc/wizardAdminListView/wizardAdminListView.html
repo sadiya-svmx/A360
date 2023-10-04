@@ -1,0 +1,87 @@
+<template>
+    <div class="slds-card full-height">
+      <c-svmx-page-header 
+        title={i18n.wizards} 
+        icon-name={srcIconName} 
+        sub-title={i18n.pageHeader} 
+        icon-title={i18n.wizards}
+        meta-title={rowCountPhrase}
+        icon-size={iconSize}
+        is-object-home = "Object">
+          <lightning-button
+              slot="actions"
+              label={i18n.addObject}
+              title={i18n.addObject}
+              icon-name="utility:add"
+              class="svmx-add-object"
+              onclick={handleNewObject}
+          ></lightning-button> 
+          <lightning-button-icon
+            slot="actions"
+            icon-name="utility:help"
+            variant="container"
+            alternative-text={i18n.help}
+            title={i18n.help}
+            onclick={handleHelpClick}
+            class="svmx-help-link-button"
+        ></lightning-button-icon>
+          <div class="slds-page-header__control" slot="object-controls">
+            <div class="slds-page-header__controls">
+              <div class="slds-page-header__control">
+                  <lightning-input
+                      type="search"
+                      autocomplete="off"
+                      placeholder={i18n.searchPlaceholder}
+                      variant="label-hidden"
+                      class="slds-size_large search-input"
+                      onchange={handleListSearchKeyChange}
+                  ></lightning-input>
+              </div>
+            </div>    
+          </div>      
+      </c-svmx-page-header>
+      <template if:true={error}>
+          <div class="slds-text-color_error svmx-error">{error}</div>
+      </template>
+      <div style={computedDataTableHeight}>
+          <c-x-datatable key-field="objectAPIName" data={listViewData} columns={columns} hide-checkbox-column sorted-by={sortBy} sorted-direction={sortDirection} default-sort-direction="asc" onsort={handleColumnSort}></c-x-datatable>
+          
+          <div if:false={rowCount} class="slds-align_absolute-center no-data">{i18n.noResults}</div>
+  
+          <template if:true={apiInProgress}>
+              <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+          </template>
+      </div>
+      <c-modal-dialog title={i18n.selectObjectTitle} is-open={selectObjectDialogOpen} modal-content-id="select-object-content" modal-header-id="select-object-header" onmodalclosed={handleCancelModal}>
+        <div slot="body">
+            <article class="slds-card modal-cardbody">
+                <div class="slds-card__body slds-card__body_inner">
+                  <template if:true={objectSelectorData}>
+                      <c-list-box
+                          class="objectSelectorListBox"
+                          key-field="value"
+                          items={objectSelectorData}
+                          columns={objectSelectorColumns}
+                          item-count-label={i18n.objectSelectorCountLabel}
+                          search-placeholder={i18n.searchPlaceholder}
+                          onsearchkeychange={handleObjectSelectorSearchKeyChange}
+                          onrowselected={handleRowSelected}
+                          scrollable>
+                      </c-list-box>
+                  </template>
+                  <template if:true={objectSelectorError}>
+                      <div id="help-text" data-help-text class="slds-form-element__help svmx-object-error" aria-live="assertive">{objectSelectorError}</div>
+                  </template>
+                  <template if:false={objectSelectorData}>
+                      <lightning-spinner variant="brand" alternative-text={i18n.loading}></lightning-spinner>
+                  </template>
+                </div>
+            </article>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal} class="slds-p-right_x-small svmx-objectCancelButton"></lightning-button>
+            <lightning-button label={i18n.select} title={i18n.select} variant="brand" onclick={handleObjectSelect} class="objectSelectButton"></lightning-button>
+        </div>
+    </c-modal-dialog>      
+    </div>
+  </template>

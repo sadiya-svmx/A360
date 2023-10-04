@@ -1,0 +1,195 @@
+<template>
+    <lightning-card variant="narrow" icon-name="standard:asset_warranty" class="svmx-supplier-warranty">
+        <h1 slot="title"><b>{cardTitle}</b></h1>
+        <div slot="actions" class="slds-grid slds-wrap">
+            <lightning-button label={i18n.checkNow} title={i18n.checkNow} onclick={checkWarranty}
+                class="lds-col slds-m-left_x-small svmx-warranty-checknow-btn">
+            </lightning-button>
+        </div>
+        <template if:true={error}>
+            <c-alert variant="error">{error}</c-alert>
+        </template>
+        <template if:true={apiInProgress}>
+            <lightning-spinner variant="brand" alternative-text="loading"></lightning-spinner>
+        </template>
+        <template if:true={initialMode}>
+            <div class="slds-media slds-m-left_large slds-m-top_large">
+                <div class="slds-media__body slds-m-left_x-small">
+                    <div class="slds-page-header__name">
+                        <div class="slds-page-header__name-title">
+                            <h1>
+                                <span
+                                    class="slds-text-heading_x-small slds-p-left_medium AutoEntitlementEngineResult__header--color">
+                                    {i18n.warrantyNotRun}</span>
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+        
+        <template if:true={tableView}>
+            <div class="slds-p-top_small" style={computedDataTableHeight}>
+                <table
+                    class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered slds-table_fixed-layout svmx-warranty-list_table"
+                    role="grid">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th role="gridcell" scope="col">
+                                <div class="slds-truncate" title={i18n.asset}>{i18n.asset}</div>
+                            </th>
+                            <th role="gridcell" scope="col">
+                                <div class="slds-truncate" title={i18n.warrantyTerms}>{i18n.warrantyTerms}</div>
+                            </th>
+                            <template if:true={isSmallDevice}>
+                                <th role="gridcell" scope="col"></th>
+                            </template>
+                            
+                            <template if:false={isSmallDevice}>
+                                <th role="gridcell" scope="col">
+                                    <div class="slds-truncate" title={i18n.supplier}>{i18n.supplier}</div>
+                                </th>
+                                <th role="gridcell" scope="col">
+                                    <div class="slds-truncate" title={i18n.expires}>{i18n.expires}</div>
+                                </th>
+                            </template>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={listViewData} for:item="warranty" for:index="indexval">
+                            <tr key={warranty.id}>
+                                <th role="gridcell" class="slds-truncate" scope="col">
+                                    <div class="slds-truncate">
+                                        <a tabindex="-1" target={warranty.componentId} onclick={viewAssetRecord}
+                                            class="svmx-warranty-record" data-id={warranty.id} data-assetid={warranty.componentId}>
+                                            {warranty.componentName}
+                                        </a>
+                                    </div>
+                                </th>
+                                <th role="gridcell" class="slds-truncate" scope="col">
+                                    <a tabindex="-1" target={warranty.warrantyTermId} onclick={viewWarrantyTermRecord}
+                                        class="svmx-warrantyterm-record" data-id={warranty.warrantyTermId}>
+                                        {warranty.warrantyTermName}
+                                    </a>
+                                </th>
+                                <template if:true={isSmallDevice}>
+                                    <th role="gridcell" class="slds-truncate" scope="col">
+                                        <div class="slds-truncate" data-sectionid={warranty.id}>
+                                            <lightning-icon icon-name="utility:info" class="svmx-warranty-helpicon"
+                                                size="xx-small" data-id={warranty.id} data-assetid={warranty.componentId}
+                                                alternative-text="info icon" onmouseover={handleMouseOver} onmouseout={handleMouseOut}>
+                                            </lightning-icon>
+                                        </div>
+                                    </th>
+                                </template>
+                                <template if:false={isSmallDevice}>
+                                    <th role="gridcell" class="slds-truncate" scope="col">
+                                        {warranty.supplierName}
+                                    </th>
+                                    <th role="gridcell" class="slds-truncate" scope="col">
+                                        {warranty.expireDate}
+                                    </th>
+                                </template>
+
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <div class="slds-p-left_small slds-p-bottom_medium">
+                    <template if:true={showMoreBtn}>
+                        <a class="slds-float_left svmx-showmore" onclick={showMore}>{i18n.showMore}</a>
+                    </template>
+                    <template if:true={showLessBtn}>
+                        <a class="slds-float_left svmx-showless" onclick={showLess}>{i18n.showLess}</a>
+                    </template>
+                    <template if:true={showAllBtn}>
+                        <a class="slds-float_right svmx-showall" onclick={showAll}>{i18n.showAll}</a>
+                    </template>
+                </div>
+            </div>
+
+
+        </template>
+        <template if:true={noWarranty}>
+            <div class="slds-media__body slds-m-left_x-small">
+                <div class="slds-page-header__name">
+                    <div class="slds-page-header__name-title">
+                        <h1>
+                            <lightning-icon icon-name="utility:error" alternative-text={i18n.error} title={i18n.error}
+                                size="small" variant="error" class="slds-m-left_small">
+                            </lightning-icon>
+                            <span
+                                class="slds-text-heading_x-small slds-p-left_small AutoEntitlementEngineResult__header--color">
+                                {i18n.noWarranty}
+                            </span>
+                        </h1>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template if:true={noAssetFoundMsg}>
+            <div class="slds-media__body slds-m-left_x-small">
+                <div class="slds-page-header__name">
+                    <div class="slds-page-header__name-title">
+                        <h1>
+                            <lightning-icon icon-name="utility:error" alternative-text={i18n.error} title={i18n.error}
+                                size="small" variant="error" class="slds-m-left_small">
+                            </lightning-icon>
+                            <span
+                                class="slds-text-heading_x-small slds-p-left_small AutoEntitlementEngineResult__header--color">
+                                {noAssetFoundMsg}
+                            </span>
+                        </h1>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+    </lightning-card>
+    <div class="svmx-warranty_modal">
+        <c-modal-dialog title={cardTitle} class="svmx-warranty-listview-modal" size="SMALL"
+            is-open={warrantyViewModalOpen} modal-content-id="warrantyModalContent"
+            modal-header-id="warrantyModalHeader" onmodalclosed={handleWarrantyCancel}>
+
+            <div slot="body">
+                <div class="svmx-warranty-view">
+                    <div class="svmx-warranty-table slds-p-top_xx-small slds-p-bottom_large">
+                        <div if:true={apiInProgress} class="slds-is-relative svmx-ta-spinner">
+                            <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium"
+                                style="padding-top:40%">
+                            </lightning-spinner>
+                        </div>
+                        <c-x-datatable class="svmx-warranty-list-view_table" key-field="id" data={warrantyList}
+                            columns={columns} hide-checkbox-column>
+                        </c-x-datatable>
+
+                    </div>
+                </div>
+            </div>
+
+            <div slot="footer">
+                <lightning-button label={i18n.oK} title={i18n.oK} variant="neutral" onclick={handleWarrantyCancel}
+                    class="slds-align_absolute-center svmx-warranty_cancel-btn">
+                </lightning-button>
+            </div>
+        </c-modal-dialog>
+    </div>
+
+
+    <section if:true={showTooltip} class="slds-is-relative" role="dialog" data-id="svmx-threshold-popover-section"
+        style={sectionInfo.thresholdPOStyle}>
+
+        <div class="svmx-supplier-warranty_tooltip 
+                slds-popover 
+                slds-popover_tooltip
+                slds-nubbin_bottom-right" role="tooltip">
+            <div class="slds-popover__body slds-p-vertical_xx-small">
+                {sectionInfo.message}<br/>
+                {sectionInfo.warranty.supplierName}
+                
+            </div>
+        </div>
+
+    </section>
+</template>

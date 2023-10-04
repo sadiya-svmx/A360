@@ -1,0 +1,81 @@
+<template>
+    <div class="container">
+        <div class="slds-card">
+            <template if:true={error}>
+                <c-alert variant="error">{error}</c-alert>
+            </template>
+            <template if:true={apiInProgress}>
+                <div class="svmx-lookup-advanced-search_spinner">
+                    <lightning-spinner variant="brand" alternative-text={i18n.labelLoading}
+                        size="small"></lightning-spinner>
+                </div>
+            </template>
+            <div if:true={showProgressBar} class="svmx-psc-search_progress">
+                <div class="content">
+                    <h3>{i18n.labelDeliveryInProgress}</h3>
+                        <div class="svmx-psc-block">
+                            <lightning-progress-bar value={progressCounter} size="large"></lightning-progress-bar>
+                        </div>
+                </div>
+            </div>
+            <div class="svmx-psc_list-view-header slds-p-around_medium">
+                <div class="slds-page-header__row">
+                    <div class="slds-page-header__col-title">
+                        <div class="slds-media">
+                            <div class="slds-media__figure">
+                                <lightning-icon icon-name="standard:campaign"
+                                    alternative-text={i18n.pageHeader} title={i18n.pageHeader}>
+                                </lightning-icon>
+                            </div>
+                            <div class="slds-media__body">
+                                <div class="slds-page-header__name">
+                                    <div class="slds-page-header__name-title">
+                                        <span class="slds-page-header__title slds-truncate" title={i18n.pageHeader}>{i18n.pageHeader}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-page-header__col-actions">
+                        <div class="slds-page-header__controls">
+                            <div class="slds-page-header__control">
+                                <lightning-button 
+                                    variant="base"
+                                    label={i18n.manageButton}
+                                    onclick={handleManage}
+                                    disabled={isManageDisabled}></lightning-button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <template if:true={hasLines}>
+                    <div class="slds-p-top_small">
+                        <lightning-tabset variant="scoped">
+                            <lightning-tab label={linesGenerated} value="generatedChartTab">
+                                <div class="slds-grid slds-wrap slds-grid--pull-padded">
+                                    <div if:true={isChartJsInitialized} class="slds-col--padded slds-size--1-of-1">
+                                        <canvas class="generatedChart" lwc:dom="manual"></canvas>
+                                    </div>
+                                </div>
+                            </lightning-tab>
+                            <template if:true={hasGeneratedOutput}>
+                                <lightning-tab label={linesDelivered} value="deliveredChartTab">
+                                    <div class="slds-grid slds-wrap slds-grid--pull-padded">
+                                        <div if:true={isChartJsInitialized} class="slds-col--padded slds-size--1-of-1">
+                                            <canvas class="deliveredChart" lwc:dom="manual"></canvas>
+                                        </div>
+                                    </div>
+                                </lightning-tab>
+                            </template>
+                        </lightning-tabset>
+                    </div>
+                </template>
+                <div class="slds-p-top_small slds-p-horizontal_large"> 
+                    <div class="slds-text-align_center">
+                        <lightning-formatted-rich-text class="cardMessage" value={lineCardMessage}></lightning-formatted-rich-text>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

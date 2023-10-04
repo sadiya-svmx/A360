@@ -1,0 +1,299 @@
+<template>
+    <div class="slds-card full-height">
+        <div class="slds-page-header list-view-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                        <img src={logoUrl} width="40" height="40">
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>                                        
+                                        <span
+                                            class="slds-page-header__title slds-truncate"
+                                            title={i18n.configTemplatesLabel}>
+                                            {i18n.pageHeader}
+                                        </span>
+                                        <span>{recordCountInfo}</span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-page-header__col-actions">
+                    <div class="slds-page-header__controls">
+                        <div class="slds-page-header__control">
+                            <ul class="slds-button-group-list">
+                                <li>
+                                    <lightning-button
+                                        label={i18n.new}
+                                        title={i18n.new}
+                                        icon-name="utility:add"
+                                        class="svmx-addNewAttribute slds-var-p-right_x-small"
+                                        onclick={handleNewRecord}>
+                                    </lightning-button>
+                                    <lightning-button-icon
+                                        icon-name="utility:help"
+                                        variant="bare"
+                                        alternative-text={i18n.help}
+                                        title={i18n.help}
+                                        class="svmx-ta-help_icon slds-var-p-right_x-small"
+                                        onclick={handleHelpClick}
+                                    ></lightning-button-icon>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slds-page-header__row slds-p-top_small">
+            <div class="slds-page-header__col-meta">
+                <div class="slds-page-header__control">
+                    <lightning-input
+                        type="search"
+                        autocomplete="off"
+                        title={i18n.searchPlaceholder}
+                        placeholder={i18n.searchPlaceholder}
+                        variant="label-hidden"
+                        class="slds-size_large search-input"
+                        disabled={disableSearchInput}
+                        oncommit={handleSearchCommit}
+                    ></lightning-input>
+                </div>
+            </div>
+        </div>
+        <template if:true={error}>
+            <c-alert variant="error">{error}</c-alert>
+        </template>
+        <div class="slds-m-around_medium">
+            <div style={computedDataTableHeight}>
+                <div if:true={apiInProgress} class="slds-is-relative">
+                    <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium">
+                    </lightning-spinner>
+                </div>
+                <template if:true={listViewRecords}>
+                    <c-x-datatable
+                        class="svmx-ta-list-view_table"
+                        key-field="id"
+                        data={listViewRecords}
+                        columns={columns}
+                        onrowaction={handleRowAction}
+                        hide-checkbox-column
+                        default-sort-direction={sortDirection}
+                        sorted-direction={sortDirection}
+                        sorted-by={sortBy}
+                        onsort={handleColumnSort}
+                        enable-infinite-loading
+                        onloadmore={handleLoadMore}>
+                    </c-x-datatable>
+                </template>
+                <div if:true={noRecordsFound} class="slds-p-top_xx-large slds-align_absolute-center no-data">
+                    {i18n.noResults}
+                </div>
+            </div>
+        </div>
+        <c-technical-attribute-detail ondeleterecord={handleDeleteAttribute} oncloseandrefreshpage={handleRefresh} ></c-technical-attribute-detail>
+        <c-modal-dialog title={whereUsedModalTitle} class="svmx-where-used_modal" is-open={whereUsedModalOpen} modal-content-id="whereUsedModalContent" modal-header-id="whereUsedModalHeader" onmodalclosed={handlewhereUsedCancel}>
+            <div slot="body">
+                <template if:true={attributeUsed}>
+                    {i18n.attributeWhereUsedDetails}
+                    <template if:true={showWhereUsedDetails}>
+                        <div class="slds-var-p-top_small slds-var-p-left_medium">
+                            {i18n.technicalAttributeTemplates}
+                            <ul class="slds-list_dotted">
+                                <template for:each={relatedTemplateItems} for:item="templateItem">
+                                    <ul key={templateItem.id} class="slds-list_dotted slds-var-p-top_x-small svmx-ta-where-used-templates">
+                                        <li class="slds-truncate" title={templateItem.templateName}>
+                                            <lightning-formatted-url class="svmx-result_record-link" value={templateItem.value} tooltip={templateItem.templateName} label={templateItem.templateName} target="_blank">
+                                            </lightning-formatted-url>
+                                        </li>
+                                    </ul>
+                                </template>
+                            </ul>
+                        </div>
+                    </template>
+                    <template if:true={showUserGroups}>
+                        <div class="slds-var-p-top_small slds-var-p-left_medium">
+                            {i18n.userGroups}
+                            <ul class="slds-list_dotted">
+                                <template for:each={relatedUserGroups} for:item="userGroup">
+                                    <ul key={userGroup.id} class="slds-list_dotted slds-var-p-top_x-small svmx-ta-where-used-templates">
+                                        <li class="slds-truncate" title={userGroup.name}>
+                                            <lightning-formatted-url class="svmx-result_record-link" value={userGroup.value} tooltip={userGroup.name} label={userGroup.name} target="_blank">
+                                            </lightning-formatted-url>
+                                        </li>
+                                    </ul>
+                                </template>
+                            </ul>
+                        </div>
+                    </template>
+                </template>
+                
+                
+                <template if:false={attributeUsed}>
+                    {i18n.attributeNotUsed}
+                </template>
+            </div>
+            <div slot="footer">
+                <lightning-button label={i18n.ok} title={i18n.ok} variant="neutral" onclick={handlewhereUsedCancel} class="slds-p-right_x-small svmx-where-used-cancel"></lightning-button>               
+            </div>
+        </c-modal-dialog>
+       <c-modal-dialog title={i18n.deleteModalTitle} class="deleteModal" is-open={deleteModalDialogOpen} modal-content-id="deleteModalContent" modal-header-id="deleteModalHeader" onmodalclosed={handleCancelModal}>
+            <div slot="body">
+                <template if:true={showDeleteActionNotsupported}>
+                    {i18n.assetAttributeReference}
+                </template>
+                <template if:true={showRelatedTemplateItems}>
+                    {i18n.attributeWhereUsedContent}
+                    <ul class="slds-list_dotted slds-p-top_small">
+                        <template for:each={relatedTemplateItems} for:item="templateItem">
+                            <ul key={templateItem.id} class="slds-list_dotted slds-p-top_x-small svmx-ta-related-templates">
+                                <li class="slds-truncate" title={templateItem.templateName}>
+                                    <lightning-formatted-url class="svmx-result_record-link" value={templateItem.value} tooltip={templateItem.templateName} label={templateItem.templateName} target="_blank">
+                                    </lightning-formatted-url>
+                                </li>
+                            </ul>
+                        </template>
+                    </ul>
+                </template>
+                <template if:true={showDeleteModalContent}>
+                    <p><lightning-formatted-text value={i18n.deleteModalContent}></lightning-formatted-text></p>
+                </template>
+            </div>
+            <div slot="footer">
+                <template if:true={showDeleteModalContent}>
+                    <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal} class="slds-p-right_x-small svmx-deleteTACancel"></lightning-button>
+                    <lightning-button class="confirmButton svmx-deleteTAModalConfirm" label={i18n.confirm} title={i18n.confirm} variant="brand" onclick={handleDelete}></lightning-button>
+                </template>
+                
+                <template if:true={showRelatedTemplateItems}>
+                    <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal} class="slds-p-right_x-small svmx-deleteTACancel"></lightning-button>
+                    <lightning-button class="confirmButton svmx-deleteConfirm" label={i18n.confirm} title={i18n.confirm} variant="brand" onclick={handleDeleteConfirmModal}></lightning-button>
+                </template>
+                
+                
+                <template if:true={showDeleteActionNotsupported}>
+                    <lightning-button class="okButton svmx-delete-ta-ok_button" label="Ok" title="Ok" variant="brand" onclick={handleCancelModal}></lightning-button>
+                </template>                
+            </div>
+        </c-modal-dialog> 
+        
+        <div class="svmx-ta-usergroup-list-dialog">
+            <c-modal-dialog
+                title={i18n.addUserGroup}
+                is-open={userGroupModalOpen}
+                size="MEDIUM_FIXED"
+                modal-content-id="addUserGroupContent"
+                modal-header-id="addUserGroupHeader"
+                onmodalclosed={handleCancelUserGroupModal}
+                relative-to-viewport>
+    
+                <div slot="body">    
+                    <template if:true={error}>
+                        <c-alert variant="error">
+                            {error}
+                        </c-alert>
+                    </template>
+                    <div if:true={apiInProgress} class="slds-is-relative svmx-ta-spinner">
+                        <lightning-spinner variant="brand" alternative-text={i18n.loading} size="medium" style="padding-top:40%">
+                        </lightning-spinner>
+                    </div>    
+                    <div class="slds-grid">
+                        <div class="slds-size_5-of-7">
+                            <lightning-input
+                                type="search"
+                                class="search-input"
+                                autocomplete="off"
+                                variant="label-hidden"
+                                oncommit={handleSearchKeyChange}
+                                disabled={disableSearchInput}
+                            ></lightning-input> 
+                        </div>
+                    </div>    
+                    <template if:true={selectedRecords}>
+                        <div class="slds-var-p-top_medium">
+                            <template if:false={showSelectedItems}>
+                                <lightning-button variant="base" 
+                                                label={selectedItemMessage} 
+                                                onclick={handleShowSelectedItems}>
+                                </lightning-button>
+                            </template>        
+                            <template if:true={showSelectedItems}>
+                                <lightning-button variant="base" 
+                                                label={i18n.hideSelectedItems} 
+                                                onclick={handleHideSelectedItems}>
+                                </lightning-button>
+                                <div class="slds-var-p-top_medium svmx-ta-selected-list-table">
+                                    <c-x-datatable
+                                        class="selectedRecordsTable"
+                                        key-field="id"
+                                        columns={userGroupColumns}
+                                        data={selectedRowList}
+                                        selected-rows={selectedRowIds}
+                                        sorted-by={userGroupSortBy}
+                                        sorted-direction={userGroupSortDirection} 
+                                        default-sort-direction="asc"
+                                        onrowselection={handleRowSelection}
+                                    >
+                                    </c-x-datatable>
+                                </div> 
+                                <template if:true={noSelectedGroups}>
+                                    <div class="slds-p-top_xx-large slds-align_absolute-center no-data">
+                                        {i18n.noResults}
+                                    </div>
+                                </template>                               
+                            </template>
+                        </div>
+                    </template>
+    
+                    <template if:false={showSelectedItems}>
+                        <template if:true={userGroupRecords}>
+                            <div class="slds-var-p-top_medium svmx-ta-list-table">
+                                {i18n.userGroupAssignmentInfo}
+                                <c-x-datatable
+                                    class="userGroupListViewTable"
+                                    key-field="id"
+                                    columns={userGroupColumns}
+                                    data={userGroupRecords}
+                                    selected-rows={selectedRowIds}
+                                    sorted-by={userGroupSortBy} 
+                                    onrowselection={handleRowSelection}
+                                    sorted-direction={userGroupSortDirection} 
+                                    default-sort-direction="asc"
+                                >
+                                </c-x-datatable>
+                            </div>
+                        </template>
+                        <template if:true={noGroups}>
+                            <div class="slds-p-top_xx-large slds-align_absolute-center no-data">
+                                {i18n.noResults}
+                            </div>
+                        </template>
+                    </template>                
+                </div>    
+                <div slot="footer">
+                    <lightning-button
+                        label={i18n.cancel}
+                        title={i18n.cancel}
+                        variant="neutral"
+                        onclick={handleCancelUserGroupModal}
+                        class="slds-var-p-right_x-small svmx-tech-attr-list-cancelbtn"
+                    ></lightning-button>
+                    <lightning-button
+                        class="svmx-tech-attr-list-applybtn"
+                        label={i18n.apply}
+                        title={i18n.apply}
+                        variant="brand"
+                        onclick={handleApply}
+                        disabled={disableApplyBtn}
+                    ></lightning-button>
+                </div>    
+            </c-modal-dialog>
+        </div>
+        
+    </div>
+</template>

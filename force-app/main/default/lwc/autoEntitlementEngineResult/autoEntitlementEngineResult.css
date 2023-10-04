@@ -1,0 +1,15 @@
+.AutoEntitlementEngineResult__widget-labels--color {
+    color: var(--lwc-colorTextActionLabel);
+}
+
+.AutoEntitlementEngineResult__header--color {
+    color: var(--lwc-colorTextActionLabelActive);
+}
+
+.AutoEntitlementEngineResult__text--warning {
+    color: #844800;
+}
+
+.AutoEntitlementEngineResult__remaininghours--font {
+    font-style: italic;
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>A360 – Contract Price Line Item Plans List View</masterLabel>
+    <description>Lightning Component to view the list of Contract Price Line Item plan under a Service Contract plan.</description>
+    <targets>
+        <target>lightning__RecordPage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+            <objects>
+                <object>SVMXA360__ServiceContractPlan__c</object>
+            </objects>
+        </targetConfig>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="recordId" type="String" label="Record ID"
+                description="ServiceContractPlanId Should be set to {!recordId}"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

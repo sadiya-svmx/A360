@@ -1,0 +1,6 @@
+.svmx-cpli-spinner {
+    min-height: 50vh;
+    z-index: 9002;
+    position: absolute;
+    margin-left: 48%;
+}

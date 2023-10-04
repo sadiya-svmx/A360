@@ -1,0 +1,439 @@
+<template>
+    <lightning-card>
+        <div if:true={showIllustration} class="slds-grid slds-grid_align-center assetAttributes_illustration-wrapper">
+            <c-svmx-illustrator class="assetAttributes_illustration" image-name={illustrationImageName} heading={illustrationHeading} message-body={illustrationMessage}></c-svmx-illustrator>
+        </div>
+        <c-attribute-history-view oncloseandrefreshpage={handleRefresh}></c-attribute-history-view>
+        <div if:false={showIllustration} class="svmx-view-attributes full-height slds-grid slds-grid_vertical">
+            <div class="slds-page-header list-view-header svmx-asset-attribute-card">
+                <div class="slds-page-header__row attribute-title-view">
+                    <div class="slds-page-header__col-title slds-p-bottom_medium">
+                        <div class="slds-media">
+                            <div class="slds-media__body">
+                                <div class="slds-page-header__name">
+                                    <div class="slds-page-header__name-title">
+                                        <h1>
+                                            <span class="slds-page-header__title slds-truncate slds-p-bottom_xx-small">
+                                                {assetRecordName}
+                                            </span>
+                                            <span title={attributeDetailView}>
+                                                {assetAttributeTitle}
+                                                <template if:false={isMobile}>
+                                                    <a onclick={viewAttributeDetail} data-value="Detail View"
+                                                    class="svmx-attributes_history slds-p-left_xx-small">{i18n.detailView}</a>
+                                                </template>
+                                            </span>
+                                        </h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-page-header__col-actions">
+                        <div class="slds-page-header__controls">
+                            <div class="slds-page-header__control">
+                                <lightning-button-group>
+                                    <template if:true={viewMode}>
+                                        <lightning-button label={i18n.updateValues} title={i18n.updateValues}
+                                            onclick={handleEdit} class="svmx-asset-attribute_update-btn">
+                                        </lightning-button>
+                                    </template>
+                                </lightning-button-group>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <template if:true={error}>
+                <c-alert variant="error">{error}</c-alert>
+            </template>
+            <template if:false={error}>
+                <template if:false={viewMode}>
+                    <template if:true={showWarnings}>
+                        <c-alert variant="warning">{showWarnings}</c-alert>
+                    </template>
+                </template>
+            </template>
+            
+            
+            <template if:true={apiInProgress}>
+                <lightning-spinner variant="brand" alternative-text="loading"></lightning-spinner>
+            </template>
+
+            <template if:true={templateCategories}>
+                <template for:each={templateCategories} for:item="category">
+                    <div key={category.categoryId} data-sectionid={category.categoryId} class="svmx-template-section">
+                        <c-x-expandable-section is-collapsed={category.isCollapsed} title={category.categoryName} show-expanded-section-popover="true" section-id={category.categoryId} onshowsectionpopover={handleSectionShowPopover} onhidesectionpopover={handleSectionHidePopover}>
+                            <div class="svmx-asset-attribute-form">
+                                <lightning-layout multiple-rows="true">
+                                    <template if:true={category.attributes}>
+                                        <template for:each={category.attributes} for:item="attribute">
+                                            <lightning-layout-item key={attribute.templateItemId} data-templateitemid={attribute.templateItemId} size={layoutItemSize} class="slds-p-right_large">
+                                                <template if:true={viewMode}>
+                                                    <lightning-layout multiple-rows="true">
+                                                        <lightning-layout-item size="6" class="slds-truncate slds-p-right_large">
+                                                            <span class="svmx-attribute-name">
+                                                                <a onclick={viewAssetAttributeHistories}
+                                                                    data-name={attribute.name}
+                                                                    data-technicalattributeid={attribute.assetTechnicalAttributeId}
+                                                                    data-templateitemid={attribute.templateItemId}
+                                                                    data-attributeid={attribute.id}
+                                                                    data-unit={attribute.unit}        
+                                                                    data-datatype={attribute.dataType}
+                                                                    class="svmx-attribute-link" title={attribute.name}>{attribute.name}
+                                                                </a>
+                                                            </span>
+                                                        </lightning-layout-item>
+                                                        <lightning-layout-item size="6">
+                                                            <span class="svmx-attribute-value">
+                                                                <template if:true={attribute.isTypeDate}>
+                                                                    <lightning-formatted-date-time
+                                                                        value={attribute.defaultValue}
+                                                                        year="numeric"
+                                                                        month="numeric"
+                                                                        day="numeric"
+                                                                        time-zone="UTC">
+                                                                    </lightning-formatted-date-time>
+                                                                </template>
+                                                                <template if:true={attribute.isTypeDateTime}>
+                                                                    <lightning-formatted-date-time
+                                                                        value={attribute.defaultValue}
+                                                                        year="numeric"
+                                                                        month="numeric"
+                                                                        day="numeric"
+                                                                        hour="2-digit"
+                                                                        minute="2-digit"
+                                                                        time-zone={i18n.timezone}>
+                                                                    </lightning-formatted-date-time>
+                                                                </template>
+                                                                <template if:true={attribute.isTypeCheckbox}>
+                                                                    <lightning-input
+                                                                        type="checkbox"
+                                                                        variant="label-hidden"
+                                                                        checked={attribute.isChecked}
+                                                                        disabled
+                                                                    ></lightning-input>
+                                                                </template>
+                                                                <template if:true={attribute.isTypeText}>
+                                                                    {attribute.defaultValue}
+                                                                </template>
+                                                                <template if:true={attribute.isTypePicklist}>
+                                                                    {attribute.defaultValue}
+                                                                </template>
+                                                                <template if:true={attribute.isTypeNumber}>
+                                                                    {attribute.defaultValue}
+                                                                </template>
+                                                            </span>
+                                                        </lightning-layout-item>
+                                                        <lightning-layout-item size="6" class="slds-truncate slds-p-right_large">
+                                                            <span class="slds-truncate">
+                                                                <lightning-formatted-date-time
+                                                                    value={attribute.capturedOn}
+                                                                    year="numeric"
+                                                                    month="numeric"
+                                                                    day="numeric"
+                                                                    hour="2-digit"
+                                                                    minute="2-digit"
+                                                                    time-zone={timezone}>
+                                                                </lightning-formatted-date-time>
+                                                            </span>
+                                                        </lightning-layout-item>
+                                                        <lightning-layout-item size="6">
+                                                            <span class="svmx-attribute-unit slds-truncate" title={attribute.unit}>
+                                                                {attribute.unit}
+                                                            </span>
+                                                        </lightning-layout-item>
+                                                    </lightning-layout>
+                                                    <div class={attribute.borderCSS}></div>
+                                                </template>
+
+                                                <template if:false={viewMode}>
+                                                    <div class="svmx-attribute-field">
+                                                        <div class="slds-form-element slds-form-element_horizontal">
+                                                            <label class="slds-form-element__label">
+                                                                <span class="slds-page-header__title slds-truncate  svmx-attribute-name" title={attribute.name}>
+                                                                    <template if:true={attribute.isRequired}>
+                                                                        <abbr class="slds-required" title="required">*</abbr>
+                                                                    </template>
+                                                                    {attribute.name}
+                                                                </span>
+                                                            </label>
+                                                            <lightning-helptext if:true={attribute.helpText} content={attribute.helpText}></lightning-helptext>
+                                                            <div class="slds-form-element__control">
+                                                                <template if:true={attribute.isTypeText}>
+                                                                    <lightning-input
+                                                                        class="svmx-text-attribute svmx-attribute-input"
+                                                                        type="text" 
+                                                                        variant="label-hidden"
+                                                                        value={attribute.defaultValue}  
+                                                                        data-technicalattributeid={attribute.assetTechnicalAttributeId}
+                                                                        data-templateitemid={attribute.templateItemId}
+                                                                        data-categoryid={attribute.sectionId}
+                                                                        data-attributeid={attribute.id}            
+                                                                        data-datatype={attribute.dataType}
+                                                                        read-only={attribute.isReadOnly}
+                                                                        required={attribute.isRequired}
+                                                                        message-when-value-missing='This field is required.'
+                                                                        message-when-too-long={tooLongMessage}
+                                                                        autocomplete="false"
+                                                                        max-length={textMaxLength}
+                                                                        onchange={handleChange}
+                                                                        oncommit={handleCommit}>
+                                                                    </lightning-input>
+                                                                    <span class="svmx-attribute-unit" title={attribute.unit}>
+                                                                        {attribute.unit}
+                                                                    </span>
+                                                                </template>
+                                                                <template if:true={attribute.isTypeNumber}>
+                                                                    <lightning-input
+                                                                        class="svmx-number-attribute svmx-attribute-input"
+                                                                        type="number"
+                                                                        formatter="decimal"
+                                                                        step="0.0001"
+                                                                        variant="label-hidden"
+                                                                        value={attribute.defaultValue}
+                                                                        autocomplete="off"
+                                                                        data-technicalattributeid={attribute.assetTechnicalAttributeId}
+                                                                        data-templateitemid={attribute.templateItemId}
+                                                                        data-categoryid={attribute.sectionId}
+                                                                        data-attributeid={attribute.attributeId}            
+                                                                        data-datatype={attribute.dataType}
+                                                                        read-only={attribute.isReadOnly}
+                                                                        required={attribute.isRequired}
+                                                                        message-when-step-mismatch={stepMismatchMessage}
+                                                                        message-when-value-missing='This field is required.'
+                                                                        onchange={handleChange}>
+                                                                    </lightning-input>
+                                                                    <div if:true={attribute.showWarning}>
+                                                                        <span title="Warning">
+                                                                            <lightning-formatted-text class="svmx-input-warning-text" value={attribute.warningText}></lightning-formatted-text>
+                                                                        </span>
+                                                                    </div>
+                                                                    <span class="svmx-attribute-unit" title={attribute.unit}>
+                                                                        {attribute.unit}
+                                                                    </span>
+                                                                </template>
+                                                                <template if:true={attribute.isTypePicklist}>
+                                                                    <template if:true={isMobile}>
+                                                                        <lightning-combobox
+                                                                            class="svmx-picklist-attribute svmx-attribute-input"
+                                                                            value={attribute.defaultValue}  
+                                                                            options={attribute.picklistOptions}
+                                                                            data-technicalattributeid={attribute.assetTechnicalAttributeId}
+                                                                            data-templateitemid={attribute.templateItemId}
+                                                                            data-categoryid={attribute.sectionId}
+                                                                            data-attributeid={attribute.id}  
+                                                                            data-datatype={attribute.dataType}
+                                                                            read-only={attribute.isReadOnly}
+                                                                            required={attribute.isRequired}
+                                                                            variant="label-hidden"
+                                                                            message-when-value-missing='This field is required.'
+                                                                            onchange={handleChange}>
+                                                                        </lightning-combobox>
+                                                                    </template>
+                                                                    <template if:false={isMobile}>
+                                                                        <c-combobox
+                                                                            class="svmx-picklist-attribute svmx-attribute-input"
+                                                                            value={attribute.defaultValue}  
+                                                                            items={attribute.picklistOptions}
+                                                                            data-technicalattributeid={attribute.assetTechnicalAttributeId}
+                                                                            data-templateitemid={attribute.templateItemId}
+                                                                            data-categoryid={attribute.sectionId}
+                                                                            data-attributeid={attribute.id}  
+                                                                            data-datatype={attribute.dataType}
+                                                                            read-only={attribute.isReadOnly}
+                                                                            required={attribute.isRequired}
+                                                                            variant="label-hidden"
+                                                                            message-when-value-missing='This field is required.'
+                                                                            onchange={handleChange}
+                                                                            filterable
+                                                                        ></c-combobox>
+                                                                    </template>
+                                                                    <span class="svmx-attribute-unit" title={attribute.unit}>
+                                                                        {attribute.unit}
+                                                                    </span>
+                                                                </template>
+                                                                <template if:true={attribute.isTypeDate}>
+                                                                    <lightning-input if:false={attribute.isReadOnly}
+                                                                        class="svmx-date-attribute svmx-attribute-input"
+                                                                        type="date"
+                                                                        variant="label-hidden"
+                                                                        value={attribute.defaultValue}
+                                                                        autocomplete="false"
+                                                                        data-technicalattributeid={attribute.assetTechnicalAttributeId}
+                                                                        data-templateitemid={attribute.templateItemId}
+                                                                        data-categoryid={attribute.sectionId}
+                                                                        data-attributeid={attribute.id}            
+                                                                        data-datatype={attribute.dataType}
+                                                                        read-only={attribute.isReadOnly}
+                                                                        disabled={attribute.isReadOnly}
+                                                                        required={attribute.isRequired}
+                                                                        date-style="short"
+                                                                        message-when-value-missing='This field is required.'
+                                                                        message-when-bad-input={badInputMessage}
+                                                                        onchange={handleChange}
+                                                                        onblur={hanldeOnBlur}>
+                                                                    </lightning-input>
+                                                                    <span if:false={attribute.isReadOnly} class="svmx-attribute-unit" title={attribute.unit}>
+                                                                        {attribute.unit}
+                                                                    </span>
+                                                                    <div if:true={attribute.isReadOnly} class="slds-p-top_xx-small">
+                                                                        <lightning-formatted-date-time 
+                                                                            value={attribute.defaultValue}
+                                                                            year="numeric"
+                                                                            month="numeric"
+                                                                            day="numeric"
+                                                                            time-zone="UTC">
+                                                                        </lightning-formatted-date-time>
+                                                                        <p class="slds-p-top_x-small svmx-attribute-unit" title={attribute.unit}>
+                                                                            {attribute.unit}
+                                                                        </p>
+                                                                    </div>
+                                                                </template>
+                                                                <template if:true={attribute.isTypeDateTime}>
+                                                                    <lightning-input if:false={attribute.isReadOnly}
+                                                                        class="svmx-datetime-attribute svmx-attribute-input"
+                                                                        type="datetime"
+                                                                        variant="label-hidden"
+                                                                        value={attribute.defaultValue}
+                                                                        autocomplete="false"
+                                                                        data-technicalattributeid={attribute.assetTechnicalAttributeId}
+                                                                        data-templateitemid={attribute.templateItemId}
+                                                                        data-categoryid={attribute.sectionId}
+                                                                        data-attributeid={attribute.id}            
+                                                                        data-datatype={attribute.dataType}
+                                                                        read-only={attribute.isReadOnly}
+                                                                        disabled={attribute.isReadOnly}
+                                                                        required={attribute.isRequired}
+                                                                        date-style="short"
+                                                                        timezone={timezone}
+                                                                        message-when-value-missing='This field is required.'
+                                                                        message-when-bad-input={badInputMessage}
+                                                                        onchange={handleChange}
+                                                                        onblur={hanldeOnBlur}>
+                                                                    </lightning-input>
+                                                                    <span if:false={attribute.isReadOnly} class="svmx-attribute-unit" title={attribute.unit}>
+                                                                        {attribute.unit}
+                                                                    </span>
+                                                                    <div if:true={attribute.isReadOnly} class="slds-p-top_xx-small">
+                                                                        <lightning-formatted-date-time
+                                                                            value={attribute.defaultValue}
+                                                                            year="numeric"
+                                                                            month="numeric"
+                                                                            day="numeric"
+                                                                            hour="2-digit"
+                                                                            minute="2-digit"
+                                                                            time-zone={i18n.timezone}>
+                                                                        </lightning-formatted-date-time>
+                                                                        <p class="slds-p-top_x-small svmx-attribute-unit" title={attribute.unit}>
+                                                                            {attribute.unit}
+                                                                        </p>
+                                                                    </div>
+                                                                </template>
+                                                                <template if:true={attribute.isTypeCheckbox}>
+                                                                    <lightning-input
+                                                                        type="checkbox"
+                                                                        variant="label-hidden"
+                                                                        checked={attribute.isChecked}
+                                                                        read-only={attribute.isReadOnly}
+                                                                        disabled={attribute.isReadOnly}
+                                                                        required={attribute.isRequired}
+                                                                        data-technicalattributeid={attribute.assetTechnicalAttributeId}
+                                                                        data-templateitemid={attribute.templateItemId}
+                                                                        data-categoryid={attribute.sectionId}
+                                                                        data-attributeid={attribute.id}            
+                                                                        data-datatype={attribute.dataType}
+                                                                        message-when-value-missing='This field is required.'
+                                                                        onchange={handleChange}
+                                                                        onblur={hanldeOnBlur}
+                                                                        class="svmx-checkbox-attribute svmx-attribute-input"
+                                                                    ></lightning-input>
+                                                                    <span class="svmx-attribute-unit" title={attribute.unit}>
+                                                                        {attribute.unit}
+                                                                    </span>
+                                                                </template>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </lightning-layout-item>
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+                            </div>
+                        </c-x-expandable-section>
+                    </div>
+                </template>
+                <template if:false={viewMode}>
+                    <template if:true={isMobile}>
+                        <footer class="slds-card__footer">
+                            <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                                onclick={handleCancel} class="slds-float_left slds-p-right_small svmx-asset-attribute-canel_btn">
+                            </lightning-button>
+                            <lightning-button label={i18n.reset} title={i18n.reset} variant="neutral"
+                                onclick={handleReset} class="slds-float_left slds-p-right_small svmx-asset-attribute-reset_btn">
+                            </lightning-button>
+                            <lightning-button class="slds-float_left slds-p-right_small svmx-asset-attribute-savechanges_btn" label={i18n.saveupdatesonly}
+                                title={i18n.saveupdatesonlyInfo} variant="brand" onclick={handleSaveChanges}>
+                            </lightning-button>
+                            <lightning-button class="slds-float_left svmx-asset-attribute-save_btn" label={i18n.save}
+                                title={i18n.saveInfo} variant="brand" onclick={handleSave}>
+                            </lightning-button>
+                        </footer>
+                    </template>
+                </template>
+            </template>
+        </div>
+        <template if:false={viewMode}>
+            <template if:false={isMobile}>
+                <c-svmx-form-footer is-sticky alignment={footerBtnAlign}>
+                    <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral"
+                        onclick={handleCancel} class="slds-p-right_small svmx-asset-attribute-canel_btn">
+                    </lightning-button>
+                    <lightning-button label={i18n.reset} title={i18n.reset} variant="neutral"
+                        onclick={handleReset} class="slds-p-right_small svmx-asset-attribute-reset_btn">
+                    </lightning-button>
+                    <lightning-button class="slds-p-right_small svmx-asset-attribute-savechanges_btn" label={i18n.saveupdatesonly}
+                        title={i18n.saveupdatesonlyInfo} variant="brand" onclick={handleSaveChanges}>
+                    </lightning-button>
+                    <lightning-button class="svmx-asset-attribute-save_btn" label={i18n.save}
+                        title={i18n.saveInfo} variant="brand" onclick={handleSave}>
+                    </lightning-button>
+                </c-svmx-form-footer>
+            </template>
+        </template>
+        <section if:true={showTooltip} class={sectionInfo.popoverClass} role="dialog" data-id="svmx-threshold-popover-section" style={sectionInfo.thresholdPOStyle} onmouseenter={handleTooltipMouseEnter} onmouseleave={handleTooltipMouseLeave}>
+            <lightning-button-icon icon-name="utility:close" size="small" alternative-text="close"
+                variant="bare" class="slds-float_right slds-popover__close" onclick={handleClose}>
+            </lightning-button-icon>
+            <div class="slds-popover__body">
+                <div class="slds-media">
+                    <div class="slds-media__body slds-media__body slds-scrollable" style={sectionInfo.bodyStyle}>
+                        <lightning-layout multiple-rows="true">
+                            <lightning-layout-item size="12">
+                                <span class="slds-page-header__title slds-form-element__label slds-text-heading_small">
+                                    {i18n.template}
+                                </span>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12">
+                                <div class="slds-p-top_xx-small">
+                                    {sectionInfo.templateName}
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12">
+                                <span class="slds-page-header__title slds-form-element__label slds-text-heading_small">
+                                    {i18n.sectionDescription}
+                                </span>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12">
+                                <div class="slds-p-top_xx-small">
+                                    {sectionInfo.description}
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </lightning-card>
+</template>

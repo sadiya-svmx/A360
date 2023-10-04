@@ -1,0 +1,219 @@
+.mpln-create-workrule {
+    position: absolute;
+    top: 0px;
+    left: 92%;
+}
+.container {
+    position: relative;
+}
+.remove_padding {
+    padding: 0px;
+}
+.mpln-quick-find {
+    position: absolute;
+    top: 0px;
+    left: 72%;
+}
+.serverCallProgress {
+    top: 0%;
+    width: auto;
+}
+
+.applicableProductContainer {
+    margin-top: 70px;
+}
+.comboboxContainer {
+    width:132px;
+    margin-left:30px;
+    display: inline-block;
+    height: 70px
+}
+.setpos {
+    width: 96px;
+    margin-left: 24px;
+}
+
+.inlineContainer {
+    width:120px;
+    display: inline-block; 
+}
+.workRuleTitle{
+    width:300px;
+    margin-top: 10px;
+    margin-left: 5px;
+    height: 70px; 
+}
+.worktype{
+    width: 307px;
+    margin-top: 10px; 
+}
+.sortOrder{
+    width: 300px;
+    position:absolute;
+    top: 126px;
+    left: 58%;
+    height: 70px;
+}
+
+.recordsetFilterCriteria{
+    width: 307px;
+    margin-top: 10px; 
+}
+
+.workRuleType{
+    width: 300px;
+    position: absolute;
+    left: 58%;
+    top: 20%;
+}
+
+.applicableProduct{
+    width: 300px;
+    margin-left: 5px;
+    margin-top: 20px;
+}
+
+.parentContainer {
+    position: relative;
+    padding-left: 17px;
+    margin-bottom: 20px;
+}
+.endScheduleContainer {
+    position: absolute;
+    top: 47px;
+    left: 450px;
+}
+
+.monthCombobox {
+    position: relative;
+    left: 302px;
+}
+
+.weekdayContainer {
+    margin-top: 20px;
+}
+
+.topContainer {
+    width: 780px;
+}
+
+/*
+========
+*/
+
+.frequency {
+    width: 140px;
+}
+
+.interval {
+    width:132px;
+}
+
+.endSched_date {
+    width: 136px;
+    position: absolute;
+    height: 100px;
+    top: -27px;
+}
+
+.endSched_occurence {
+    margin-left: 18px;
+    width: 88px;
+    position: absolute;
+}
+
+.occLabel {
+    position: absolute;
+    left: 109%;
+    top: 0px;
+}
+
+.yearContainer {
+    margin-top: 24px;
+}
+
+.yearSecondRow {
+    margin-top: 24px;
+    position: relative;
+}
+
+.yearCombobx {
+    width: 96px;
+}
+
+.yearMonthCbx {
+    position: absolute;
+    top: 48px;
+    left: 43%;
+}
+.yearMarginCbxFix {
+    margin-left: 8px;
+}
+
+.yearSetPos {
+    margin-left: 18px;
+}
+
+.yearMonthFirstCbx {
+    margin-left: 42px;
+}
+
+.button-icon {
+    margin-left: 5px;
+    height: 34px;
+    outline: none;
+}
+
+.sectionTitle {
+    padding-left:10px;
+}
+
+.svmx-section-title-disabled {
+    color: #9d9c9a;
+}
+
+.workRuleInterval {
+    margin-top: 10px;
+    margin-left: 5px;
+    width: 138px;
+    height: 77px;
+}
+
+.weekDayLabel {
+    padding:13px;
+}
+
+.yearMonthCbxLbl {
+    position: absolute;
+    top: 75px;
+    left: 24%;
+    font-size: 12px;
+}
+
+.monthDay{
+    margin-left: 24px;
+}
+
+.dateSpan {
+    position: relative;
+}
+
+.freqContainer {
+    position: absolute;
+    top: 15px;
+}
+
+.cntnOccurences {
+    margin-bottom: 33px;
+    position: relative;
+    height: 70px;
+}
+
+.qryOccurences {
+    position: absolute;
+    top: -25px;
+}
+
+.nvrCntnr {
+    height: 48px;
+}

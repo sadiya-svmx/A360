@@ -1,0 +1,301 @@
+<template>
+	<section class="svmx-recordPopover_tooltip slds-popover slds-popover_panel slds-transition-hide slds-is-fixed"
+		role="dialog" onmouseenter={handleTooltipMouseEnter} onmouseleave={handleTooltipMouseLeave}>
+		<lightning-button-icon icon-name="utility:close" size="small" alternative-text={i18n.closeAltText}
+		variant="bare" class="slds-float_right slds-popover__close" onclick={handleCloseTooltip}>
+		</lightning-button-icon>
+		<template if:true={actions}>
+			<c-primitive-cell-actions data-navigation="enable"
+													data-action-triggers="enter,space"
+													row-key-value={recordId}
+													col-key-value="1-action-1"
+													tabindex="-1"
+													menu-alignment="left"
+													row-actions={actions}
+													class="slds-float_right slds-popover__close svmx-recordPopover_record-action">
+        </c-primitive-cell-actions>
+		</template>
+		<div class="slds-popover__header svmx-recordPopover_tooltip-header">
+			<header class="slds-media slds-media_center slds-m-bottom_small">
+				<span class="slds-icon_container slds-media__figure">
+					<template if:true={fullDisplayName}>
+						<lightning-icon icon-name={recordIconName}
+							alternative-text={fullDisplayName} size="small">
+						</lightning-icon>
+					</template>
+				</span>
+				<div class="slds-media__body">
+					<h2 class="slds-text-heading_medium slds-hyphenate">
+						<template if:true={fullDisplayName}>
+							<a href={computedRecordUrl}>{fullDisplayName}</a>
+						</template>
+					</h2>
+				</div>
+			</header>
+			<template if:true={isMouseOver}>
+				<template if:true={showRecordPreview}>
+					<div class="svmx-recordPopover_record-preview-container">
+						<lightning-record-form record-id={recordId} object-api-name={objectApiName}
+							layout-type="Compact" columns={numberOfCols} mode="readonly"
+							class="svmx-recordPopover_record-preview"
+							onerror={handleRecordFormError} onload={handleRecordFormLoad}>
+						</lightning-record-form>
+					</div>
+				</template>
+				<div if:true={showEventPreview} class="svmx-recordPopover_event-preview">
+					<form novalidate>
+						<div class="slds-form" role="list">
+							<div class="slds-is-relative">
+								<div class="slds-grid slds-gutters_small">
+									<div class="slds-col slds-has-flexi-truncate"
+										role="listitem">
+										<div
+											class="slds-form-element slds-form-element_stacked slds-form-element_readonly">
+											<span
+												class="slds-form-element__label">{i18n.subject}</span>
+											<div
+												class="slds-form-element__control">
+												<div
+													class="slds-form-element__static">
+													<template
+														if:true={objRecord.Subject}>
+														<lightning-formatted-text
+															value={objRecord.Subject}>
+														</lightning-formatted-text>
+													</template>
+													<template
+														if:false={objRecord.Subject}>
+														<lightning-formatted-text
+															value={i18n.noSubject}>
+														</lightning-formatted-text>
+													</template>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="slds-col slds-has-flexi-truncate"
+										role="listitem">
+										<div
+											class="slds-form-element slds-form-element_stacked slds-form-element_readonly">
+											<span
+												class="slds-form-element__label">{i18n.location}</span>
+											<div
+												class="slds-form-element__control">
+												<div
+													class="slds-form-element__static">
+													<lightning-formatted-text
+														value={objRecord.Location}>
+													</lightning-formatted-text>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="slds-grid slds-gutters_small">
+									<div class="slds-col slds-has-flexi-truncate"
+										role="listitem">
+										<div
+											class="slds-form-element slds-form-element_stacked slds-form-element_readonly">
+											<span
+												class="slds-form-element__label">{i18n.start}</span>
+											<div
+												class="slds-form-element__control">
+												<div
+													class="slds-form-element__static">
+													<lightning-formatted-date-time
+														value={objRecord.StartDateTime}
+														time-zone={i18n.timeZone}>
+													</lightning-formatted-date-time>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="slds-col slds-has-flexi-truncate"
+										role="listitem">
+										<div
+											class="slds-form-element slds-form-element_stacked slds-form-element_readonly">
+											<span
+												class="slds-form-element__label">{i18n.end}</span>
+											<div
+												class="slds-form-element__control">
+												<div
+													class="slds-form-element__static">
+													<lightning-formatted-date-time
+														value={objRecord.EndDateTime}
+														time-zone={i18n.timeZone}>
+													</lightning-formatted-date-time>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="slds-grid slds-gutters_small">
+									<div class="slds-col slds-has-flexi-truncate"
+										role="listitem">
+										<div
+											class="slds-form-element slds-form-element_stacked slds-form-element_readonly">
+											<span
+												class="slds-form-element__label">{i18n.assignedTo}</span>
+											<div
+												class="slds-form-element__control">
+												<div
+													class="slds-form-element__static">
+													<template
+														if:true={objRecord.OwnerId}>
+														<button type="button"
+															class="slds-button svmx-recordPopover_event-preview-assignedto-button"
+															data-record-id={objRecord.OwnerId}
+															onclick={handleRecordNavigation}>{objRecord.Owner.Name}</button>
+													</template>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="slds-col slds-has-flexi-truncate"
+										role="listitem">
+										<div
+											class="slds-form-element slds-form-element_stacked slds-form-element_readonly">
+											<span
+												class="slds-form-element__label">{i18n.relatedTo}</span>
+											<div
+												class="slds-form-element__control">
+												<div
+													class="slds-form-element__static">
+													<template
+														if:true={objRecord.WhatId}>
+														<button type="button"
+															class="slds-button svmx-recordPopover_event-preview-assignedto-button"
+															data-record-id={objRecord.WhatId}
+															onclick={handleRecordNavigation}>{objRecord.What.Name}</button>
+													</template>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div if:true={showTaskPreview} class="svmx-recordPopover_task-preview">
+					<form novalidate>
+						<div class="slds-form" role="list">
+							<div class="slds-is-relative">
+								<div class="slds-grid slds-gutters_small">
+									<div class="slds-col slds-has-flexi-truncate"
+										role="listitem">
+										<div
+											class="slds-form-element slds-form-element_stacked slds-form-element_readonly">
+											<span
+												class="slds-form-element__label">{i18n.subject}</span>
+											<div
+												class="slds-form-element__control">
+												<div
+													class="slds-form-element__static">
+													<template
+														if:true={objRecord.Subject}>
+														<lightning-formatted-text
+															value={objRecord.Subject}>
+														</lightning-formatted-text>
+													</template>
+													<template
+														if:false={objRecord.Subject}>
+														<lightning-formatted-text
+															value={i18n.noSubject}>
+														</lightning-formatted-text>
+													</template>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="slds-col slds-has-flexi-truncate"
+										role="listitem">
+										<div
+											class="slds-form-element slds-form-element_stacked slds-form-element_readonly">
+											<span
+												class="slds-form-element__label">{i18n.dueDate}</span>
+											<div
+												class="slds-form-element__control">
+												<div
+													class="slds-form-element__static">
+													<lightning-formatted-date-time
+														value={objRecord.ActivityDate}
+														time-zone={i18n.timeZone}>
+													</lightning-formatted-date-time>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="slds-grid slds-gutters_small">
+									<div class="slds-col slds-has-flexi-truncate"
+										role="listitem">
+										<div
+											class="slds-form-element slds-form-element_stacked slds-form-element_readonly">
+											<span
+												class="slds-form-element__label">{i18n.name}</span>
+											<div
+												class="slds-form-element__control">
+												<div
+													class="slds-form-element__static">
+													<template
+														if:true={objRecord.WhoId}>
+														<button type="button"
+															class="slds-button svmx-recordPopover_task-preview-name-button"
+															data-record-id={objRecord.WhoId}
+															onclick={handleRecordNavigation}>{objRecord.Who.Name}</button>
+													</template>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="slds-col slds-has-flexi-truncate"
+										role="listitem">
+										<div
+											class="slds-form-element slds-form-element_stacked slds-form-element_readonly">
+											<span
+												class="slds-form-element__label">{i18n.relatedTo}</span>
+											<div
+												class="slds-form-element__control">
+												<div
+													class="slds-form-element__static">
+													<template
+														if:true={objRecord.WhatId}>
+														<button type="button"
+															class="slds-button svmx-recordPopover_task-preview-relatedto-button"
+															data-record-id={objRecord.WhatId}
+															onclick={handleRecordNavigation}>{objRecord.What.Name}</button>
+													</template>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="slds-grid slds-gutters_small">
+									<div class="slds-col slds-has-flexi-truncate"
+										role="listitem">
+										<div
+											class="slds-form-element slds-form-element_stacked slds-form-element_readonly">
+											<span
+												class="slds-form-element__label">{i18n.priority}</span>
+											<div
+												class="slds-form-element__control">
+												<div
+													class="slds-form-element__static">
+													<lightning-formatted-text
+														value={objRecord.Priority}>
+													</lightning-formatted-text>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</template>
+		</div>
+	</section>
+
+</template>

@@ -1,0 +1,323 @@
+<template>
+    <c-admin-layout>
+        <div class="container">
+            <div class="slds-card">
+                <c-svmx-page-header 
+                    title={title}
+                    icon-name={srcIconName}  
+                    sub-title={i18n.pageHeader} 
+                    icon-title={title}
+                    icon-size={iconSize}
+                >
+                    <div class="slds-page-header__control" slot="actions">
+                        <lightning-button-group>
+                            <lightning-button
+                                class="addWizard"
+                                label={i18n.addWizard}
+                                title={i18n.addWizard}
+                                onclick={handleAddWizard}
+                            ></lightning-button>
+                            <lightning-button
+                                class="svmx-reorder"
+                                label={i18n.reorderWizards}
+                                title={i18n.reorderWizards}
+                                onclick={handleReorderWizards}
+                                disabled={reorderButtonDisabled}
+                            ></lightning-button>
+                        </lightning-button-group>
+                        <lightning-button
+                            label={i18n.cancel}
+                            title={i18n.cancel}
+                            onclick={handleCancelEdit}
+                            class="slds-var-m-horizontal_xx-small svmx-cancel-edit"
+                        ></lightning-button>
+                        <lightning-button
+                            variant={saveButtonVariant}
+                            label={i18n.save}
+                            title={i18n.save}
+                            onclick={handleSave}
+                            class="slds-var-m-right_xx-small svmx-save"
+                            disabled={saveButtonDisabled}
+                        ></lightning-button>
+                        <lightning-button-icon
+                            icon-name="utility:help"
+                            variant="container"
+                            alternative-text={i18n.help}
+                            title={i18n.help}
+                            onclick={handleHelpClick}
+                            class="svmx-help-link-button"
+                        ></lightning-button-icon>
+                    </div>       
+                </c-svmx-page-header>
+            </div>
+            <div class="scrollable">
+                <div class="slds-card__body slds-card__body_inner">
+                    <template if:true={error}>
+                        <c-alert variant="error">{error}</c-alert>
+                    </template>
+                    <div class="slds-clearfix">
+                        <div class="slds-float_left slds-var-p-around_xxx-small">
+                            <span style="visibility:hidden">{renderTemplateFlag}</span>
+                        </div>
+                        <div class="slds-float_right slds-var-p-bottom_small">
+                            <lightning-input
+                                type="search"
+                                autocomplete="off"
+                                placeholder={i18n.filterPlaceholder}
+                                variant="label-hidden"
+                                class="slds-size_large search-input"
+                                onchange={handleSearchKeyChange}
+                                value={searchString}
+                            ></lightning-input>
+                        </div>
+                    </div>
+                    <lightning-tabset
+                        variant="scoped"
+                        active-tab-value={activeTab}
+                    >
+                        <lightning-tab
+                            class="svmx-active-tab"
+                            label={i18n.active}
+                            value={tabTypes.ACTIVE}
+                            onactive={handleTabActive}
+                        >
+                            <template if:true={noActiveResults}>
+                                <div class="slds-box slds-var-p-around_medium no-wizard-items">
+                                    <lightning-formatted-text
+                                        value={i18n.noWizards}
+                                    ></lightning-formatted-text>
+                                </div>
+                            </template> 
+                            <template if:true={activeWizards}>
+                                <template
+                                    for:each={activeWizards}
+                                    for:item="activeWizard"
+                                >
+                                    <template if:true={activeWizard.isVisible}>
+                                        <c-wizard
+                                            key={activeWizard.referenceId}
+                                            data-reference={activeWizard.referenceId}
+                                            wizard={activeWizard}
+                                            onwizardreorder={handleReorderSteps}
+                                            onwizardproperties={handleWizardProperties}
+                                            oninactivatewizard={handleInactivateWizard}
+                                            onclonewizard={handleCloneWizard}
+                                            ondeletewizard={handleDeleteWizard}
+                                            onaddstep={handleAddStep}
+                                            onsteppropertiesselected={handleStepProperties}
+                                            onstepremoved={handleStepRemoved}
+                                            expanded-sections={expandedSections}
+                                            search-key={searchString}
+                                        ></c-wizard>
+                                     </template>
+                                </template>
+                            </template>
+                        </lightning-tab>
+                        <lightning-tab
+                            class="svmx-inactive-tab"
+                            label={i18n.inactive}
+                            value={tabTypes.INACTIVE}
+                            onactive={handleTabActive}
+                        >
+                            <template if:true={noInactiveResults}>
+                                <div class="slds-box slds-var-p-around_medium no-wizard-items">
+                                    <lightning-formatted-text
+                                        value={i18n.noInactiveWizards}
+                                    ></lightning-formatted-text>
+                                </div>
+                            </template>
+                            <template if:true={inactiveWizards}>
+                                <template
+                                    for:each={inactiveWizards}
+                                    for:item="inactivewizard"
+                                >
+                                    <template if:true={inactivewizard.isVisible}>
+                                        <c-wizard
+                                            key={inactivewizard.referenceId}
+                                            data-reference={inactivewizard.referenceId}
+                                            wizard={inactivewizard}
+                                            onwizardreorder={handleReorderSteps}
+                                            onwizardproperties={handleWizardProperties}
+                                            onactivatewizard={handleActivateWizard}
+                                            onclonewizard={handleCloneWizard}
+                                            ondeletewizard={handleDeleteWizard}
+                                            onaddstep={handleAddStep}
+                                            onsteppropertiesselected={handleStepProperties}
+                                            onstepremoved={handleStepRemoved}
+                                            expanded-sections={expandedSections}
+                                            search-key={searchString}
+                                        ></c-wizard>
+                                    </template>
+                                </template>
+                            </template>
+                        </lightning-tab>
+                    </lightning-tabset>
+                </div>
+                <template if:true={apiInProgress}>
+                    <lightning-spinner
+                        variant="brand"
+                        alternative-text={i18n.savingWizard}
+                    ></lightning-spinner>
+                </template>
+            </div>
+        </div>
+        <c-wizard-config-dialog
+            class="wizardConfig"
+            modal-open={newWizardConfigOpen}
+            object-api-name={_objectApiName}
+            wizards={data}
+            onwizardconfigchanged={handleNewWizardConfigChanged}
+            onwizardconfigclosed={handleNewWizardConfigClosed}
+        ></c-wizard-config-dialog>
+        <c-wizard-config-dialog
+            class="existingWizardConfig"
+            modal-open={existingWizardConfigOpen}
+            object-api-name={_objectApiName}
+            wizards={data}
+            onwizardconfigchanged={handleWizardConfigChanged}
+            onwizardconfigclosed={handleWizardConfigClosed}
+        ></c-wizard-config-dialog>
+        <c-wizard-step-config-dialog
+            class="stepConfig"
+            modal-open={newStepConfigOpen}
+            object-api-name={_objectApiName}
+            entity-definition={entityDefinition}
+            onstepconfigchanged={handleNewStepConfigChanged}
+            onstepconfigclosed={handleNewStepConfigClosed}
+        ></c-wizard-step-config-dialog>
+        <c-wizard-step-config-dialog
+            class="existingStepConfig"
+            modal-open={existingStepConfigOpen}
+            object-api-name={_objectApiName}
+            entity-definition={entityDefinition}
+            onstepconfigchanged={handleStepConfigChanged}
+            onstepconfigclosed={handleStepConfigClosed}
+        ></c-wizard-step-config-dialog>
+        <c-reorder-dialog
+            class="reorderWizardsDialog"
+            dialog-title={i18n.wizardOrderDialogTitle}
+            modal-open={reorderWizardOpen}
+            options={wizardOrderOptions}
+            onchange={handleWizardOrderChange}
+            onreordermodalclosed={handleWizardOrderClosed}
+        >
+        </c-reorder-dialog>
+        <c-reorder-dialog
+            class="reorderStepsDialog"
+            dialog-title={i18n.stepOrderDialogTitle}
+            modal-open={reorderStepsOpen}
+            options={wizardStepOptions}
+            onchange={handleStepOrderChange}
+            onreordermodalclosed={handleStepOrderClosed}
+        >
+        </c-reorder-dialog>
+        <c-modal-dialog
+            title={i18n.deleteWizardTitle}
+            class="deleteWizardModal"
+            is-open={deleteWizardDialogOpen}
+            modal-content-id="deleteWizardModalContent"
+            modal-header-id="deleteWizardModalHeader"
+            onmodalclosed={handleDeleteWizardCancel}
+        >
+            <div slot="body">
+                <p>
+                    <lightning-formatted-text
+                        value={i18n.deleteWizardPrompt}
+                    ></lightning-formatted-text>
+                </p>
+                <p class="slds-var-m-top_small">
+                    <lightning-formatted-text
+                        value={i18n.deleteWizardWarning}
+                    ></lightning-formatted-text>
+                </p>
+            </div>
+            <div slot="footer">
+                <lightning-button
+                    label={i18n.cancel}
+                    title={i18n.cancel}
+                    variant="neutral"
+                    onclick={handleDeleteWizardCancel}
+                    class="slds-var-p-right_x-small svmx-cancel-delete-wizard"
+                ></lightning-button>
+                <lightning-button
+                    class="deleteWizardButton svmx-delete-wizard"
+                    label={i18n.delete}
+                    title={i18n.delete}
+                    variant="brand"
+                    onclick={handleDeleteWizardConfirm}
+                ></lightning-button>
+            </div>
+        </c-modal-dialog>
+        <c-modal-dialog
+            title={i18n.deleteStepTitle}
+            class="deleteStepModal"
+            is-open={deleteStepDialogOpen}
+            modal-content-id="deleteStepModalContent"
+            modal-header-id="deleteStepModalHeader"
+            onmodalclosed={handleDeleteStepCancel}
+        >
+            <div slot="body">
+                <p>
+                    <lightning-formatted-text
+                        value={i18n.deleteStepPrompt}
+                    ></lightning-formatted-text>
+                </p>
+                <template if:true={childStepsExists}>
+                    <br/>
+                    <p>
+                        <lightning-formatted-text
+                            value={i18n.wizardStepRemovalAlert}
+                        ></lightning-formatted-text>
+                    </p>
+                    <ul>
+                        <template iterator:it={childSteps}>
+                            <li key={it.value.id}> - {it.value.name}</li>
+                        </template>
+                    </ul>
+                </template>
+            </div>
+            <div slot="footer">
+                <lightning-button
+                    label={i18n.cancel}
+                    title={i18n.cancel}
+                    variant="neutral"
+                    onclick={handleDeleteStepCancel}
+                    class="slds-var-p-right_x-small svmx-cancel-delete-step"
+                ></lightning-button>
+                <lightning-button
+                    class="deleteStepButton svmx-delete-step"
+                    label={i18n.remove}
+                    title={i18n.remove}
+                    variant="brand"
+                    onclick={handleDeleteStepConfirm}
+                ></lightning-button>
+            </div>
+        </c-modal-dialog>
+        <c-modal-dialog
+            title={i18n.labelReorderWarning}
+            class="reorderWarningStepModal"
+            is-open={reorderWarningStepDialogOpen}
+            modal-content-id="reorderStepWarningContent"
+            modal-header-id="reorderStepWarningModalHeader"
+            onmodalclosed={handleReorderWarningClose}
+        >
+            <div slot="body">
+                <p><lightning-formatted-text
+                        value={i18n.labelReorderWarningPromptLine1}
+                    ></lightning-formatted-text></p><br/>
+                <p><lightning-formatted-text
+                        value={i18n.labelReorderWarningPromptLine2}
+                    ></lightning-formatted-text></p>
+            </div>
+            <div slot="footer">
+                <lightning-button
+                    class="svmx-modal_button-confirm"
+                    label={i18n.labelOK}
+                    onclick={handleReorderWarningClose}
+                    title={i18n.labelOK}
+                    variant="brand"
+                ></lightning-button>
+            </div>
+        </c-modal-dialog>
+    </c-admin-layout>
+</template>

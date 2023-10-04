@@ -1,0 +1,56 @@
+<template>
+    <c-modal-dialog size="LARGE_FIXED" title={i18n.modalTitle} class="svmx-icon-picker" is-open={isOpen} modal-content-id="iconPickerContent" modal-header-id="iconPickerHeader" onmodalclosed={handleCancelModal}>
+        <div slot="body">
+            <article class="slds-card modal-cardbody">
+                <div class="slds-card__body slds-card__body_inner">
+                    <div class="slds-page-header cardBackground">
+                        <div class="slds-page-header__row">
+                            <div class="slds-page-header__col-meta">
+                                    <lightning-input
+                                        label={searchPlaceholder}
+                                        type="search"
+                                        autocomplete="off"
+                                        placeholder={searchPlaceholder}
+                                        variant="label-hidden"
+                                        class="search-input"
+                                        onchange={handleSearchKeyChange}
+                                    ></lightning-input> 
+                            </div>
+                        </div>
+                    </div>
+                    <fieldset class="slds-form-element slds-p-top_small">
+                        <div class="slds-form-element__control slds-scrollable_y svmx-container">
+                            <lightning-layout horizontal-align="start" multiple-rows>
+                                <template for:each={filteredData} for:item="icon">
+                                    <lightning-layout-item key={icon.fullName}>
+                                        <div class="slds-visual-picker svmx-visual-picker_x-small slds-var-m-around_small" title={icon.name}>
+                                            <input type="radio" id={icon.fullName} value={icon.fullName} name="options" onchange={handleIconSelected} ></input>
+                                            <label for={icon.fullName}>
+                                                <span class="slds-visual-picker__figure slds-visual-picker__text slds-align_absolute-center">
+                                                    <lightning-icon icon-name={icon.fullName} alternative-text={icon.name}></lightning-icon>
+                                                </span>
+                                                <span
+                                                    class="slds-visual-picker__body svmx-text-overflow-ellipsis slds-p-horizontal_none">
+                                                  <span class="slds-text-title svmx-text-hyphenation">{icon.name}</span>
+                                                </span>
+                                                <span class="slds-icon_container slds-visual-picker__text-check">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" class="slds-icon slds-icon-text-check slds-icon_x-small" aria-hidden="true">
+                                                        <path d="M19.1 42.5L2.6 25.9c-.6-.6-.6-1.6 0-2.2l2.2-2.2c.6-.6 1.6-.6 2.2 0L19.4 34c.4.4 1.1.4 1.5 0L45.2 9.5c.6-.6 1.6-.6 2.2 0l2.2 2.2c.6.6.6 1.6 0 2.2L21.3 42.5c-.6.7-1.6.7-2.2 0z"></path>
+                                                    </svg>
+                                                </span>
+                                              </label>
+                                        </div>
+                                    </lightning-layout-item>
+                                </template>
+                            </lightning-layout>
+                        </div>
+                    </fieldset>
+                </div>
+            </article>
+        </div>
+        <div slot="footer">
+            <lightning-button label={i18n.cancel} title={i18n.cancel} variant="neutral" onclick={handleCancelModal} class="slds-p-right_x-small svmx-icon-picker_cancel-button"></lightning-button>
+            <lightning-button label={i18n.apply} title={i18n.apply} variant="brand" onclick={handleApply} disabled={isApplyDisabled} class="svmx-icon-picker_apply-button"></lightning-button>
+        </div>
+    </c-modal-dialog>
+</template>
